@@ -960,8 +960,8 @@ function renderDocs(){
   const el=document.getElementById('docsGrid');if(!el)return;
   el.innerHTML=DOCS.map((d,i)=>`<div class="file doc"><a class="th" href="docs/${d.f}" target="_blank" rel="noopener" data-i="${i}"><img src="docs/${d.f.replace(/\.pdf$/,'')}-thumb.jpg" alt="${P3(d.n)}" loading="lazy">${d.ok?`<span class="seal">${SEAL_ICON}${P3(['Aprovado','Approved','Aprobado'])}</span>`:''}</a><div class="b"><span class="n">${P3(d.n)}</span><span class="dsub">${P3(d.s)}</span><div class="dacts"><button class="btn small" type="button" data-act="view" data-i="${i}">${P3(['Ver','View','Ver'])}</button><button class="btn small" type="button" data-act="dl" data-i="${i}">${P3(['Baixar','Download','Descargar'])}</button><a class="btn wa" href="https://wa.me/?text=${encodeURIComponent(P3(['Conecta Towers · ','Conecta Towers · ','Conecta Towers · '])+P3(d.n)+'\n'+docUrl(d))}" target="_blank" rel="noopener" title="WhatsApp">${WA_ICON}</a></div></div></div>`).join('');
   el.querySelectorAll('a.th').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openDoc(DOCS[+a.dataset.i])}));
-  el.querySelectorAll('[data-act=view]').forEach(b=>b.onclick=()=>openDoc(DOCS[+b.dataset.i]));
-  el.querySelectorAll('[data-act=dl]').forEach(b=>b.onclick=async()=>{const d=DOCS[+b.dataset.i];const t=b.textContent;b.disabled=true;b.textContent='…';try{const r=await fetch('docs/'+d.f);if(!r.ok)throw new Error('http');const blob=await r.blob();await deliverFile(blob,'conecta-'+d.f,'pdf')}catch(e){toast(P3(['Não foi possível baixar','Could not download','No se pudo descargar']))}finally{b.disabled=false;b.textContent=t}});
+  el.querySelectorAll('[data-act=view]').forEach(b=>b.onclick=()=>{track('doc_ver',{detalhe:DOCS[+b.dataset.i].f});openDoc(DOCS[+b.dataset.i])});
+  el.querySelectorAll('[data-act=dl]').forEach(b=>b.onclick=async()=>{const d=DOCS[+b.dataset.i];track('doc_baixar',{detalhe:d.f});const t=b.textContent;b.disabled=true;b.textContent='…';try{const r=await fetch('docs/'+d.f);if(!r.ok)throw new Error('http');const blob=await r.blob();await deliverFile(blob,'conecta-'+d.f,'pdf')}catch(e){toast(P3(['Não foi possível baixar','Could not download','No se pudo descargar']))}finally{b.disabled=false;b.textContent=t}});
 }
 async function openDoc(d){
   let m=document.getElementById('docView');if(m)m.remove();
@@ -1070,7 +1070,7 @@ function slug(s){return String(s||'imagem').normalize('NFD').replace(/[\u0300-\u
 // ---------- baixar tudo (galeria) ----------
 let JSZIP=null;
 function loadJSZip(){return JSZIP?Promise.resolve(JSZIP):new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';sc.onload=()=>{JSZIP=window.JSZip;JSZIP?res(JSZIP):rej(new Error('nojszip'))};sc.onerror=()=>rej(new Error('nojszip'));document.head.appendChild(sc)})}
-async function baixarTudo(btn){
+async function baixarTudo(btn){track('galeria_zip');
   const old=btn.textContent;btn.disabled=true;
   try{const Z=await loadJSZip();const zip=new Z();const folder=zip.folder('conecta-towers');let n=0;
     for(const g of GALERIA){btn.textContent=`${++n}/${GALERIA.length}…`;try{const r=await fetch(g.src);if(!r.ok)continue;const b=await r.blob();folder.file(String(n).padStart(2,'0')+'-'+slug(g.nome)+'.jpg',b)}catch(e){}}
@@ -1239,7 +1239,7 @@ function openDeliver(blob,fn,kind){
     <div class="fxnote" style="margin:8px 0 10px">${(!DL&&window.self!==window.top)?P3(['<b>Atenção:</b> neste visualizador o download de arquivos é liberado só para membros da organização da Maxces. Para o cliente, use <b>Enviar proposta pelo WhatsApp</b> (texto completo) ou salve as páginas abaixo como imagem (segure a imagem no celular; botão direito no computador).','<b>Note:</b> in this viewer file downloads are only enabled for members of the Maxces organization. For the client, use <b>Send proposal on WhatsApp</b> (full text) or save the pages below as images (long-press on phone; right-click on computer).','<b>Atención:</b> en este visor la descarga de archivos solo está habilitada para miembros de la organización de Maxces. Para el cliente, use <b>Enviar propuesta por WhatsApp</b> o guarde las páginas como imagen.'])+'<br>':''}${P3(['<b>Celular:</b> toque em "Baixar" (o PDF abre ou vai para Downloads) ou em "Compartilhar" para mandar direto no WhatsApp. <b>Computador:</b> "Baixar" salva na pasta Downloads. Se nada acontecer, segure (celular) ou clique com o botão direito (computador) na prévia abaixo e escolha "Salvar imagem".','<b>Phone:</b> tap "Download" (the PDF opens or goes to Downloads) or "Share" to send it on WhatsApp. <b>Computer:</b> "Download" saves to your Downloads folder. If nothing happens, long-press (phone) or right-click (computer) the preview below and choose "Save image".','<b>Celular:</b> toque "Descargar" (el PDF se abre o va a Descargas) o "Compartir" para enviarlo por WhatsApp. <b>Computadora:</b> "Descargar" guarda en Descargas. Si no pasa nada, mantenga presionada (celular) o clic derecho (computadora) en la vista previa y elija "Guardar imagen".'])}<div style="opacity:.55;margin-top:4px">${P3(['Diagnóstico','Diagnostics','Diagnóstico'])}: frame:${window.self!==window.top?'sim':'não'} · dl:${DL?'sim':'não'} · ${/Android|iPhone|iPad/i.test(navigator.userAgent)?'mobile':'desktop'}</div></div>
     <div class="dlprev" id="dlPrev"><div class="fxnote">${P3(['Gerando prévia…','Rendering preview…','Generando vista previa…'])}</div></div></div>`;
   document.body.appendChild(m);
-  const close=()=>{m.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)};m.querySelector('#dlClose').onclick=close;m.addEventListener('click',e=>{if(e.target===m)close()});
+  const close=()=>{m.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)};const wt=m.querySelector('#dlWaTxt');if(wt)wt.addEventListener('click',()=>track('whatsapp_proposta',LAST_PROP?trackUnit(LAST_PROP.u):{}));m.querySelector('#dlClose').onclick=close;m.addEventListener('click',e=>{if(e.target===m)close()});
   const sh=m.querySelector('#dlShare');if(sh)sh.onclick=async()=>{try{await navigator.share({files:[file],title:fn})}catch(e){if(e&&e.name!=='AbortError')toast(P3(['Não foi possível compartilhar','Could not share','No se pudo compartir']))}};
   const prev=m.querySelector('#dlPrev');
   (async()=>{try{
@@ -1329,6 +1329,27 @@ const PK='conecta-perfil-v1';
 let PERFIL={nome:'',imob:'',creci:'',wa:'',lang:'pt'};
 try{Object.assign(PERFIL,JSON.parse(localStorage.getItem(PK)||'{}'))}catch(e){}
 function savePerfil(){try{localStorage.setItem(PK,JSON.stringify(PERFIL))}catch(e){}}
+// ---------- Registro de corretores e atividade (planilha da Maxces via Apps Script) ----------
+const TRACK={url:'',key:'conecta-2026-maxces'}; /*TRACK*/
+const DEVK='conecta-dev-v1';let DEV_ID='';try{DEV_ID=localStorage.getItem(DEVK)||'';if(!DEV_ID){DEV_ID=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2));localStorage.setItem(DEVK,DEV_ID)}}catch(e){}
+const TQK='conecta-track-queue';
+function trackQueue(){try{return JSON.parse(localStorage.getItem(TQK)||'[]')}catch(e){return []}}
+function trackSend(p){
+  if(!TRACK.url)return false;
+  const body=JSON.stringify(p);
+  try{if(navigator.sendBeacon&&navigator.sendBeacon(TRACK.url,new Blob([body],{type:'text/plain;charset=utf-8'})))return true}catch(e){}
+  try{fetch(TRACK.url,{method:'POST',mode:'no-cors',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body});return true}catch(e){return false}
+}
+function track(type,extra){
+  try{
+    const g=(typeof gateRead==='function'&&gateRead())||{};
+    const p=Object.assign({key:TRACK.key,type,ts:new Date().toISOString(),code:g.code||'',nome:PERFIL.nome||'',imob:PERFIL.imob||'',creci:PERFIL.creci||'',wa:PERFIL.wa||'',email:PERFIL.email||'',lang:LANG,host:location.hostname,dev:DEV_ID,ua:(navigator.userAgent||'').slice(0,120)},extra||{});
+    if(!trackSend(p)){const q=trackQueue();q.push(p);try{localStorage.setItem(TQK,JSON.stringify(q.slice(-200)))}catch(e){}}
+  }catch(e){}
+}
+function trackFlush(){if(!TRACK.url||!navigator.onLine)return;const q=trackQueue();if(!q.length)return;try{localStorage.removeItem(TQK)}catch(e){}q.forEach(p=>{if(!trackSend(p)){const q2=trackQueue();q2.push(p);try{localStorage.setItem(TQK,JSON.stringify(q2))}catch(e){}}})}
+window.addEventListener('online',trackFlush);setTimeout(trackFlush,3000);
+function trackUnit(u,extra){return Object.assign({torre:u?TW(u):'',unidade:u?u.unidade:'',tipo:u?tipoTxt(u):'',valor:u&&u.valor?u.valor:''},extra||{})}
 let LANG=PERFIL.lang||'pt';
 const T={
  nav_tabela:['Tabela','Availability','Disponibilidad'],nav_galeria:['Galeria de Imagens','Image Gallery','Galería de Imágenes'],nav_docs:['Documentos, Licenças e Aprovações','Documents, Permits and Approvals','Documentos, Licencias y Aprobaciones'],nav_maxces:['Sobre a Maxces','About Maxces','Sobre Maxces'],docs_sub:['Toque na miniatura para ler o documento. "Baixar" salva o PDF; o WhatsApp envia o link do arquivo.','Tap the thumbnail to read the document. "Download" saves the PDF; WhatsApp sends the file link.','Toque la miniatura para leer el documento. "Descargar" guarda el PDF; WhatsApp envía el enlace.'],voltar_tabela:['Voltar à tabela','Back to availability','Volver a la tabla'],nav_plantas:['Plantas','Floor Plans','Plantas'],cron_sb:['Obras: início em junho/2027 · entrega em dezembro/2032','Works: start June 2027 · delivery December 2032','Obras: inicio en junio/2027 · entrega en diciembre/2032'],nav_local:['Localização','Location','Ubicación'],nav_guia:['Clientes do Exterior','International Clients','Clientes del Exterior'],nav_obj:['Respostas às objeções','Answers to objections','Respuestas a las objeciones'],nav_bolso:['Tenho “x” para investir','I have “x” to invest','Tengo “x” para invertir'],tour_sub:['Toque num andar para ver a planta e as unidades. Toque numa unidade para abrir a ficha.','Tap a floor to see its plan and units. Tap a unit to open its sheet.','Toque un piso para ver su planta y unidades. Toque una unidad para abrir la ficha.'],nav_treino:['Agende seu Treinamento','Book your Training','Agende su Capacitación'],nav_perfil:['Meu perfil','My profile','Mi perfil'],
@@ -1405,7 +1426,7 @@ function bindCard(root,u){
   const ph=root.querySelector('.cta .phone');if(ph){ph.style.cursor='pointer';ph.onclick=()=>copy(PRESENT.on&&PRESENT.wa?'+'+PRESENT.wa:WA_DISPLAY,t('copiado'))}
   const pb=root.querySelector('.photo.has');if(pb)pb.onclick=()=>openLightbox(photo,`${TW(u)} · ${u.unidade} · ${tipoTxt(u)} · ${fmt(u.m2)} m²`);
 }
-function openDrawer(id){const u=UNITS.find(x=>x.id===id);if(!u)return;drawer.classList.remove('rendamode','solmode','simmode');drawer.innerHTML=cardHTML(u,false);bindCard(drawer,u);bindAudio(drawer,{u});drawer.classList.add('open','sheet');scrim.classList.add('open');drawer.setAttribute('aria-hidden','false')}
+function openDrawer(id){const u=UNITS.find(x=>x.id===id);if(!u)return;track('ficha',trackUnit(u));drawer.classList.remove('rendamode','solmode','simmode');drawer.innerHTML=cardHTML(u,false);bindCard(drawer,u);bindAudio(drawer,{u});drawer.classList.add('open','sheet');scrim.classList.add('open');drawer.setAttribute('aria-hidden','false')}
 function closeDrawer(){drawer.classList.remove('open','simmode','rendamode','solmode');scrim.classList.remove('open');drawer.setAttribute('aria-hidden','true')}
 // ---------- Renda e retorno ----------
 function exitModes(root){root.classList.remove('simmode','rendamode','solmode');const sb=root.querySelector('[data-act=sim]');if(sb)sb.textContent=t('sim_btn');const rb=root.querySelector('[data-act=renda]');if(rb)rb.textContent=t('renda_btn')}
@@ -1498,7 +1519,7 @@ function openRendaForm(u,sim){
   const cp=m.querySelector('#rCopy');if(cp){const only=document.createElement('button');only.type='button';only.className='btn small';only.textContent=P3(['Só a proposta (sem renda)','Offer only (no income)','Solo la propuesta (sin renta)']);only.onclick=e=>gerarPDF(u,sim,e.currentTarget);cp.parentNode.insertBefore(only,cp)}
   const close=()=>m.remove();m.querySelector('#rfClose').onclick=close;m.addEventListener('click',e=>{if(e.target===m)close()});
 }
-async function gerarRendaPDF(u,st,btn){
+async function gerarRendaPDF(u,st,btn){track('pdf_renda',trackUnit(u));
   const old=btn?btn.textContent:'';if(btn){btn.disabled=true;btn.textContent='…'}
   try{
     const jsPDF=await loadJsPDF();const doc=new jsPDF({unit:'mm',format:'a4'});pdfTextWrap(doc);
@@ -1711,7 +1732,7 @@ const PRESENT={on:false,u:null,cli:'',nome:'',imob:'',wa:''};
 const b64u=s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 const unb64u=s=>decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/'))));
 function apLink(u,cli){return SHARE_URL+'#ap='+b64u(JSON.stringify({u:u.id,c:cli,n:PERFIL.nome,i:PERFIL.imob,w:PERFIL.wa,l:LANG}))}
-function openApres(u){
+function openApres(u){track('apresentacao',trackUnit(u));
   const d=document.getElementById('perfilDrawer');
   d.innerHTML=`<div class="top"><div><div class="eyebrow">${u.unidade} · ${TW(u)}</div><h2>${t('ap_h')}</h2></div><button class="btn small" id="apClose">✕</button></div>
    ${PERFIL.nome&&PERFIL.wa?`<p style="color:var(--muted);font-size:13px">${PERFIL.nome}${PERFIL.imob?' · '+PERFIL.imob:''} · +${PERFIL.wa}</p>`:`<p class="err" style="font-size:12px;font-weight:700">${t('ap_note')}</p>`}
@@ -2141,7 +2162,7 @@ function renderSol(u,root){
 // ---------- Vídeo personalizado (canvas + MediaRecorder) ----------
 const VID_OK=!!(window.MediaRecorder&&HTMLCanvasElement.prototype.captureStream);
 function loadImg(src){return new Promise(res=>{const im=new Image();im.onload=()=>res(im);im.onerror=()=>res(null);im.src=src})}
-function openVideo(u){
+function openVideo(u){track('video_cliente',trackUnit(u));
   const d=document.getElementById('perfilDrawer');const cli=(u._sim&&u._sim.cli)||PRESENT.cli||'';
   d.innerHTML=`<div class="top"><div><div class="eyebrow">${u.unidade} · ${TW(u)}</div><h2>🎬 ${P3(['Vídeo para o cliente','Video for the client','Video para el cliente'])}</h2></div><button class="btn small" id="vClose">✕</button></div>
    <p style="color:var(--muted);font-size:13px">${P3(['20 segundos, vertical, com o nome do cliente, lazer, planta, condição e o seu contato. Gerado neste aparelho, sem internet.','20 seconds, vertical, with the client name, leisure, plan, terms and your contact. Generated on this device, no internet needed.','20 segundos, vertical, con el nombre del cliente, lazer, planta, condición y su contacto. Generado en este dispositivo, sin internet.'])}</p>
@@ -2201,7 +2222,7 @@ async function makeVideo(u,cli,d){
 }
 
 // ---------- Modo "Vendi!" — arte de comemoração ----------
-function openVendi(u){
+function openVendi(u){track('vendi',trackUnit(u));
   const d=document.getElementById('perfilDrawer');
   d.innerHTML=`<div class="top"><div><div class="eyebrow">${u.unidade} · ${TW(u)}</div><h2>🎉 ${P3(['Vendi!','Sold!','¡Vendí!'])}</h2></div><button class="btn small" id="veClose">✕</button></div>
    <p style="color:var(--muted);font-size:13px">${P3(['Arte para Instagram e WhatsApp com a unidade vendida, sua foto e a marca Maxces. Gerada neste aparelho.','Artwork for Instagram and WhatsApp with the sold unit, your photo and the Maxces brand. Generated on this device.','Arte para Instagram y WhatsApp con la unidad vendida, su foto y la marca Maxces. Generada en este dispositivo.'])}</p>
@@ -2258,6 +2279,7 @@ function loadJsPDF(){return JSPDF?Promise.resolve(JSPDF):new Promise((res,rej)=>
 let LAST_PROP=null;
 async function gerarPDF(u,sim,btn,rst){
   LAST_PROP={u,sim:sim||null,rst:rst||null};
+  track(sim?(rst?'pdf_proposta_renda':'pdf_proposta'):'pdf_ficha',trackUnit(u,sim&&sim.raw?{entrada:sim.raw.en,mensal:sim.raw.mn,reforco:sim.raw.rf,moeda:sim.raw.moeda,resultado:(sim.status||'').replace(/<[^>]+>/g,'')}:{}));
   const old=btn?btn.textContent:'';if(btn){btn.disabled=true;btn.textContent='…'}
   try{
     const jsPDF=await loadJsPDF();const doc=new jsPDF({unit:'mm',format:'a4'});const W=210,H=297,MX=14,CW=W-2*MX;
@@ -2372,6 +2394,7 @@ function renderSim(u,root){
       :pend?`<div class="verdict warn">${t('pend_v')}<br><span style="font-weight:600;letter-spacing:0;font-size:12px">${t('pend_s')}</span></div><a class="btn wa" style="margin-top:8px" href="${wa}" target="_blank" rel="noopener">${WA_ICON}${t('pend_b')}</a>`
       :quase?`<div class="verdict warn">${t('quase')}<br><span style="font-weight:600;letter-spacing:0;font-size:12px">${t('quase_s')}</span></div><a class="btn wa" style="margin-top:8px" href="${wa}" target="_blank" rel="noopener">${WA_ICON}${t('negocie')}</a>`
       :(any?`<div class="verdict no">${t('fora')}</div>`:'');
+    if(ok&&!st._okTracked){st._okTracked=true;track('simulacao_aprovada',trackUnit(u,{entrada:en,mensal:mn,reforco:rf,moeda:st.moeda,resultado:'aprovada'}))}
     st._pdf={raw:{V,en,mn,rf,dEntrada:st.dEntrada,inicio:st.inicio,inicioR,moeda:st.moeda},cli:st.cli,ok,quase,status,fx:fxTxt?fxTxt+'. '+t('wa_ref_moeda',{m:st.moeda==='USD'?t('moeda_usd'):t('moeda_eur')}):'',lines:[[t('wa_tab'),MB(V)],[t('wa_ent')+' · '+brDate(st.dEntrada),M(en)+B(en)],[t('wa_men')+' · '+brDate(st.inicio)+' → '+ultM,M(mn)+B(mn)],[t('wa_ref')+' · '+brDate(inicioR)+' → '+ultR,M(rf)+B(rf)],[t('wa_pago'),M(ate)+' ('+pct.toFixed(1)+'%)'],[t('wa_total'),M(total)+B(total)+' ('+pctTot.toFixed(1)+'%)']]};
     const pb=el.querySelector('#sPdf');pb.hidden=!any;
   };
@@ -2419,9 +2442,8 @@ function gateShow(){
   document.body.appendChild(m);document.body.classList.add('gated');
   const q=s=>m.querySelector(s);
   const norm=v=>v.toUpperCase().replace(/\s+/g,'').replace(/[^A-Z0-9-]/g,'');
-  const go=async()=>{const c=norm(q('#gCode').value);if(!c)return;const h=await sha256(c);if(ACCESS.includes(h)){const f={h,code:c,at:new Date().toISOString(),nome:'',imob:'',creci:'',wa:''};try{localStorage.setItem(GKEY,JSON.stringify(f))}catch(e){}
-      if(f.nome&&!PERFIL.nome){PERFIL.nome=f.nome;PERFIL.imob=f.imob;PERFIL.creci=f.creci;PERFIL.wa=f.wa?(f.wa.startsWith('55')?f.wa:'55'+f.wa):'';savePerfil()}
-      m.remove();document.body.classList.remove('gated')}else{q('#gErr').hidden=false;q('#gCode').select()}};
+  const go=async()=>{const c=norm(q('#gCode').value);if(!c)return;const h=await sha256(c);if(ACCESS.includes(h)){const f={h,code:c,at:new Date().toISOString()};try{localStorage.setItem(GKEY,JSON.stringify(f))}catch(e){}
+      if(PERFIL.registered){m.remove();document.body.classList.remove('gated');track('login')}else gateRegister(m,q)}else{q('#gErr').hidden=false;q('#gCode').select();track('login_falhou',{detalhe:c})}};
   q('#gGo').onclick=go;q('#gCode').addEventListener('keydown',e=>{if(e.key==='Enter')go()});q('#gCode').addEventListener('input',()=>{q('#gErr').hidden=true});
   const gb=q('#gBack');if(gb)gb.onclick=()=>{q('#gForm').hidden=true;q('#gLogin').hidden=false;q('#gCode').focus()};
   const gs=q('#gSend');if(gs)gs.onclick=()=>{const n=q('#gNome').value.trim(),i=q('#gImob').value.trim(),c=q('#gCreci').value.trim(),w=q('#gWa').value.trim();if(!n){q('#gNome').focus();return}
@@ -2429,7 +2451,27 @@ function gateShow(){
     window.open('https://wa.me/'+GATE_WA+'?text='+encodeURIComponent(msg),'_blank','noopener');q('#gForm').hidden=true;q('#gLogin').hidden=false;q('#gCode').focus()};
   setTimeout(()=>q('#gCode').focus(),50);
 }
-gateCheck().then(ok=>{if(!ok)gateShow()});
+function gateRegister(m,q){
+  const L=q('#gLogin');L.hidden=true;
+  let F=q('#gReg');if(!F){F=document.createElement('div');F.className='gcard';F.id='gReg';L.parentNode.insertBefore(F,L.nextSibling)}
+  F.innerHTML=`<div class="eyebrow" style="color:#7fd3ff">${P3(['Primeiro acesso · cadastro','First access · registration','Primer acceso · registro'])}</div>
+    <p class="gsub" style="margin:4px 0 10px">${P3(['Preencha uma vez. Seus dados vão para a Maxces e ficam salvos neste aparelho para as propostas em PDF.','Fill in once. Your details go to Maxces and are saved on this device for PDF proposals.','Complete una vez. Sus datos van a Maxces y quedan guardados en este dispositivo para las propuestas en PDF.'])}</p>
+    <div class="k">${P3(['Nome completo','Full name','Nombre completo'])} *</div><input type="text" id="rNome" value="${PERFIL.nome||''}" autocomplete="name">
+    <div class="k">${P3(['Imobiliária','Agency','Inmobiliaria'])} *</div><input type="text" id="rImob" value="${PERFIL.imob||''}" autocomplete="organization">
+    <div class="row2"><div><div class="k">CRECI</div><input type="text" id="rCreci" value="${PERFIL.creci||''}"></div><div><div class="k">WhatsApp *</div><input type="tel" id="rWa" value="${PERFIL.wa?PERFIL.wa.replace(/^55/,''):''}" placeholder="47 99999-0000" autocomplete="tel"></div></div>
+    <div class="k">E-mail *</div><input type="email" id="rEmail" value="${PERFIL.email||''}" autocomplete="email">
+    <div class="gerr" id="rErr" hidden>${P3(['Preencha nome, imobiliária, WhatsApp e e-mail.','Fill in name, agency, WhatsApp and e-mail.','Complete nombre, inmobiliaria, WhatsApp y e-mail.'])}</div>
+    <button class="btn primary" id="rGo" type="button" style="margin-top:10px">${P3(['Concluir cadastro e entrar','Complete registration and enter','Concluir registro y entrar'])}</button>
+    <div class="gsub2">${P3(['Dados usados apenas pela Maxces para suporte comercial e identificação nas propostas.','Used by Maxces only for sales support and identification on proposals.','Datos usados solo por Maxces para soporte comercial e identificación en propuestas.'])}</div>`;
+  const v=id=>F.querySelector('#'+id).value.trim();
+  F.querySelector('#rGo').onclick=()=>{const n=v('rNome'),i=v('rImob'),c=v('rCreci'),w=v('rWa').replace(/\D/g,''),e=v('rEmail');
+    if(!n||!i||w.length<10||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){F.querySelector('#rErr').hidden=false;return}
+    PERFIL.nome=n;PERFIL.imob=i;PERFIL.creci=c;PERFIL.wa=w.startsWith('55')?w:'55'+w;PERFIL.email=e;PERFIL.registered=new Date().toISOString();savePerfil();
+    track('cadastro');track('login');
+    m.remove();document.body.classList.remove('gated');if(typeof render==='function')try{render()}catch(x){}};
+  setTimeout(()=>F.querySelector('#rNome').focus(),50);
+}
+gateCheck().then(ok=>{if(!ok)gateShow();else if(!PERFIL.registered){gateShow();const m=document.getElementById('gate');if(m)gateRegister(m,s=>m.querySelector(s))}else track('login')});
 
 
 // ---------- Mobile: menu inicial em lista ----------
