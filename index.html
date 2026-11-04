@@ -1330,7 +1330,7 @@ let PERFIL={nome:'',imob:'',creci:'',wa:'',lang:'pt'};
 try{Object.assign(PERFIL,JSON.parse(localStorage.getItem(PK)||'{}'))}catch(e){}
 function savePerfil(){try{localStorage.setItem(PK,JSON.stringify(PERFIL))}catch(e){}}
 // ---------- Registro de corretores e atividade (planilha da Maxces via Apps Script) ----------
-const TRACK={url:'',key:'conecta-2026-maxces'}; /*TRACK*/
+const TRACK={url:'https://script.google.com/macros/s/AKfycbxY2w1LDlx8Qjxcbq1c7DsOx-wMXbQ2r3nfU9WgUbU3lg3DPbD1shZTmfavg2d3b8A0NA/exec',key:'conecta-2026-maxces'}; /*TRACK*/
 const DEVK='conecta-dev-v1';let DEV_ID='';try{DEV_ID=localStorage.getItem(DEVK)||'';if(!DEV_ID){DEV_ID=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2));localStorage.setItem(DEVK,DEV_ID)}}catch(e){}
 const TQK='conecta-track-queue';
 function trackQueue(){try{return JSON.parse(localStorage.getItem(TQK)||'[]')}catch(e){return []}}
