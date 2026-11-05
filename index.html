@@ -1241,7 +1241,7 @@ function openDeliver(blob,fn,kind){
     <div class="dlprev" id="dlPrev"><div class="fxnote">${P3(['Gerando prévia…','Rendering preview…','Generando vista previa…'])}</div></div></div>`;
   document.body.appendChild(m);
   const close=()=>{m.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)};const wt=m.querySelector('#dlWaTxt');if(wt)wt.addEventListener('click',()=>track('whatsapp_proposta',LAST_PROP?trackUnit(LAST_PROP.u):{}));m.querySelector('#dlClose').onclick=close;m.addEventListener('click',e=>{if(e.target===m)close()});
-  const sh=m.querySelector('#dlShare');if(sh)sh.onclick=async()=>{try{await navigator.share({files:[file],title:fn})}catch(e){if(e&&e.name!=='AbortError')toast(P3(['Não foi possível compartilhar','Could not share','No se pudo compartir']))}};
+  const sh=m.querySelector('#dlShare');if(sh)sh.onclick=async()=>{try{await navigator.share({files:[file],title:fn});track('whatsapp_arquivo',{detalhe:fn})}catch(e){if(e&&e.name!=='AbortError')toast(P3(['Não foi possível compartilhar','Could not share','No se pudo compartir']))}};
   const prev=m.querySelector('#dlPrev');
   (async()=>{try{
     if(kind==='image'){const im=document.createElement('img');im.src=url;im.alt=fn;im.className='dlimg';prev.innerHTML='';prev.appendChild(im);return}
