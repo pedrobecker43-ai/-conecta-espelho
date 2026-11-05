@@ -589,7 +589,7 @@ header{background:linear-gradient(180deg,#0a1c28 0%,#0d2634 60%,#0f3340 100%);po
 .dlbox{background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:18px 18px 0 0;width:100%;max-width:720px;max-height:92vh;overflow:auto;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
 @media (min-width:760px){.dlbox{border-radius:18px}}
 .dlhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}.dlhead h3{font-size:15px;word-break:break-all;margin:2px 0 0}
-.dlacts{display:flex;flex-wrap:wrap;gap:8px}
+.dlacts{display:flex;flex-wrap:wrap;gap:8px}.dlacts .btn{padding:9px 14px;font-size:13.5px;border-radius:10px;line-height:1.2;flex:1 1 auto;justify-content:center;min-height:0}.dlacts .btn svg{width:18px;height:18px;flex:none}.dlbox .btn.wa{font-size:14px;padding:10px 14px;border-radius:10px}.dlbox .btn.wa svg{width:18px;height:18px}.dlhead .btn.small{padding:4px 9px;font-size:13px}
 .rfbox{max-width:760px;padding-bottom:26px}
 .rfsim{display:block!important;padding:0;background:transparent}
 .rfsim .simhead .btn{display:none}.dlacts .btn{text-decoration:none}
@@ -700,7 +700,7 @@ body.gated{overflow:hidden}
 @media (min-width:1024px){.kpi{overflow:visible}.battery{overflow:visible}.battery .batt-label{display:block!important;visibility:visible!important;opacity:1!important;margin-top:3px;font-size:10.5px;letter-spacing:.14em;color:var(--hd-mute);white-space:nowrap}.battery .batt-label b{display:inline-block;font-size:15px;color:#fff;margin-right:5px}}
 .batt-label{display:block}
 .credit{display:none}
-@media (min-width:1024px){.nav .credit{display:block;order:4;text-align:center;font-size:10px;color:var(--hd-mute);opacity:.55;letter-spacing:.03em;padding-top:6px;white-space:nowrap}}
+@media (min-width:1024px){.nav{min-width:0;max-width:100%}.nav .credit{display:block;order:4;text-align:center;font-size:9.5px;line-height:1.35;color:var(--hd-mute);opacity:.55;letter-spacing:.02em;padding-top:6px;white-space:normal;overflow-wrap:anywhere}}
 .credit-f{display:block;margin-top:6px;font-size:11px;opacity:.6}
 @media (max-width:1023px){.cron-sb{display:none}}
 .mxhero-p{font-size:13px;color:#d6e4ea;max-width:620px;line-height:1.45}
