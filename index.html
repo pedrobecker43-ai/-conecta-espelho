@@ -300,6 +300,7 @@ main{padding-block:16px 36px}
 .cell.ci i{font-style:normal;font-size:7px;font-weight:600;letter-spacing:-.2px;opacity:.8;line-height:1;white-space:nowrap}
 @media (max-width:640px){.cell.ci b{font-size:10px}.cell.ci i{font-size:6.5px}}
 .btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:inherit}
+.btn>svg{width:18px;height:18px;flex:none}
 .btn:hover{background:var(--surface-2)}
 .btn.small{padding:4px 9px;font-size:12px}
 .btn.wa{background:var(--wa);color:var(--wa-fg);border-color:var(--wa);width:100%;justify-content:center;font-size:16px;padding:12px 16px;border-radius:10px}
@@ -1270,6 +1271,7 @@ function showView(v){
   if(v==='tour'){const b=document.getElementById('mzBox');if(b)setTimeout(()=>mzStart(b),60)}
   document.querySelectorAll('.nav .btn[data-view],.tourbtn').forEach(b=>b.classList.toggle('on',b.dataset.view===v));
   window.scrollTo({top:0});
+  try{if(typeof usoTick==='function'){usoTick();if(v!==USO.lastView){USO.lastView=v;if(!document.getElementById('gate'))track('aba',{detalhe:v})}}}catch(e){}
 }
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
 {const tm=document.getElementById('topMenu');if(tm){tm.onclick=()=>{window.scrollTo({top:0,behavior:'smooth'})};const upd=()=>tm.classList.toggle('show',window.scrollY>240);window.addEventListener('scroll',upd,{passive:true});upd()}}
@@ -1342,6 +1344,15 @@ function trackSend(p){
   try{if(navigator.sendBeacon&&navigator.sendBeacon(TRACK.url,new Blob([body],{type:'text/plain;charset=utf-8'})))return true}catch(e){}
   try{fetch(TRACK.url,{method:'POST',mode:'no-cors',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body});return true}catch(e){return false}
 }
+/* USO: tempo efetivo em tela (aba visível + atividade nos últimos 60 s), agregado por aba e enviado a cada 5 min / ao sair */
+const USO={acc:{},last:0,active:Date.now(),lastFlush:Date.now(),lastView:''};
+function usoView(){const v=document.querySelector('.view.on');return v?v.id.replace('view-',''):'outro'}
+function usoTick(){const now=Date.now();const ok=document.visibilityState==='visible'&&(now-USO.active)<60000&&!document.getElementById('gate');if(USO.last&&ok){const dt=Math.min(now-USO.last,6000);const v=usoView();USO.acc[v]=(USO.acc[v]||0)+dt}USO.last=now;if(now-USO.lastFlush>300000)usoFlush()}
+function usoFlush(){const tot=Object.values(USO.acc).reduce((a,b)=>a+b,0);USO.lastFlush=Date.now();if(tot<3000){USO.acc={};return}const det={};for(const k in USO.acc)det[k]=Math.round(USO.acc[k]/1000);USO.acc={};track('uso',{valor:Math.round(tot/1000),detalhe:JSON.stringify(det)})}
+['pointerdown','pointermove','keydown','scroll','touchstart','wheel'].forEach(e=>addEventListener(e,()=>{USO.active=Date.now()},{passive:true,capture:true}));
+setInterval(usoTick,5000);
+addEventListener('visibilitychange',()=>{usoTick();if(document.visibilityState==='hidden')usoFlush()});
+addEventListener('pagehide',()=>{usoTick();usoFlush()});
 function track(type,extra){
   try{
     const g=(typeof gateRead==='function'&&gateRead())||{};
