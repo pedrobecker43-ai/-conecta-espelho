@@ -76,6 +76,27 @@ footer{text-align:center;font-size:11px;color:var(--muted);padding:24px 16px}
 .hidden{display:none!important}
 #load{position:fixed;top:0;left:0;right:0;height:3px;background:var(--hd-accent);transform:scaleX(0);transform-origin:left;transition:transform .4s;z-index:20}
 #load.on{transform:scaleX(.8)}
+
+.chk{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
+.act{display:inline-block;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:7px;padding:3px 8px;font:700 11px var(--f);cursor:pointer;white-space:nowrap;margin:1px 2px 1px 0}
+.act:hover{color:var(--fg);border-color:var(--muted)}
+.act.del{color:var(--bad);border-color:#f5c2c2}.act.del:hover{background:var(--bad-bg)}
+.act.blk{color:var(--warn);border-color:#f3d7a6}.act.blk:hover{background:var(--warn-bg)}
+.act.ok{color:var(--ok);border-color:#b7e9d2}.act.ok:hover{background:var(--ok-bg)}
+.bulk{display:flex;align-items:center;gap:10px;margin:0 0 10px;font-size:12.5px;color:var(--muted);min-height:28px;flex-wrap:wrap}
+.bulk .btn2{border:1px solid #f5c2c2;background:var(--bad-bg);color:var(--bad);border-radius:8px;padding:6px 12px;font:700 12px var(--f);cursor:pointer}
+.bulk .btn2:disabled{opacity:.4;cursor:default}
+.blocked td{opacity:.75}
+.tag.t-blk{background:var(--bad-bg);color:var(--bad)}
+#ask{position:fixed;inset:0;background:rgba(11,26,51,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+#ask .bx{background:var(--surface);border-radius:14px;padding:22px;max-width:420px;width:100%;box-shadow:var(--shadow)}
+#ask h3{margin:0 0 6px;font-size:15px}#ask p{margin:0 0 14px;color:var(--muted);font-size:13px;white-space:pre-line}
+#ask input{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 10px;font:500 13px var(--f);margin-bottom:12px}
+#ask .row{display:flex;gap:8px;justify-content:flex-end}
+#ask button{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;font:700 13px var(--f);cursor:pointer}
+#ask button.yes{background:var(--bad);color:#fff;border-color:var(--bad)}
+#ask button.yes.warn{background:var(--warn);border-color:var(--warn)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--hd-bg);color:#fff;padding:10px 16px;border-radius:10px;font:600 13px var(--f);box-shadow:var(--shadow);z-index:60;display:none}
 </style>
 </head>
 <body>
@@ -100,11 +121,12 @@ footer{text-align:center;font-size:11px;color:var(--muted);padding:24px 16px}
     <div class="card"><h2>Corretores mais ativos</h2><div class="sub">Por eventos no período</div><ol class="rank" id="rank"></ol></div>
   </div>
   <div class="card">
-    <div class="tabs"><button class="tab on" data-t="ev">Eventos</button><button class="tab" data-t="cad">Cadastros</button><button class="tab" data-t="prop">Propostas</button></div>
+    <div class="tabs"><button class="tab on" data-t="ev">Eventos</button><button class="tab" data-t="cad">Cadastros</button><button class="tab" data-t="prop">Propostas</button><button class="tab" data-t="blk">Bloqueados</button></div>
     <div class="tools"><input id="q" placeholder="Buscar por nome, imobiliária, unidade…"><select id="ftype"><option value="">Todos os eventos</option></select></div>
-    <div class="tw" id="tbl"></div>
+    <div class="bulk" id="bulk"></div><div class="tw" id="tbl"></div>
   </div>
 </main>
+<div id="ask"><div class="bx"><h3 id="askT"></h3><p id="askP"></p><input id="askI" style="display:none"><div class="row"><button id="askNo">Cancelar</button><button class="yes" id="askYes">Confirmar</button></div></div></div><div class="toast" id="toast"></div>
 <footer>Sistema desenvolvido por Pedro Becker · © 2026. Todos os direitos reservados.</footer>
 
 <script>
@@ -138,9 +160,10 @@ async function load(){
 }
 function pd(s){const m=/^(\d\d)\/(\d\d)\/(\d{4}) (\d\d):(\d\d):(\d\d)/.exec(s||'');return m?new Date(+m[3],m[2]-1,+m[1],+m[4],+m[5],+m[6]):null}
 function parse(d){
-  const ev=d.eventos.map(r=>({dt:pd(r[0]),ts:r[0],type:r[1],code:r[2],nome:r[3],imob:r[4],wa:r[5],torre:r[6],unidade:r[7],tipo:r[8],valor:r[9],entrada:r[10],mensal:r[11],reforco:r[12],moeda:r[13],resultado:r[14],detalhe:r[15],lang:r[16],host:r[17],dev:r[18]})).filter(e=>e.dt).reverse();
-  const cad=d.cadastros.map(r=>({dt:pd(r[0]),ts:r[0],code:r[1],nome:r[2],imob:r[3],creci:r[4],wa:r[5],email:r[6],lang:r[7],ua:r[8],host:r[9],dev:r[10]})).filter(e=>e.dt).reverse();
-  return {ev,cad};
+  const ev=d.eventos.map(r=>({row:r[0],dt:pd(r[1]),ts:r[1],type:r[2],code:r[3],nome:r[4],imob:r[5],wa:r[6],torre:r[7],unidade:r[8],tipo:r[9],valor:r[10],entrada:r[11],mensal:r[12],reforco:r[13],moeda:r[14],resultado:r[15],detalhe:r[16],lang:r[17],host:r[18],dev:r[19]})).filter(e=>e.dt).reverse();
+  const cad=d.cadastros.map(r=>({row:r[0],dt:pd(r[1]),ts:r[1],code:r[2],nome:r[3],imob:r[4],creci:r[5],wa:r[6],email:r[7],lang:r[8],ua:r[9],host:r[10],dev:r[11]})).filter(e=>e.dt).reverse();
+  const blk=(d.bloqueados||[]).map(r=>({row:r[0],ts:r[1],nome:r[2],imob:r[3],wa:r[4],email:r[5],dev:r[6],motivo:r[7],ativo:String(r[8]).toUpperCase()==='SIM'})).reverse();
+  return {ev,cad,blk};
 }
 function since(){const n=+$('#range').value;if(!n)return null;const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-n+1);return d}
 function inRange(e){const s=since();return !s||e.dt>=s}
@@ -200,20 +223,52 @@ function table(){
   let h='';
   if(TAB==='cad'){
     const rows=DATA.cad.filter(inRange).filter(hit);
-    h='<table><thead><tr><th>Data</th><th>Nome</th><th>Imobiliária</th><th>CRECI</th><th>WhatsApp</th><th>E-mail</th><th>Código</th><th>Aparelho</th></tr></thead><tbody>'+rows.map(c=>'<tr><td class="mono">'+fmtDt(c)+'</td><td><b>'+esc(c.nome)+'</b></td><td>'+esc(c.imob)+'</td><td class="mono">'+esc(c.creci)+'</td><td>'+waLink(c.wa)+'</td><td>'+esc(c.email)+'</td><td class="mono">'+esc(c.code)+'</td><td class="muted">'+esc(c.ua)+'</td></tr>').join('')+'</tbody></table>';
+    h='<table><thead><tr><th><input type="checkbox" class="chk" id="chkAll"></th><th>Data</th><th>Nome</th><th>Imobiliária</th><th>CRECI</th><th>WhatsApp</th><th>E-mail</th><th>Código</th><th>Aparelho</th><th>Ações</th></tr></thead><tbody>'+rows.map(c=>{const bl=isBlk(c);return '<tr'+(bl?' class="blocked"':'')+'><td><input type="checkbox" class="chk rowchk" data-row="'+c.row+'"></td><td class="mono">'+fmtDt(c)+'</td><td><b>'+esc(c.nome)+'</b>'+(bl?' <span class="tag t-blk">bloqueado</span>':'')+'</td><td>'+esc(c.imob)+'</td><td class="mono">'+esc(c.creci)+'</td><td>'+waLink(c.wa)+'</td><td>'+esc(c.email)+'</td><td class="mono">'+esc(c.code)+'</td><td class="muted">'+esc(c.ua)+'</td><td>'+(bl?'':'<button class="act blk" data-a="block" data-row="'+c.row+'">Bloquear acesso</button>')+'<button class="act del" data-a="del1" data-row="'+c.row+'">Excluir</button></td></tr>'}).join('')+'</tbody></table>';
     if(!rows.length)h='<div class="empty">Nenhum cadastro.</div>';
+  }else if(TAB==='blk'){
+    const rows=DATA.blk.filter(hit);
+    h='<table><thead><tr><th>Desde</th><th>Nome</th><th>Imobiliária</th><th>WhatsApp</th><th>E-mail</th><th>Motivo</th><th>Situação</th><th>Ações</th></tr></thead><tbody>'+rows.map(b=>'<tr><td class="mono">'+esc(b.ts.slice(0,16))+'</td><td><b>'+esc(b.nome)+'</b></td><td>'+esc(b.imob)+'</td><td class="mono">'+esc(b.wa)+'</td><td>'+esc(b.email)+'</td><td class="muted">'+esc(b.motivo)+'</td><td>'+(b.ativo?'<span class="tag t-blk">bloqueado</span>':'<span class="tag t-ok">liberado</span>')+'</td><td>'+(b.ativo?'<button class="act ok" data-a="unblock" data-row="'+b.row+'">Liberar acesso</button>':'<button class="act blk" data-a="reblock" data-row="'+b.row+'">Bloquear de novo</button>')+'</td></tr>').join('')+'</tbody></table>';
+    if(!rows.length)h='<div class="empty">Nenhum corretor bloqueado.</div>';
   }else{
     let rows=DATA.ev.filter(inRange).filter(hit);
     if(TAB==='prop')rows=rows.filter(e=>PROP.includes(e.type));else if(ft)rows=rows.filter(e=>e.type===ft);
-    h='<table><thead><tr><th>Data</th><th>Evento</th><th>Corretor</th><th>Unidade</th><th>Valor</th><th>Entrada</th><th>Mensal</th><th>Reforço</th><th>Detalhe</th><th>Origem</th></tr></thead><tbody>'+rows.slice(0,800).map(e=>'<tr><td class="mono">'+fmtDt(e)+'</td><td><span class="tag '+CLS(e.type)+'">'+(LAB[e.type]||esc(e.type))+'</span></td><td><b>'+esc(e.nome)+'</b><br><span class="muted">'+esc(e.imob)+'</span></td><td>'+esc([e.torre,e.unidade].filter(Boolean).join(' '))+(e.tipo?'<br><span class="muted">'+esc(e.tipo)+'</span>':'')+'</td><td class="mono">'+fmtMoney(e.valor,e.moeda)+'</td><td class="mono">'+fmtMoney(e.entrada,e.moeda)+'</td><td class="mono">'+fmtMoney(e.mensal,e.moeda)+'</td><td class="mono">'+fmtMoney(e.reforco,e.moeda)+'</td><td class="muted">'+esc([e.resultado,e.detalhe].filter(Boolean).join(' · '))+'</td><td class="muted mono">'+esc(e.host)+'</td></tr>').join('')+'</tbody></table>';
+    h='<table><thead><tr><th><input type="checkbox" class="chk" id="chkAll"></th><th>Data</th><th>Evento</th><th>Corretor</th><th>Unidade</th><th>Valor</th><th>Entrada</th><th>Mensal</th><th>Reforço</th><th>Detalhe</th><th>Origem</th><th></th></tr></thead><tbody>'+rows.slice(0,800).map(e=>'<tr><td><input type="checkbox" class="chk rowchk" data-row="'+e.row+'"></td><td class="mono">'+fmtDt(e)+'</td><td><span class="tag '+CLS(e.type)+'">'+(LAB[e.type]||esc(e.type))+'</span></td><td><b>'+esc(e.nome)+'</b><br><span class="muted">'+esc(e.imob)+'</span></td><td>'+esc([e.torre,e.unidade].filter(Boolean).join(' '))+(e.tipo?'<br><span class="muted">'+esc(e.tipo)+'</span>':'')+'</td><td class="mono">'+fmtMoney(e.valor,e.moeda)+'</td><td class="mono">'+fmtMoney(e.entrada,e.moeda)+'</td><td class="mono">'+fmtMoney(e.mensal,e.moeda)+'</td><td class="mono">'+fmtMoney(e.reforco,e.moeda)+'</td><td class="muted">'+esc([e.resultado,e.detalhe].filter(Boolean).join(' · '))+'</td><td class="muted mono">'+esc(e.host)+'</td><td><button class="act del" data-a="del1" data-row="'+e.row+'">Excluir</button></td></tr>').join('')+'</tbody></table>';
     if(!rows.length)h='<div class="empty">Nenhum evento.</div>';
   }
   $('#tbl').innerHTML=h;
+  bulkBar();
 }
+const dg=w=>String(w||'').replace(/\D/g,'');
+function isBlk(c){const w=dg(c.wa),m=String(c.email||'').toLowerCase().trim();return DATA.blk.some(b=>b.ativo&&((c.dev&&b.dev&&c.dev===b.dev)||(w.length>=8&&dg(b.wa)&&(w===dg(b.wa)||w.slice(-8)===dg(b.wa).slice(-8)))||(m&&b.email&&m===b.email.toLowerCase())))}
+function sheetOf(){return TAB==='cad'?'Cadastros':'Eventos'}
+function bulkBar(){
+  const bb=$('#bulk');
+  if(TAB==='blk'){bb.innerHTML='Corretor bloqueado é desconectado na próxima abertura do site e não consegue entrar nem com o código — em qualquer aparelho vinculado ao WhatsApp, ao e-mail ou ao aparelho do cadastro.';return}
+  bb.innerHTML='<button class="btn2" id="delSel" disabled>Excluir selecionados</button><span id="selN">nenhum selecionado</span>'+(TAB==='cad'?'<button class="act del" id="delTests" style="margin-left:auto">Apagar registros de teste</button>':'');
+  const upd=()=>{const n=document.querySelectorAll('.rowchk:checked').length;$('#delSel').disabled=!n;$('#selN').textContent=n?n+' selecionado'+(n>1?'s':''):'nenhum selecionado'};
+  document.querySelectorAll('.rowchk').forEach(c=>c.onchange=upd);
+  const all=$('#chkAll');if(all)all.onchange=()=>{document.querySelectorAll('.rowchk').forEach(c=>c.checked=all.checked);upd()};
+  $('#delSel').onclick=async()=>{const rows=[...document.querySelectorAll('.rowchk:checked')].map(c=>+c.dataset.row);if(!rows.length)return;if(!(await ask('Excluir '+rows.length+' registro'+(rows.length>1?'s':'')+'?','Os registros serão apagados da planilha. Não dá para desfazer.')))return;await admin({action:'delete',sheet:sheetOf(),rows:rows.join(',')},'Excluídos: '+rows.length)};
+  const dt=$('#delTests');if(dt)dt.onclick=async()=>{const t=x=>/teste/i.test(x.nome||'');const c=DATA.cad.filter(t).map(x=>x.row),e=DATA.ev.filter(t).map(x=>x.row);if(!c.length&&!e.length){toast('Nenhum registro de teste');return}if(!(await ask('Apagar registros de teste?',c.length+' cadastro(s) e '+e.length+' evento(s) cujo nome contém "teste".')))return;if(c.length)await admin({action:'delete',sheet:'Cadastros',rows:c.join(',')},'Cadastros de teste apagados');if(e.length)await admin({action:'delete',sheet:'Eventos',rows:e.join(',')},'Eventos de teste apagados')};
+}
+function ask(title,text,opts){opts=opts||{};return new Promise(res=>{const a=$('#ask');$('#askT').textContent=title;$('#askP').textContent=text;const i=$('#askI');i.style.display=opts.input?'':'none';i.value='';i.placeholder=opts.input||'';const y=$('#askYes');y.textContent=opts.yes||'Confirmar';y.className='yes'+(opts.warn?' warn':'');a.style.display='flex';const done=v=>{a.style.display='none';res(v)};$('#askNo').onclick=()=>done(false);y.onclick=()=>done(opts.input?(i.value||' '):true);if(opts.input)setTimeout(()=>i.focus(),50)})}
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',2600)}
+async function admin(params,okMsg){
+  $('#load').classList.add('on');
+  try{const u=API+'?admin='+encodeURIComponent(KEY)+'&'+Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v??'')).join('&');const r=await jsonp(u);if(!r||!r.ok)throw new Error(r&&r.err||'erro');toast(okMsg||'Feito');await load()}
+  catch(e){toast('Falhou: '+e.message);$('#load').classList.remove('on')}
+}
+$('#tbl').addEventListener('click',async ev=>{
+  const b=ev.target.closest('button.act');if(!b)return;const row=+b.dataset.row,a=b.dataset.a;
+  if(a==='del1'){if(!(await ask('Excluir este registro?','Ele será apagado da planilha. Não dá para desfazer.')))return;admin({action:'delete',sheet:sheetOf(),rows:row},'Registro excluído')}
+  else if(a==='block'){const c=DATA.cad.find(x=>x.row===row);if(!c)return;const m=await ask('Bloquear o acesso de '+c.nome+'?','O corretor será desconectado e não conseguirá mais entrar (WhatsApp '+c.wa+(c.email?', e-mail '+c.email:'')+' e o aparelho do cadastro). Você pode liberar depois na aba Bloqueados.',{input:'Motivo (opcional)',yes:'Bloquear',warn:true});if(!m)return;admin({action:'block',nome:c.nome,imob:c.imob,wa:c.wa,email:c.email,dev:c.dev,motivo:m.trim()},'Acesso bloqueado')}
+  else if(a==='unblock'){if(!(await ask('Liberar o acesso?','O corretor volta a conseguir entrar com o código de acesso.',{yes:'Liberar'})))return;admin({action:'unblock',row},'Acesso liberado')}
+  else if(a==='reblock'){admin({action:'reblock',row},'Acesso bloqueado')}
+});
 $('#gbtn').onclick=()=>{KEY=$('#gkey').value.trim();$('#gerr').style.display='none';if(KEY)load()};
 $('#gkey').addEventListener('keydown',e=>{if(e.key==='Enter')$('#gbtn').click()});
 $('#refresh').onclick=load;$('#range').onchange=render;$('#q').oninput=table;$('#ftype').onchange=table;
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));TAB=b.dataset.t;$('#ftype').style.display=TAB==='ev'?'':'none';table()});
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));TAB=b.dataset.t;$('#ftype').style.display=TAB==='ev'?'':'none';$('#q').placeholder=TAB==='blk'?'Buscar bloqueado…':'Buscar por nome, imobiliária, unidade…';table()});
 $('#logout').onclick=()=>{try{localStorage.removeItem('conecta-admin')}catch(e){}location.reload()};
 if(KEY)load();
 let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{if(DATA)chart(DATA.ev.filter(inRange))},150)});

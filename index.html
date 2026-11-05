@@ -1334,6 +1334,8 @@ const TRACK={url:'https://script.google.com/macros/s/AKfycbxY2w1LDlx8Qjxcbq1c7Ds
 const DEVK='conecta-dev-v1';let DEV_ID='';try{DEV_ID=localStorage.getItem(DEVK)||'';if(!DEV_ID){DEV_ID=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2));localStorage.setItem(DEVK,DEV_ID)}}catch(e){}
 const TQK='conecta-track-queue';
 function trackQueue(){try{return JSON.parse(localStorage.getItem(TQK)||'[]')}catch(e){return []}}
+function blockCheck(wa,email){return new Promise(res=>{try{const cb='bc'+Date.now()+Math.floor(Math.random()*1e4);const sc=document.createElement('script');const t=setTimeout(()=>{fin(false)},6000);function fin(v){clearTimeout(t);delete window[cb];sc.remove();res(v)}window[cb]=d=>fin(!!(d&&d.blocked));sc.onerror=()=>fin(false);sc.src=TRACK.url+'?check=1&key='+encodeURIComponent(TRACK.key)+'&dev='+encodeURIComponent(DEV_ID)+'&wa='+encodeURIComponent(wa||PERFIL.wa||'')+'&email='+encodeURIComponent(email||PERFIL.email||'')+'&callback='+cb+'&_='+Date.now();document.head.appendChild(sc)}catch(e){res(false)}})}
+function blockedOut(){try{localStorage.removeItem(GKEY)}catch(e){}PERFIL.registered=false;savePerfil();track('acesso_bloqueado');let m=document.getElementById('gate');if(!m){gateShow();m=document.getElementById('gate')}if(!m)return;const box=m.querySelector('.gbox')||m.firstElementChild||m;box.innerHTML='<div style="text-align:center;padding:28px 18px"><div style="font-size:15px;font-weight:800;margin-bottom:8px">'+P3(['Acesso suspenso','Access suspended','Acceso suspendido'])+'</div><div style="font-size:13px;opacity:.8;line-height:1.5">'+P3(['Seu acesso a esta página foi suspenso pela Maxces. Fale com a equipe comercial: '+WA_DISPLAY,'Your access to this page has been suspended by Maxces. Contact the sales team: '+WA_DISPLAY,'Su acceso a esta página fue suspendido por Maxces. Hable con el equipo comercial: '+WA_DISPLAY])+'</div></div>'}
 function trackSend(p){
   if(!TRACK.url)return false;
   const body=JSON.stringify(p);
@@ -2466,12 +2468,13 @@ function gateRegister(m,q){
   const v=id=>F.querySelector('#'+id).value.trim();
   F.querySelector('#rGo').onclick=()=>{const n=v('rNome'),i=v('rImob'),c=v('rCreci'),w=v('rWa').replace(/\D/g,''),e=v('rEmail');
     if(!n||!i||w.length<10||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){F.querySelector('#rErr').hidden=false;return}
+    const btn=F.querySelector('#rGo');btn.disabled=true;blockCheck(w.startsWith('55')?w:'55'+w,e).then(b=>{btn.disabled=false;if(b){PERFIL.nome=n;PERFIL.imob=i;PERFIL.wa=w.startsWith('55')?w:'55'+w;PERFIL.email=e;savePerfil();blockedOut();return}
     PERFIL.nome=n;PERFIL.imob=i;PERFIL.creci=c;PERFIL.wa=w.startsWith('55')?w:'55'+w;PERFIL.email=e;PERFIL.registered=new Date().toISOString();savePerfil();
     track('cadastro');track('login');
-    m.remove();document.body.classList.remove('gated');if(typeof render==='function')try{render()}catch(x){}};
+    m.remove();document.body.classList.remove('gated');if(typeof render==='function')try{render()}catch(x){}})};
   setTimeout(()=>F.querySelector('#rNome').focus(),50);
 }
-gateCheck().then(ok=>{if(!ok){if(gateRead()){try{localStorage.removeItem(GKEY)}catch(e){}if(PERFIL.registered){PERFIL.registered=false;try{localStorage.setItem(PK,JSON.stringify(PERFIL))}catch(e){}}}gateShow()}else if(!PERFIL.registered){gateShow();const m=document.getElementById('gate');if(m)gateRegister(m,s=>m.querySelector(s))}else track('login')});
+gateCheck().then(ok=>{if(!ok){if(gateRead()){try{localStorage.removeItem(GKEY)}catch(e){}if(PERFIL.registered){PERFIL.registered=false;try{localStorage.setItem(PK,JSON.stringify(PERFIL))}catch(e){}}}gateShow()}else if(!PERFIL.registered){gateShow();const m=document.getElementById('gate');if(m)gateRegister(m,s=>m.querySelector(s))}else{track('login');blockCheck().then(b=>{if(b)blockedOut()})}});
 
 
 // ---------- Mobile: menu inicial em lista ----------
