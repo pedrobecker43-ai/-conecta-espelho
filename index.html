@@ -1337,6 +1337,7 @@ const DEVK='conecta-dev-v1';let DEV_ID='';try{DEV_ID=localStorage.getItem(DEVK)|
 const TQK='conecta-track-queue';
 function trackQueue(){try{return JSON.parse(localStorage.getItem(TQK)||'[]')}catch(e){return []}}
 function blockCheck(wa,email){return new Promise(res=>{try{const cb='bc'+Date.now()+Math.floor(Math.random()*1e4);const sc=document.createElement('script');const t=setTimeout(()=>{fin(false)},6000);function fin(v){clearTimeout(t);delete window[cb];sc.remove();res(v)}window[cb]=d=>fin(!!(d&&d.blocked));sc.onerror=()=>fin(false);sc.src=TRACK.url+'?check=1&key='+encodeURIComponent(TRACK.key)+'&dev='+encodeURIComponent(DEV_ID)+'&wa='+encodeURIComponent(wa||PERFIL.wa||'')+'&email='+encodeURIComponent(email||PERFIL.email||'')+'&callback='+cb+'&_='+Date.now();document.head.appendChild(sc)}catch(e){res(false)}})}
+function gasCheck(wa,email){return new Promise(res=>{try{const cb='gc'+Date.now()+Math.floor(Math.random()*1e4);const sc=document.createElement('script');const t=setTimeout(()=>{fin(null)},8000);function fin(v){clearTimeout(t);delete window[cb];sc.remove();res(v)}window[cb]=d=>fin(d||null);sc.onerror=()=>fin(null);sc.src=TRACK.url+'?check=1&key='+encodeURIComponent(TRACK.key)+'&dev='+encodeURIComponent(DEV_ID)+'&wa='+encodeURIComponent(wa||PERFIL.wa||'')+'&email='+encodeURIComponent(email||PERFIL.email||'')+'&callback='+cb+'&_='+Date.now();document.head.appendChild(sc)}catch(e){res(null)}})}
 function blockedOut(){try{localStorage.removeItem(GKEY)}catch(e){}PERFIL.registered=false;savePerfil();track('acesso_bloqueado');let m=document.getElementById('gate');if(!m){gateShow();m=document.getElementById('gate')}if(!m)return;const box=m.querySelector('.gbox')||m.firstElementChild||m;box.innerHTML='<div style="text-align:center;padding:28px 18px"><div style="font-size:15px;font-weight:800;margin-bottom:8px">'+P3(['Acesso suspenso','Access suspended','Acceso suspendido'])+'</div><div style="font-size:13px;opacity:.8;line-height:1.5">'+P3(['Seu acesso a esta página foi suspenso pela Maxces. Fale com a equipe comercial: '+WA_DISPLAY,'Your access to this page has been suspended by Maxces. Contact the sales team: '+WA_DISPLAY,'Su acceso a esta página fue suspendido por Maxces. Hable con el equipo comercial: '+WA_DISPLAY])+'</div></div>'}
 function trackSend(p){
   if(!TRACK.url)return false;
@@ -1366,14 +1367,18 @@ window.addEventListener('online',trackFlush);setTimeout(trackFlush,3000);
 function cadastroPayload(extra){const g=(typeof gateRead==='function'&&gateRead())||{};return Object.assign({key:TRACK.key,type:'cadastro',ts:new Date().toISOString(),code:g.code||'',nome:PERFIL.nome||'',imob:PERFIL.imob||'',creci:PERFIL.creci||'',wa:PERFIL.wa||'',email:PERFIL.email||'',lang:(typeof LANG==='string'?LANG:'pt'),host:location.hostname,dev:DEV_ID,ua:(navigator.userAgent||'').slice(0,120)},extra||{})}
 async function cadastroConfirm(extra){
   let last='';
-  for(let i=0;i<2;i++){
-    try{const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),20000);
-      const r=await fetch(TRACK.url,{method:'POST',mode:'cors',redirect:'follow',cache:'no-store',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(cadastroPayload(extra)),signal:ctl.signal});
-      clearTimeout(t);const txt=await r.text();let j=null;try{j=JSON.parse(txt)}catch(e){}
-      if(r.ok&&j&&j.ok){PERFIL.cadOk=new Date().toISOString();savePerfil();return {ok:true}}
-      last=(j&&j.err)||('HTTP '+r.status);
-    }catch(e){last=String(e&&e.message||e)}
-    if(i===0)await new Promise(res=>setTimeout(res,2000));
+  try{const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),20000);
+    const r=await fetch(TRACK.url,{method:'POST',mode:'cors',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(cadastroPayload(extra)),signal:ctl.signal});
+    clearTimeout(t);const txt=await r.text();let j=null;try{j=JSON.parse(txt)}catch(e){}
+    if(r.ok&&j&&j.ok){PERFIL.cadOk=new Date().toISOString();savePerfil();return {ok:true}}
+    last=(j&&j.err)||('HTTP '+r.status);
+  }catch(e){last=String(e&&e.message||e)}
+  // o navegador não conseguiu ler a resposta: pergunta ao servidor (JSONP) se o cadastro chegou
+  for(let i=0;i<6;i++){
+    await new Promise(res=>setTimeout(res,2500));
+    const c=await gasCheck();
+    if(!c||!('cadastrado' in c))break;
+    if(c.cadastrado){PERFIL.cadOk=new Date().toISOString();savePerfil();return {ok:true}}
   }
   return {ok:false,err:last};
 }
@@ -1390,10 +1395,13 @@ function cadastroPendente(){
   if(PERFIL.cadOk)return;
   const reg=String(PERFIL.registered||'');
   if(reg<'2026-11-06'){PERFIL.cadOk='legado';savePerfil();return}
-  cadastroConfirm({detalhe:'reenvio automático (cadastro de '+reg.slice(0,10)+' não confirmado)'}).then(res=>{if(res.ok||PERFIL.cadVia==='whatsapp')return;
+  gasCheck().then(c=>{if(c&&c.cadastrado){PERFIL.cadOk='confirmado';savePerfil();return}
+  if(PERFIL.cadTried&&!(c&&c.cadastrado===false))return;
+  PERFIL.cadTried=new Date().toISOString();savePerfil();
+  return cadastroConfirm({detalhe:'reenvio automático (cadastro de '+reg.slice(0,10)+' não confirmado)'}).then(res=>{if(res.ok||PERFIL.cadVia==='whatsapp')return;
     gateShow();const m=document.getElementById('gate');if(!m)return;gateRegister(m,s=>m.querySelector(s));
     const F=m.querySelector('#gReg');if(F){const p=F.querySelector('.gsub');if(p)p.innerHTML='<b>'+P3(['Seu cadastro ainda não chegou à Maxces.','Your registration has not reached Maxces yet.','Su registro aún no llegó a Maxces.'])+'</b> '+P3(['Confira os dados e clique em concluir para enviar novamente.','Check your details and click to send again.','Revise los datos y haga clic para enviar de nuevo.'])}
-  });
+  })});
 }
 function trackUnit(u,extra){return Object.assign({torre:u?TW(u):'',unidade:u?u.unidade:'',tipo:u?tipoTxt(u):'',valor:u&&u.valor?u.valor:''},extra||{})}
 let LANG=PERFIL.lang||'pt';
