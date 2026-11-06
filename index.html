@@ -2508,7 +2508,7 @@ function gateRegister(m,q){
     <div class="k">E-mail *</div><input type="email" id="rEmail" value="${PERFIL.email||''}" autocomplete="email">
     <div class="gerr" id="rErr" hidden>${P3(['Preencha nome, imobiliária, WhatsApp e e-mail.','Fill in name, agency, WhatsApp and e-mail.','Complete nombre, inmobiliaria, WhatsApp y e-mail.'])}</div>
     <button class="btn primary" id="rGo" type="button" style="margin-top:10px">${P3(['Concluir cadastro e entrar','Complete registration and enter','Concluir registro y entrar'])}</button>
-    <div class="gsub2">${P3(['Dados usados apenas pela Maxces para suporte comercial e identificação nas propostas.','Used by Maxces only for sales support and identification on proposals.','Datos usados solo por Maxces para soporte comercial e identificación en propuestas.'])}</div>`;
+`;
   const v=id=>F.querySelector('#'+id).value.trim();
   F.querySelector('#rGo').onclick=()=>{const n=v('rNome'),i=v('rImob'),c=v('rCreci'),w=v('rWa').replace(/\D/g,''),e=v('rEmail');
     if(!n||!i||w.length<10||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){F.querySelector('#rErr').hidden=false;return}
