@@ -1362,6 +1362,39 @@ function track(type,extra){
 }
 function trackFlush(){if(!TRACK.url||!navigator.onLine)return;const q=trackQueue();if(!q.length)return;try{localStorage.removeItem(TQK)}catch(e){}q.forEach(p=>{if(!trackSend(p)){const q2=trackQueue();q2.push(p);try{localStorage.setItem(TQK,JSON.stringify(q2))}catch(e){}}})}
 window.addEventListener('online',trackFlush);setTimeout(trackFlush,3000);
+/* CADASTRO CONFIRMADO (06/11/2026): o acesso só é liberado depois que o servidor da Maxces confirma a gravação do cadastro. */
+function cadastroPayload(extra){const g=(typeof gateRead==='function'&&gateRead())||{};return Object.assign({key:TRACK.key,type:'cadastro',ts:new Date().toISOString(),code:g.code||'',nome:PERFIL.nome||'',imob:PERFIL.imob||'',creci:PERFIL.creci||'',wa:PERFIL.wa||'',email:PERFIL.email||'',lang:(typeof LANG==='string'?LANG:'pt'),host:location.hostname,dev:DEV_ID,ua:(navigator.userAgent||'').slice(0,120)},extra||{})}
+async function cadastroConfirm(extra){
+  let last='';
+  for(let i=0;i<2;i++){
+    try{const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),20000);
+      const r=await fetch(TRACK.url,{method:'POST',mode:'cors',redirect:'follow',cache:'no-store',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(cadastroPayload(extra)),signal:ctl.signal});
+      clearTimeout(t);const txt=await r.text();let j=null;try{j=JSON.parse(txt)}catch(e){}
+      if(r.ok&&j&&j.ok){PERFIL.cadOk=new Date().toISOString();savePerfil();return {ok:true}}
+      last=(j&&j.err)||('HTTP '+r.status);
+    }catch(e){last=String(e&&e.message||e)}
+    if(i===0)await new Promise(res=>setTimeout(res,2000));
+  }
+  return {ok:false,err:last};
+}
+function cadastroWaMsg(){return 'Cadastro · Área do corretor Conecta Towers\nNome: '+(PERFIL.nome||'')+'\nImobiliária: '+(PERFIL.imob||'')+'\nCRECI: '+(PERFIL.creci||'—')+'\nWhatsApp: '+(PERFIL.wa||'')+'\nE-mail: '+(PERFIL.email||'')+'\n(A página não conseguiu registrar meu cadastro automaticamente.)'}
+function gateFail(F,err){
+  const h=x=>String(x||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  let d=F.querySelector('#rFail');if(!d){d=document.createElement('div');d.id='rFail';d.className='gerr';F.querySelector('#rGo').insertAdjacentElement('afterend',d)}
+  d.hidden=false;d.style.cssText='display:block;margin-top:10px;line-height:1.45';
+  d.innerHTML='<b>'+P3(['Não foi possível registrar seu cadastro na Maxces.','We could not register you with Maxces.','No fue posible registrar su registro en Maxces.'])+'</b><br>'+P3(['Verifique a internet, desative bloqueadores de anúncio e tente de novo — ou envie seus dados pelo WhatsApp para liberar o acesso.','Check your connection, disable ad blockers and try again — or send your details via WhatsApp to get access.','Verifique la conexión, desactive bloqueadores de anuncios e intente de nuevo — o envíe sus datos por WhatsApp para liberar el acceso.'])+(err?'<br><span style="opacity:.7;font-weight:400;font-size:11px">'+h(err).slice(0,140)+'</span>':'')+'<a class="btn gwa" id="rWaSend" style="margin-top:8px" href="https://wa.me/'+GATE_WA+'?text='+encodeURIComponent(cadastroWaMsg())+'" target="_blank" rel="noopener">'+WA_ICON+P3(['Enviar cadastro pelo WhatsApp','Send registration via WhatsApp','Enviar registro por WhatsApp'])+'</a>';
+  d.querySelector('#rWaSend').onclick=()=>{PERFIL.registered=new Date().toISOString();PERFIL.cadVia='whatsapp';savePerfil();track('cadastro_whatsapp',{detalhe:err?String(err).slice(0,120):''});
+    setTimeout(()=>{const m=document.getElementById('gate');if(m)m.remove();document.body.classList.remove('gated');if(typeof render==='function')try{render()}catch(x){}},800)};
+}
+function cadastroPendente(){
+  if(PERFIL.cadOk)return;
+  const reg=String(PERFIL.registered||'');
+  if(reg<'2026-11-06'){PERFIL.cadOk='legado';savePerfil();return}
+  cadastroConfirm({detalhe:'reenvio automático (cadastro de '+reg.slice(0,10)+' não confirmado)'}).then(res=>{if(res.ok||PERFIL.cadVia==='whatsapp')return;
+    gateShow();const m=document.getElementById('gate');if(!m)return;gateRegister(m,s=>m.querySelector(s));
+    const F=m.querySelector('#gReg');if(F){const p=F.querySelector('.gsub');if(p)p.innerHTML='<b>'+P3(['Seu cadastro ainda não chegou à Maxces.','Your registration has not reached Maxces yet.','Su registro aún no llegó a Maxces.'])+'</b> '+P3(['Confira os dados e clique em concluir para enviar novamente.','Check your details and click to send again.','Revise los datos y haga clic para enviar de nuevo.'])}
+  });
+}
 function trackUnit(u,extra){return Object.assign({torre:u?TW(u):'',unidade:u?u.unidade:'',tipo:u?tipoTxt(u):'',valor:u&&u.valor?u.valor:''},extra||{})}
 let LANG=PERFIL.lang||'pt';
 const T={
@@ -2479,13 +2512,15 @@ function gateRegister(m,q){
   const v=id=>F.querySelector('#'+id).value.trim();
   F.querySelector('#rGo').onclick=()=>{const n=v('rNome'),i=v('rImob'),c=v('rCreci'),w=v('rWa').replace(/\D/g,''),e=v('rEmail');
     if(!n||!i||w.length<10||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){F.querySelector('#rErr').hidden=false;return}
-    const btn=F.querySelector('#rGo');btn.disabled=true;blockCheck(w.startsWith('55')?w:'55'+w,e).then(b=>{btn.disabled=false;if(b){PERFIL.nome=n;PERFIL.imob=i;PERFIL.wa=w.startsWith('55')?w:'55'+w;PERFIL.email=e;savePerfil();blockedOut();return}
-    PERFIL.nome=n;PERFIL.imob=i;PERFIL.creci=c;PERFIL.wa=w.startsWith('55')?w:'55'+w;PERFIL.email=e;PERFIL.registered=new Date().toISOString();savePerfil();
-    track('cadastro');track('login');
-    m.remove();document.body.classList.remove('gated');if(typeof render==='function')try{render()}catch(x){}})};
+    const btn=F.querySelector('#rGo');const lbl=btn.textContent;btn.disabled=true;btn.textContent=P3(['Enviando cadastro…','Sending registration…','Enviando registro…']);const fl=F.querySelector('#rFail');if(fl)fl.hidden=true;
+    blockCheck(w.startsWith('55')?w:'55'+w,e).then(b=>{if(b){btn.disabled=false;btn.textContent=lbl;PERFIL.nome=n;PERFIL.imob=i;PERFIL.wa=w.startsWith('55')?w:'55'+w;PERFIL.email=e;savePerfil();blockedOut();return}
+    PERFIL.nome=n;PERFIL.imob=i;PERFIL.creci=c;PERFIL.wa=w.startsWith('55')?w:'55'+w;PERFIL.email=e;savePerfil();
+    return cadastroConfirm().then(res=>{btn.disabled=false;btn.textContent=lbl;
+      if(res.ok){PERFIL.registered=new Date().toISOString();savePerfil();track('login');m.remove();document.body.classList.remove('gated');if(typeof render==='function')try{render()}catch(x){}return}
+      gateFail(F,res.err)})})};
   setTimeout(()=>F.querySelector('#rNome').focus(),50);
 }
-gateCheck().then(ok=>{if(!ok){if(gateRead()){try{localStorage.removeItem(GKEY)}catch(e){}if(PERFIL.registered){PERFIL.registered=false;try{localStorage.setItem(PK,JSON.stringify(PERFIL))}catch(e){}}}gateShow()}else if(!PERFIL.registered){gateShow();const m=document.getElementById('gate');if(m)gateRegister(m,s=>m.querySelector(s))}else{track('login');blockCheck().then(b=>{if(b)blockedOut()})}});
+gateCheck().then(ok=>{if(!ok){if(gateRead()){try{localStorage.removeItem(GKEY)}catch(e){}if(PERFIL.registered){PERFIL.registered=false;try{localStorage.setItem(PK,JSON.stringify(PERFIL))}catch(e){}}}gateShow()}else if(!PERFIL.registered){gateShow();const m=document.getElementById('gate');if(m)gateRegister(m,s=>m.querySelector(s))}else{track('login');blockCheck().then(b=>{if(b)blockedOut()});cadastroPendente()}});
 
 
 // ---------- Mobile: menu inicial em lista ----------
