@@ -122,7 +122,7 @@ footer{text-align:center;font-size:11px;color:var(--muted);padding:24px 16px}
   </div>
   <div class="card">
     <div class="tabs"><button class="tab on" data-t="ev">Eventos</button><button class="tab" data-t="cad">Cadastros</button><button class="tab" data-t="prop">Propostas</button><button class="tab" data-t="blk">Bloqueados</button><button class="tab" data-t="uso">Tempo de uso</button></div>
-    <div class="tools"><input id="q" placeholder="Buscar por nome, imobiliária, unidade…"><select id="ftype"><option value="">Todos os eventos</option></select></div>
+    <div class="tools"><input id="q" placeholder="Buscar por nome, imobiliária, unidade…"><select id="ftype"><option value="">Todos os eventos</option></select><label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#5f6b7c;white-space:nowrap;cursor:pointer"><input type="checkbox" id="incAdmin"> incluir equipe Maxces</label></div>
     <div class="bulk" id="bulk"></div><div class="tw" id="tbl"></div>
   </div>
 </main>
@@ -138,6 +138,9 @@ function fmtDur(sec){sec=Math.round(sec||0);if(sec<60)return sec+' s';const m=Ma
 function usoStats(ev){const m={};ev.forEach(e=>{if(!e.nome)return;const k=e.nome.trim();const o=m[k]=m[k]||{n:k,imob:e.imob,wa:e.wa,sec:0,dias:new Set(),last:null,abas:{},prop:0,ev:0};if(e.dt&&(!o.last||e.dt>o.last))o.last=e.dt;if(e.type==='uso'){const v=Number(String(e.valor).replace(',','.'))||0;o.sec+=v;o.dias.add(e.dt.toDateString());try{const d=JSON.parse(e.detalhe||'{}');for(const a in d)o.abas[a]=(o.abas[a]||0)+(+d[a]||0)}catch(x){}}else{o.ev++;if(PROP.includes(e.type))o.prop++;o.dias.add(e.dt.toDateString())}});return Object.values(m).sort((a,b)=>b.sec-a.sec)}
 const CLS=t=>/^pdf/.test(t)?'t-pdf':t==='vendi'||t==='simulacao_aprovada'||t==='cadastro'?'t-ok':t==='whatsapp_proposta'?'t-wa':t==='login_falhou'?'t-bad':t==='ficha'?'t-warn':'t-n';
 const PROP=['pdf_proposta','pdf_proposta_renda','whatsapp_proposta'];
+const ADMIN_WA=['5547997075538','5547999995546'];
+const isAdmin=e=>/maxces/i.test(String(e.imob||''))||ADMIN_WA.includes(String(e.wa||'').replace(/\D/g,''))||/^pedro (becker|celular)$/i.test(String(e.nome||'').trim());
+const semEquipe=list=>{const i=$('#incAdmin');return (i&&i.checked)?list:list.filter(e=>!isAdmin(e))};
 const $=s=>document.querySelector(s);
 let KEY='',DATA=null,TAB='ev';
 try{KEY=localStorage.getItem('conecta-admin')||''}catch(e){}
@@ -189,10 +192,10 @@ function render(){
     ['Simulações de renda',ev.filter(e=>e.type==='pdf_renda'||e.type==='pdf_proposta_renda').length,'em PDF'],
     ['Fichas abertas',ev.filter(e=>e.type==='ficha').length,'unidades consultadas'],
     ['Marcadas "vendi"',ev.filter(e=>e.type==='vendi').length,'sinalizações de venda'],
-    ['Tempo de uso',fmtDur(ev.filter(e=>e.type==='uso').reduce((a,e)=>a+(Number(String(e.valor).replace(',','.'))||0),0)),'tela ativa, todos os corretores'],
+    ['Tempo de uso',fmtDur(semEquipe(ev).filter(e=>e.type==='uso').reduce((a,e)=>a+(Number(String(e.valor).replace(',','.'))||0),0)),'tela ativa, todos os corretores'],
   ];
   $('#kpis').innerHTML=K.map(k=>'<div class="kpi"><div class="l">'+k[0]+'</div><div class="v">'+k[1]+'</div><div class="s">'+k[2]+'</div></div>').join('');
-  chart(ev);rank(ev);
+  chart(ev);rank(semEquipe(ev));
   const types=[...new Set(DATA.ev.map(e=>e.type))].sort();
   const cur=$('#ftype').value;$('#ftype').innerHTML='<option value="">Todos os eventos</option>'+types.map(t=>'<option value="'+t+'"'+(t===cur?' selected':'')+'>'+(LAB[t]||t)+'</option>').join('');
   table();
@@ -230,7 +233,7 @@ function table(){
     h='<table><thead><tr><th><input type="checkbox" class="chk" id="chkAll"></th><th>Data</th><th>Nome</th><th>Imobiliária</th><th>CRECI</th><th>WhatsApp</th><th>E-mail</th><th>Código</th><th>Aparelho</th><th>Ações</th></tr></thead><tbody>'+rows.map(c=>{const bl=isBlk(c);return '<tr'+(bl?' class="blocked"':'')+'><td><input type="checkbox" class="chk rowchk" data-row="'+c.row+'"></td><td class="mono">'+fmtDt(c)+'</td><td><b>'+esc(c.nome)+'</b>'+(bl?' <span class="tag t-blk">bloqueado</span>':'')+'</td><td>'+esc(c.imob)+'</td><td class="mono">'+esc(c.creci)+'</td><td>'+waLink(c.wa)+'</td><td>'+esc(c.email)+'</td><td class="mono">'+esc(c.code)+'</td><td class="muted">'+esc(c.ua)+'</td><td>'+(bl?'':'<button class="act blk" data-a="block" data-row="'+c.row+'">Bloquear acesso</button>')+'<button class="act del" data-a="del1" data-row="'+c.row+'">Excluir</button></td></tr>'}).join('')+'</tbody></table>';
     if(!rows.length)h='<div class="empty">Nenhum cadastro.</div>';
   }else if(TAB==='uso'){
-    const rows=usoStats(DATA.ev.filter(inRange)).filter(hit);const mx=rows[0]?Math.max(1,rows[0].sec):1;
+    const rows=usoStats(semEquipe(DATA.ev.filter(inRange))).filter(hit);const mx=rows[0]?Math.max(1,rows[0].sec):1;
     h='<table><thead><tr><th>#</th><th>Corretor</th><th>Tempo em tela</th><th>Dias com acesso</th><th>Último acesso</th><th>Onde passou mais tempo</th><th>Eventos</th><th>Propostas</th><th>WhatsApp</th></tr></thead><tbody>'+rows.map((r,i)=>{const top=Object.entries(r.abas).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([a,v])=>(ABAS[a]||a)+' '+fmtDur(v)).join(' · ');return '<tr><td class="mono">'+(i+1)+'</td><td><b>'+esc(r.n)+'</b><br><span class="muted">'+esc(r.imob||'')+'</span></td><td><b class="mono">'+fmtDur(r.sec)+'</b><div class="bar" style="height:4px;background:#e9ebf1;border-radius:2px;margin-top:4px;min-width:90px"><i style="display:block;height:100%;width:'+(r.sec/mx*100)+'%;background:#1d4ed8;border-radius:2px"></i></div></td><td class="mono">'+r.dias.size+'</td><td class="mono">'+(r.last?r.last.toLocaleDateString('pt-BR')+' '+String(r.last.getHours()).padStart(2,'0')+':'+String(r.last.getMinutes()).padStart(2,'0'):'')+'</td><td class="muted">'+esc(top||'—')+'</td><td class="mono">'+r.ev+'</td><td class="mono">'+r.prop+'</td><td>'+waLink(r.wa)+'</td></tr>'}).join('')+'</tbody></table>';
     if(!rows.length)h='<div class="empty">Nenhum uso registrado no período.</div>';
   }else if(TAB==='blk'){
@@ -251,7 +254,7 @@ function isBlk(c){const w=dg(c.wa),m=String(c.email||'').toLowerCase().trim();re
 function sheetOf(){return TAB==='cad'?'Cadastros':'Eventos'}
 function bulkBar(){
   const bb=$('#bulk');
-  if(TAB==='uso'){bb.innerHTML='Tempo com a página visível e em uso (toques, rolagem, teclado), somado por corretor no período. Os eventos "Tempo em tela" ficam fora da lista de eventos; para vê-los, filtre por tipo.';return}
+  if(TAB==='uso'){bb.innerHTML='Tempo com a página visível e em uso (toques, rolagem, teclado), somado por corretor no período. A equipe Maxces (Pedro) fica de fora, a menos que "incluir equipe Maxces" esteja marcado. Os eventos "Tempo em tela" ficam fora da lista de eventos; para vê-los, filtre por tipo.';return}
   if(TAB==='blk'){bb.innerHTML='Corretor bloqueado é desconectado na próxima abertura do site e não consegue entrar nem com o código — em qualquer aparelho vinculado ao WhatsApp, ao e-mail ou ao aparelho do cadastro.';return}
   bb.innerHTML='<button class="btn2" id="delSel" disabled>Excluir selecionados</button><span id="selN">nenhum selecionado</span>'+(TAB==='cad'?'<button class="act del" id="delTests" style="margin-left:auto">Apagar registros de teste</button>':'');
   const upd=()=>{const n=document.querySelectorAll('.rowchk:checked').length;$('#delSel').disabled=!n;$('#selN').textContent=n?n+' selecionado'+(n>1?'s':''):'nenhum selecionado'};
@@ -276,7 +279,7 @@ $('#tbl').addEventListener('click',async ev=>{
 });
 $('#gbtn').onclick=()=>{KEY=$('#gkey').value.trim();$('#gerr').style.display='none';if(KEY)load()};
 $('#gkey').addEventListener('keydown',e=>{if(e.key==='Enter')$('#gbtn').click()});
-$('#refresh').onclick=load;$('#range').onchange=render;$('#q').oninput=table;$('#ftype').onchange=table;
+$('#refresh').onclick=load;$('#range').onchange=render;$('#incAdmin').onchange=render;$('#q').oninput=table;$('#ftype').onchange=table;
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));TAB=b.dataset.t;$('#ftype').style.display=TAB==='ev'?'':'none';$('#q').placeholder=TAB==='blk'?'Buscar bloqueado…':TAB==='uso'?'Buscar corretor…':'Buscar por nome, imobiliária, unidade…';table()});
 $('#logout').onclick=()=>{try{localStorage.removeItem('conecta-admin')}catch(e){}location.reload()};
 if(KEY)load();
