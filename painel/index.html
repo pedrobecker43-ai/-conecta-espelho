@@ -132,7 +132,7 @@ footer{text-align:center;font-size:11px;color:var(--muted);padding:24px 16px}
 <script>
 const API='https://script.google.com/macros/s/AKfycbxY2w1LDlx8Qjxcbq1c7DsOx-wMXbQ2r3nfU9WgUbU3lg3DPbD1shZTmfavg2d3b8A0NA/exec';
 const SHEET='https://docs.google.com/spreadsheets/d/1W4ez01WiJ3CeRLN99dVp7gI1Dbi2mGtRqwWEBTHsD1A/edit';
-const LAB={cadastro:'Cadastro',login:'Login',login_falhou:'Login falhou',ficha:'Abriu ficha',pdf_proposta:'PDF proposta',pdf_proposta_renda:'PDF proposta + renda',pdf_ficha:'PDF ficha',pdf_renda:'PDF renda',vendi:'Marcou VENDIDA',whatsapp_proposta:'Proposta WhatsApp',simulacao_aprovada:'Simulação aprovada',apresentacao:'Apresentação',video_cliente:'Vídeo cliente',galeria_zip:'Galeria (zip)',doc_ver:'Viu documento',doc_baixar:'Baixou documento',uso:'Tempo em tela',cadastro_whatsapp:'Cadastro via WhatsApp'};
+const LAB={cadastro:'Cadastro',login:'Login',login_falhou:'Login falhou',ficha:'Abriu ficha',pdf_proposta:'PDF proposta',pdf_proposta_renda:'PDF proposta + renda',pdf_ficha:'PDF ficha',pdf_renda:'PDF renda',vendi:'Marcou RESERVADO!',whatsapp_proposta:'Proposta WhatsApp',simulacao_aprovada:'Simulação aprovada',apresentacao:'Apresentação',video_cliente:'Vídeo cliente',galeria_zip:'Galeria (zip)',doc_ver:'Viu documento',doc_baixar:'Baixou documento',uso:'Tempo em tela',cadastro_whatsapp:'Cadastro via WhatsApp'};
 const ABAS={tour:'Plantas',espelho:'Tabela',galeria:'Galeria',docs:'Documentos',local:'Localização',guia:'Guia',obj:'Objeções',bolso:'Bolso',maxces:'Maxces',outro:'Outro'};
 function fmtDur(sec){sec=Math.round(sec||0);if(sec<60)return sec+' s';const m=Math.round(sec/60);if(m<60)return m+' min';const h=Math.floor(m/60);return h+'h '+String(m%60).padStart(2,'0')+'min'}
 function usoStats(ev){const m={};ev.forEach(e=>{if(!e.nome)return;const k=e.nome.trim();const o=m[k]=m[k]||{n:k,imob:e.imob,wa:e.wa,sec:0,dias:new Set(),last:null,abas:{},prop:0,ev:0};if(e.dt&&(!o.last||e.dt>o.last))o.last=e.dt;if(e.type==='uso'){const v=Number(String(e.valor).replace(',','.'))||0;o.sec+=v;o.dias.add(e.dt.toDateString());try{const d=JSON.parse(e.detalhe||'{}');for(const a in d)o.abas[a]=(o.abas[a]||0)+(+d[a]||0)}catch(x){}}else{o.ev++;if(PROP.includes(e.type))o.prop++;o.dias.add(e.dt.toDateString())}});return Object.values(m).sort((a,b)=>b.sec-a.sec)}
@@ -191,7 +191,7 @@ function render(){
     ['Propostas geradas',ev.filter(e=>PROP.includes(e.type)).length,'PDF ou WhatsApp'],
     ['Simulações de renda',ev.filter(e=>e.type==='pdf_renda'||e.type==='pdf_proposta_renda').length,'em PDF'],
     ['Fichas abertas',ev.filter(e=>e.type==='ficha').length,'unidades consultadas'],
-    ['Marcadas "vendi"',ev.filter(e=>e.type==='vendi').length,'sinalizações de venda'],
+    ['Marcadas "Reservei!"',ev.filter(e=>e.type==='vendi').length,'sinalizações de reserva fechada'],
     ['Tempo de uso',fmtDur(semEquipe(ev).filter(e=>e.type==='uso').reduce((a,e)=>a+(Number(String(e.valor).replace(',','.'))||0),0)),'tela ativa, todos os corretores'],
   ];
   $('#kpis').innerHTML=K.map(k=>'<div class="kpi"><div class="l">'+k[0]+'</div><div class="v">'+k[1]+'</div><div class="s">'+k[2]+'</div></div>').join('');

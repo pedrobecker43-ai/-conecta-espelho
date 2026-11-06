@@ -882,7 +882,7 @@ img.logo.wt{display:none!important}
 
 <main class="wrap">
  <div class="view" id="view-espelho">
-  <div class="legend"><span><i style="background:var(--ok-bg);border:1px solid var(--ok)"></i>Disponível</span><span><i style="background:var(--warn-bg);border:1px solid var(--warn)"></i>Reservado</span><span><i style="background:var(--sold-bg);border:1px solid var(--sold)"></i>Vendido</span><span>Unidades disponíveis em verde. Toque para ver preço, foto e reservar.</span><span class="legend-upd">Tabela atualizada às <b id="baseDate2"></b></span></div>
+  <div class="legend"><span><i style="background:var(--ok-bg);border:1px solid var(--ok)"></i>Disponível</span><span><i style="background:var(--warn-bg);border:1px solid var(--warn)"></i>Em reserva</span><span><i style="background:var(--sold-bg);border:1px solid var(--sold)"></i>Reservado</span><span>Unidades disponíveis em verde. Toque para ver preço, foto e reservar.</span><span class="legend-upd">Tabela atualizada às <b id="baseDate2"></b></span></div>
   <div class="stack" id="stack"></div>
  </div>
  <div class="view on" id="view-tour">
@@ -933,7 +933,7 @@ const FX={date:'05/11/2026',USD:5.4615,EUR:6.1311}; /*FX*/
 const WA_NUMBER='5547997682169';
 const WA_DISPLAY='+55 47 99768-2169';
 const TORRE={Park:'Torre Park',Mar:'Torre Mar'};
-const STATUS={D:'Disponível',R:'Reservado',V:'Vendido'};
+const STATUS={D:'Disponível',R:'Em reserva',V:'Reservado'};
 const UNITS=RAW.map(r=>({id:r[0]+'-'+r[1],torre:r[0],unidade:r[1],tipo:r[2],m2:r[3],valor:r[4],status:r[5],andar:r[6],final:r[7]}));
 const brl=v=>v==null?'—':v.toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2,maximumFractionDigits:2});
 const fmt=v=>v==null?'—':v.toLocaleString('pt-BR',{maximumFractionDigits:2});
@@ -1278,7 +1278,7 @@ document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',(
 function visible(u){return (!F.torre.size||F.torre.has(u.torre))&&(!F.status.size||F.status.has(u.status))&&(!F.tipo.size||F.tipo.has(u.tipo))}
 function renderCounts(){
   const c=s=>UNITS.filter(u=>u.status===s).length;
-  document.getElementById('counts').innerHTML=['D','R','V'].map(s=>`<span class="cnt ${s}"><b>${c(s)}</b> ${({D:'disponíve',R:'reservado',V:'vendido'})[s]}${c(s)===1?(s==='D'?'l':''):(s==='D'?'is':'s')}</span>`).join('');
+  document.getElementById('counts').innerHTML=['D','R','V'].map(s=>`<span class="cnt ${s}"><b>${c(s)}</b> ${({D:c(s)===1?'disponível':'disponíveis',R:'em reserva',V:c(s)===1?'reservado':'reservados'})[s]}</span>`).join('');
   const pct=UNITS.length?Math.round(100*c('D')/UNITS.length):0;
   const f=document.getElementById('battFill');f.style.width=pct+'%';f.classList.toggle('mid',pct<=30&&pct>15);f.classList.toggle('low',pct<=15);
   document.getElementById('battPct').textContent=pct+'%';
@@ -1290,7 +1290,7 @@ function renderStack(){
     const us=UNITS.filter(u=>u.torre===t);
     const floors=[...new Set(us.filter(u=>u.andar).map(u=>u.andar))].sort((a,b)=>b-a);
     const d=us.filter(u=>u.status==='D').length,r=us.filter(u=>u.status==='R').length;
-    let html=`<div class="tower"><h3>${name}</h3><div class="meta">${d} disponíveis · ${r} reservadas</div><div class="floors">`;
+    let html=`<div class="tower"><h3>${name}</h3><div class="meta">${d} disponíveis · ${r} em reserva · ${us.filter(u=>u.status==='V').length} reservadas</div><div class="floors">`;
     floors.forEach(f=>{html+=`<div class="floor"><span class="fl">${f}º</span>`;
       for(let i=1;i<=7;i++){const u=us.find(x=>x.andar===f&&x.final===i);
         html+=u?`<button class="cell ${u.status} ${visible(u)?'':'dim'} ci" data-id="${u.id}" title="${u.unidade} · ${u.tipo} · ${fmt(u.m2)} m² · ${brl(u.valor)} · ${STATUS[u.status]}"><i>${fmt(u.m2)} m²</i><b>${u.unidade.slice(-2)}</b><i>${cmil(u.valor)}</i></button>`:'<span class="cell empty"></span>'}
@@ -1411,8 +1411,8 @@ const T={
  tabela:['Valor de tabela','List price','Precio de lista'],tabela_s:['Consulte condições de pagamento pelo WhatsApp.','Payment terms available on WhatsApp.','Consulte condiciones de pago por WhatsApp.'],
  sim_btn:['Simular Proposta – R$ / EUR / USD','Simulate Offer – R$ / EUR / USD','Simular Propuesta – R$ / EUR / USD'],renda_btn:['Renda e retorno','Rental yield','Renta y retorno'],apres_btn:['Apresentar ao cliente','Present to client','Presentar al cliente'],pdf_btn:['Ficha em PDF','PDF sheet','Ficha en PDF'],ver_planta:['Ver planta','View plan','Ver planta'],
  reservar:['Reserve Agora','Reserve Now','Reservar Ahora'],reservar_note:['Abre o WhatsApp {n} com a unidade já preenchida.','Opens WhatsApp {n} with the unit pre-filled.','Abre WhatsApp {n} con la unidad ya cargada.'],
- reservada:['Unidade reservada. Quer entrar na fila ou ver uma similar? Fale conosco no WhatsApp','Unit reserved. Join the waiting list or see a similar one on WhatsApp','Unidad reservada. ¿Lista de espera o una similar? Hable por WhatsApp'],vendida:['Unidade vendida. Veja as disponíveis no mesmo andar ou tipo.','Unit sold. See available units on the same floor or type.','Unidad vendida. Vea las disponibles del mismo piso o tipo.'],
- st_D:['Disponível','Available','Disponible'],st_R:['Reservado','Reserved','Reservada'],st_V:['Vendido','Sold','Vendida'],
+ reservada:['Unidade reservada. Quer entrar na fila ou ver uma similar? Fale conosco no WhatsApp','Unit reserved. Join the waiting list or see a similar one on WhatsApp','Unidad reservada. ¿Lista de espera o una similar? Hable por WhatsApp'],vendida:['Unidade reservada. Veja as disponíveis no mesmo andar ou tipo.','Unit reserved. See available units on the same floor or type.','Unidad reservada. Vea las disponibles del mismo piso o tipo.'],
+ st_D:['Disponível','Available','Disponible'],st_R:['Em reserva','On hold','En reserva'],st_V:['Reservado','Reserved','Reservada'],
  sim_h:['Simulador de proposta','Offer simulator','Simulador de propuesta'],gerar_em:['Gerar em','Currency','Moneda'],cot:['Cotação de fechamento de {d}','Closing rate of {d}','Cotización de cierre del {d}'],
  entrada:['Entrada (mín. 7% = {v})','Down payment (min. 7% = {v})','Entrada (mín. 7% = {v})'],d_entrada:['Data da entrada','Down payment date','Fecha de la entrada'],mensais:['120 mensais (valor de cada, em {c})','120 monthly payments (each, in {c})','120 mensuales (cada una, en {c})'],reforcos:['10 reforços anuais (cada, em {c})','10 annual balloon payments (each, in {c})','10 refuerzos anuales (cada uno, en {c})'],p_mensal:['1ª mensal (vencimento)','1st monthly (due date)','1ª mensual (vencimiento)'],p_reforco:['1º reforço anual','1st annual payment','1º refuerzo anual'],
  ok_pct:['OK · {p}% do valor','OK · {p}% of price','OK · {p}% del valor'],abaixo:['Abaixo da meta: faltam {a} para o mínimo de {b}','Below minimum: {a} short of {b}','Bajo la meta: faltan {a} para el mínimo de {b}'],
@@ -1456,13 +1456,13 @@ function waLink(u){const msg=t('wa_res',{u:u.unidade,t:tipoTxt(u),m:fmt(u.m2),tw
 function cardHTML(u,inline){
   const photo=photoFor(u);
   const cta=u.status==='D'?`<div class="cta"><div class="ctarow"><button class="btn ghost simtoggle" data-act="sim" type="button">${t('sim_btn')}</button><button class="btn ghost" data-act="renda" type="button">${t('renda_btn')}</button></div><div class="ctarow"><button class="btn ghost" data-act="sol" type="button">☀️ ${P3(['Sol e vista','Sun and view','Sol y vista'])}</button>${inline?`<button class="btn ghost dlpdf" data-act="pdf" type="button">${t('pdf_btn')}</button>`:`<button class="btn ghost" data-act="apres" type="button">${t('apres_btn')}</button>`}</div>${inline?'':`<div class="ctarow"><button class="btn ghost dlpdf" data-act="pdf" type="button">${t('pdf_btn')}</button>${VID_OK?`<button class="btn ghost" data-act="video" type="button">🎬 ${P3(['Vídeo para o cliente','Client video','Video para el cliente'])}</button>`:'<span></span>'}</div>`}<a class="btn wa" data-act="wa" href="${waLink(u)}" target="_blank" rel="noopener">${WA_ICON}${t('reservar')}</a><div class="note">${t('reservar_note',{n:'<span class="phone">'+(PRESENT.on&&PRESENT.wa?'+'+PRESENT.wa:WA_DISPLAY)+'</span>'})}</div></div>`
-    :u.status==='R'?`<div class="unavail">${t('reservada')} <button class="btn small" data-act="copy" type="button">${WA_DISPLAY}</button><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><button class="btn small" data-act="sol" type="button">☀️ ${P3(['Sol e vista','Sun and view','Sol y vista'])}</button><button class="btn small" data-act="vendi" type="button">🎉 ${P3(['Vendi!','Sold!','¡Vendí!'])}</button></div></div>`:`<div class="unavail">${t('vendida')}<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><button class="btn small" data-act="sol" type="button">☀️ ${P3(['Sol e vista','Sun and view','Sol y vista'])}</button><button class="btn small" data-act="vendi" type="button">🎉 ${P3(['Vendi!','Sold!','¡Vendí!'])}</button></div></div>`;
+    :u.status==='R'?`<div class="unavail">${t('reservada')} <button class="btn small" data-act="copy" type="button">${WA_DISPLAY}</button><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><button class="btn small" data-act="sol" type="button">☀️ ${P3(['Sol e vista','Sun and view','Sol y vista'])}</button><button class="btn small" data-act="vendi" type="button">🎉 ${P3(['Reservei!','Reserved!','¡Reservé!'])}</button></div></div>`:`<div class="unavail">${t('vendida')}<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><button class="btn small" data-act="sol" type="button">☀️ ${P3(['Sol e vista','Sun and view','Sol y vista'])}</button><button class="btn small" data-act="vendi" type="button">🎉 ${P3(['Reservei!','Reserved!','¡Reservé!'])}</button></div></div>`;
   return `<div class="top"><span class="eyebrow">${TW(u)} · <span class="pill ${u.status}">${t('st_'+u.status)}</span></span>${inline?'':`<button class="btn small" data-act="close">${LANG==='pt'?'Fechar':LANG==='en'?'Close':'Cerrar'}</button>`}</div>
     <div class="head"><div class="unit"><div class="eyebrow">${t('unidade')}</div><h2>${u.unidade}</h2></div>
       <div class="facts"><div class="fact"><div class="l">${t('tipo')}</div><div class="v">${tipoTxt(u)}</div></div><div class="fact"><div class="l">${t('area')}</div><div class="v num">${fmt(u.m2)} m²</div></div><div class="fact"><div class="l">${t('andar')}</div><div class="v">${andarTxt(u)}</div></div><div class="fact"><div class="l">${t('frente')}</div><div class="v">${frenteTxt(u)}</div></div></div></div>
     ${u.valor?`<div class="price"><div class="eyebrow">${t('tabela')}</div><div class="v num">${brl(u.valor)}</div><div class="s">${t('tabela_s')}</div></div>`:''}
     <div class="photo ${photo?'has':''}">${photo?`<img src="${photo}" alt="${u.tipo} ${u.unidade} – Conecta Towers">`:`<span>${u.tipo}</span>`}</div>
-    <div class="sim" id="sim"></div><div class="sim renda" id="renda"></div><div class="sim sol" id="sol"></div>${cta}<div class="pacts" style="margin-top:2px">${audioBtn('unit')}${inline?'':`<button class="btn small" data-act="vendi" type="button">🎉 ${P3(['Vendi!','Sold!','¡Vendí!'])}</button>`}</div>`;
+    <div class="sim" id="sim"></div><div class="sim renda" id="renda"></div><div class="sim sol" id="sol"></div>${cta}<div class="pacts" style="margin-top:2px">${audioBtn('unit')}${inline?'':`<button class="btn small" data-act="vendi" type="button">🎉 ${P3(['Reservei!','Reserved!','¡Reservé!'])}</button>`}</div>`;
 }
 function bindCard(root,u){
   const photo=photoFor(u);
@@ -2052,7 +2052,7 @@ function renderTourPanel(){
   else{html+=`<div class="tp-empty">${P3(['Planta humanizada do Tipo 02.2 ainda não disponível. As unidades deste andar seguem a mesma distribuição de finais do pavimento tipo.','Type 02.2 plan not available yet. Units on this floor follow the typical floor layout.','Planta del Tipo 02.2 aún no disponible. Las unidades siguen la distribución del piso tipo.'])}</div>`}
   if(k==='res'||k==='terreo'){
     const us=k==='terreo'?UNITS.filter(u=>!u.andar):UNITS.filter(u=>u.torre===tw0&&u.andar===f).sort((a,b)=>a.final-b.final);
-    if(us.length){html+=`<div class="k">${P3(['Unidades · toque para abrir a ficha','Units · tap to open the sheet','Unidades · toque para abrir la ficha'])}</div><div class="units">${us.map(u=>`<button class="cell ${u.status}" data-id="${u.id}" title="${u.unidade} · ${tipoTxt(u)} · ${t('st_'+u.status)}">${k==='terreo'?u.unidade.replace('SALA ','S'):u.unidade.slice(-2)}<small>${t('st_'+u.status).slice(0,4)}.</small></button>`).join('')}</div>`}
+    if(us.length){html+=`<div class="k">${P3(['Unidades · toque para abrir a ficha','Units · tap to open the sheet','Unidades · toque para abrir la ficha'])}</div><div class="units">${us.map(u=>`<button class="cell ${u.status}" data-id="${u.id}" title="${u.unidade} · ${tipoTxt(u)} · ${t('st_'+u.status)}">${k==='terreo'?u.unidade.replace('SALA ','S'):u.unidade.slice(-2)}<small>${P3(({D:['Disp.','Avail.','Disp.'],R:['Em res.','Hold','En res.'],V:['Reserv.','Reserv.','Reserv.']})[u.status]||['','',''])}</small></button>`).join('')}</div>`}
   }
   const gal=k==='lazer'?[2,15,4,12,8,9]:k==='garagem'?TOUR_GAL.garagem:k==='terreo'?TOUR_GAL.terreo:p?(TOUR_GAL[p.id]||[]):[];
   html+=galHtml(gal);
@@ -2076,7 +2076,7 @@ const AUDIO={
  local:['O Conecta fica na avenida Colombo Machado Salles, dentro do Vivapark: de frente para a Expansão e ao lado da fase um. São três minutos do trevo da BR cento e um, seis minutos da praia do Perequê, sete minutos de Meia Praia, em Itapema, vinte e cinco de Balneário Camboriú e trinta e cinco do aeroporto de Navegantes.','Conecta is on Colombo Machado Salles Avenue, inside Vivapark: facing the Expansion and next to phase one. Three minutes from the BR one-oh-one junction, six minutes from Perequê beach, seven from Meia Praia in Itapema, twenty-five from Balneário Camboriú and thirty-five from Navegantes airport.','Conecta está en la avenida Colombo Machado Salles, dentro del Vivapark: frente a la Expansión y junto a la fase uno. A tres minutos del acceso a la BR ciento uno, seis de la playa de Perequê, siete de Meia Praia, en Itapema, veinticinco de Balneário Camboriú y treinta y cinco del aeropuerto de Navegantes.']
 };
 AUDIO['tipo01-mar']=AUDIO['tipo01-park'].map(s=>s.replace('Torre Park','Torre Mar').replace('Park Tower','Mar Tower'));
-function unitScript(u){const pr=u.valor?brl(u.valor):'';return P3([`Unidade ${u.unidade} da ${TORRE[u.torre]}: ${u.tipo}, ${fmt(u.m2)} metros quadrados, ${u.andar?u.andar+'º andar':'térreo'}, ${frente(u).toLowerCase()}. ${pr?'Valor de tabela '+pr+'.':''} ${u.status==='D'?'Disponível para reserva.':u.status==='R'?'Reservada.':'Vendida.'}`,`Unit ${u.unidade}, ${TW(u)}: ${tipoTxt(u)}, ${fmt(u.m2)} square meters, ${andarTxt(u)}, facing ${frenteTxt(u).toLowerCase()}. ${pr?'List price '+pr+'.':''} ${u.status==='D'?'Available to reserve.':u.status==='R'?'Reserved.':'Sold.'}`,`Unidad ${u.unidade}, ${TW(u)}: ${tipoTxt(u)}, ${fmt(u.m2)} metros cuadrados, ${andarTxt(u)}, frente ${frenteTxt(u).toLowerCase()}. ${pr?'Precio de lista '+pr+'.':''} ${u.status==='D'?'Disponible para reservar.':u.status==='R'?'Reservada.':'Vendida.'}`])}
+function unitScript(u){const pr=u.valor?brl(u.valor):'';return P3([`Unidade ${u.unidade} da ${TORRE[u.torre]}: ${u.tipo}, ${fmt(u.m2)} metros quadrados, ${u.andar?u.andar+'º andar':'térreo'}, ${frente(u).toLowerCase()}. ${pr?'Valor de tabela '+pr+'.':''} ${u.status==='D'?'Disponível para reserva.':u.status==='R'?'Em reserva.':'Reservada.'}`,`Unit ${u.unidade}, ${TW(u)}: ${tipoTxt(u)}, ${fmt(u.m2)} square meters, ${andarTxt(u)}, facing ${frenteTxt(u).toLowerCase()}. ${pr?'List price '+pr+'.':''} ${u.status==='D'?'Available to reserve.':u.status==='R'?'On hold.':'Reserved.'}`,`Unidad ${u.unidade}, ${TW(u)}: ${tipoTxt(u)}, ${fmt(u.m2)} metros cuadrados, ${andarTxt(u)}, frente ${frenteTxt(u).toLowerCase()}. ${pr?'Precio de lista '+pr+'.':''} ${u.status==='D'?'Disponible para reservar.':u.status==='R'?'En reserva.':'Reservada.'}`])}
 const audioBtn=(key)=>('speechSynthesis' in window)?`<button class="btn small audio" type="button" data-audio="${key}">🔊 ${P3(['Ouvir','Listen','Escuchar'])}</button>`:'';
 let SPK=null;
 function speak(text,btn){
@@ -2278,8 +2278,8 @@ async function makeVideo(u,cli,d){
 // ---------- Modo "Vendi!" — arte de comemoração ----------
 function openVendi(u){track('vendi',trackUnit(u));
   const d=document.getElementById('perfilDrawer');
-  d.innerHTML=`<div class="top"><div><div class="eyebrow">${u.unidade} · ${TW(u)}</div><h2>🎉 ${P3(['Vendi!','Sold!','¡Vendí!'])}</h2></div><button class="btn small" id="veClose">✕</button></div>
-   <p style="color:var(--muted);font-size:13px">${P3(['Arte para Instagram e WhatsApp com a unidade vendida, sua foto e a marca Maxces. Gerada neste aparelho.','Artwork for Instagram and WhatsApp with the sold unit, your photo and the Maxces brand. Generated on this device.','Arte para Instagram y WhatsApp con la unidad vendida, su foto y la marca Maxces. Generada en este dispositivo.'])}</p>
+  d.innerHTML=`<div class="top"><div><div class="eyebrow">${u.unidade} · ${TW(u)}</div><h2>🎉 ${P3(['Reservei!','Reserved!','¡Reservé!'])}</h2></div><button class="btn small" id="veClose">✕</button></div>
+   <p style="color:var(--muted);font-size:13px">${P3(['Arte para Instagram e WhatsApp com a unidade reservada, sua foto e a marca Maxces. Gerada neste aparelho.','Artwork for Instagram and WhatsApp with the reserved unit, your photo and the Maxces brand. Generated on this device.','Arte para Instagram y WhatsApp con la unidad reservada, su foto y la marca Maxces. Generada en este dispositivo.'])}</p>
    ${PERFIL.nome?'':`<p class="err" style="font-size:12px;font-weight:700">${t('ap_note')}</p>`}
    <div class="row2"><div><div class="k">${t('pf_nome')}</div><input type="text" id="veNome" value="${PERFIL.nome||''}"></div><div><div class="k">${t('pf_imob')}</div><input type="text" id="veImob" value="${PERFIL.imob||''}"></div></div>
    <div class="k">${P3(['Frase (opcional)','Caption (optional)','Frase (opcional)'])}</div><input type="text" id="veFrase" value="${P3(['Mais um cliente realizado no Conecta Towers','Another happy client at Conecta Towers','Otro cliente feliz en Conecta Towers'])}">
@@ -2308,9 +2308,9 @@ async function makeVendi(u,d,o){
   ctx.fillStyle=navy;ctx.fillRect(0,0,W,H);
   cover(hero,0,0,W,H*0.62,1);const g=ctx.createLinearGradient(0,H*0.25,0,H*0.62);g.addColorStop(0,'rgba(11,26,51,0)');g.addColorStop(1,'rgba(11,26,51,1)');ctx.fillStyle=g;ctx.fillRect(0,H*0.25,W,H*0.37);
   // ribbon
-  ctx.save();ctx.translate(W-250,120);ctx.rotate(Math.PI/4);ctx.fillStyle=gold;ctx.fillRect(-260,-50,520,100);txt(P3(['VENDIDA','SOLD','VENDIDA']),0,22,60,navy,true,'center');ctx.restore();
+  ctx.save();ctx.translate(W-250,120);ctx.rotate(Math.PI/4);ctx.fillStyle=gold;ctx.fillRect(-260,-50,520,100);txt(P3(['RESERVADA','RESERVED','RESERVADA']),0,22,60,navy,true,'center');ctx.restore();
   // main
-  const st=o.fmt==='story';let y=st?H*0.56:H*0.49;txt(P3(['VENDI!','SOLD!','¡VENDÍ!']),80,y,st?150:120,gold,true);y+=st?100:84;
+  const st=o.fmt==='story';let y=st?H*0.56:H*0.49;txt(P3(['RESERVADO!','RESERVED!','¡RESERVADO!']),80,y,st?150:120,gold,true);y+=st?100:84;
   if(o.showUnit)fit(P3(['Unidade','Unit','Unidad'])+' '+u.unidade+' · '+TW(u),80,y,64,white,true,'left',920);else fit(TW(u),80,y,64,white,true,'left',920);y+=70;
   txt(tipoTxt(u)+' · '+fmt(u.m2)+' m² · '+andarTxt(u),80,y,42,mute,false);y+=90;
   if(o.frase){ctx.font='500 40px system-ui,sans-serif';const words=o.frase.split(' ');let line='';for(const w of words){const tt=line?line+' '+w:w;if(ctx.measureText(tt).width>900&&line){txt(line,80,y,40,white,false);line=w;y+=52}else line=tt}if(line){txt(line,80,y,40,white,false);y+=52}}
@@ -2321,9 +2321,9 @@ async function makeVendi(u,d,o){
   if(logo)contain(logo,W-300,H-115,240,70);txt('CONECTA TOWERS · VIVAPARK · PORTO BELO',80,H-70,24,mute,true);
   const blob=await new Promise(r=>cv.toBlob(r,'image/png'));const url=URL.createObjectURL(blob);
   const vd=d.querySelector('#veDone');vd.hidden=false;vd.innerHTML=`<button class="btn primary" id="veSave">${P3(['Salvar imagem','Save image','Guardar imagen'])}</button><button class="btn" id="veWa">${WA_ICON}${P3(['Texto para legenda','Caption text','Texto para pie'])}</button>`;
-  const fn='vendi-'+slug(u.torre+'-'+u.unidade)+'-'+o.fmt+'.png';
+  const fn='reservei-'+slug(u.torre+'-'+u.unidade)+'-'+o.fmt+'.png';
   vd.querySelector('#veSave').onclick=async e=>{const b=e.currentTarget;b.disabled=true;try{await deliverFile(blob,fn,'image')}catch(er){if(er&&er.code!=='declined')toast('Não foi possível salvar')}finally{b.disabled=false}};
-  vd.querySelector('#veWa').onclick=()=>copy(P3([`🎉 VENDI! ${o.showUnit?'Unidade '+u.unidade+' · ':''}${TW(u)} · Conecta Towers, Vivapark Porto Belo.\n${o.frase||''}\n${o.nome||''}${o.imob?' · '+o.imob:''}\n#ConectaTowers #Vivapark #PortoBelo #Maxces #Vendido`,`🎉 SOLD! ${o.showUnit?'Unit '+u.unidade+' · ':''}${TW(u)} · Conecta Towers, Vivapark Porto Belo.\n${o.frase||''}\n${o.nome||''}${o.imob?' · '+o.imob:''}\n#ConectaTowers #Vivapark #PortoBelo #Maxces #Sold`,`🎉 ¡VENDÍ! ${o.showUnit?'Unidad '+u.unidade+' · ':''}${TW(u)} · Conecta Towers, Vivapark Porto Belo.\n${o.frase||''}\n${o.nome||''}${o.imob?' · '+o.imob:''}\n#ConectaTowers #Vivapark #PortoBelo #Maxces #Vendido`]),t('copiado'));
+  vd.querySelector('#veWa').onclick=()=>copy(P3([`🎉 RESERVADO! ${o.showUnit?'Unidade '+u.unidade+' · ':''}${TW(u)} · Conecta Towers, Vivapark Porto Belo.\n${o.frase||''}\n${o.nome||''}${o.imob?' · '+o.imob:''}\n#ConectaTowers #Vivapark #PortoBelo #Maxces #Reservado`,`🎉 RESERVED! ${o.showUnit?'Unit '+u.unidade+' · ':''}${TW(u)} · Conecta Towers, Vivapark Porto Belo.\n${o.frase||''}\n${o.nome||''}${o.imob?' · '+o.imob:''}\n#ConectaTowers #Vivapark #PortoBelo #Maxces #Reserved`,`🎉 ¡RESERVADO! ${o.showUnit?'Unidad '+u.unidade+' · ':''}${TW(u)} · Conecta Towers, Vivapark Porto Belo.\n${o.frase||''}\n${o.nome||''}${o.imob?' · '+o.imob:''}\n#ConectaTowers #Vivapark #PortoBelo #Maxces #Reservado`]),t('copiado'));
   go.disabled=false;
 }
 
