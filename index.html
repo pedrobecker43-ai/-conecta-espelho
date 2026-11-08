@@ -871,6 +871,8 @@ img.logo.wt{display:none!important}
 .gate .gcard .btn.glink{color:var(--gl-blue)}
 .gate .gcard .btn.gwa{border-radius:999px;box-shadow:0 14px 40px -16px rgba(37,211,102,.8)}
 @media (prefers-reduced-motion:reduce){.gate::before{animation:none;transform:none}}
+.gate .gcard .gsub:empty{display:none}
+.gate #gReg .eyebrow{margin-bottom:12px}
 </style>
 
 <header>
@@ -2528,7 +2530,7 @@ function gateRegister(m,q){
   const L=q('#gLogin');L.hidden=true;
   let F=q('#gReg');if(!F){F=document.createElement('div');F.className='gcard';F.id='gReg';L.parentNode.insertBefore(F,L.nextSibling)}
   F.innerHTML=`<div class="eyebrow" style="color:#7fd3ff">${P3(['Primeiro acesso · cadastro','First access · registration','Primer acceso · registro'])}</div>
-    <p class="gsub" style="margin:4px 0 10px">${P3(['Preencha uma vez. Seus dados vão para a Maxces e ficam salvos neste aparelho para as propostas em PDF.','Fill in once. Your details go to Maxces and are saved on this device for PDF proposals.','Complete una vez. Sus datos van a Maxces y quedan guardados en este dispositivo para las propuestas en PDF.'])}</p>
+    <p class="gsub" style="margin:4px 0 10px"></p>
     <div class="k">${P3(['Nome completo','Full name','Nombre completo'])} *</div><input type="text" id="rNome" value="${PERFIL.nome||''}" autocomplete="name">
     <div class="k">${P3(['Imobiliária','Agency','Inmobiliaria'])} *</div><input type="text" id="rImob" value="${PERFIL.imob||''}" autocomplete="organization">
     <div class="row2"><div><div class="k">CRECI</div><input type="text" id="rCreci" value="${PERFIL.creci||''}"></div><div><div class="k">WhatsApp *</div><input type="tel" id="rWa" value="${PERFIL.wa?PERFIL.wa.replace(/^55/,''):''}" placeholder="47 99999-0000" autocomplete="tel"></div></div>
