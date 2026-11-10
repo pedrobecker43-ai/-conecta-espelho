@@ -615,6 +615,7 @@ header{background:linear-gradient(180deg,#0a1c28 0%,#0d2634 60%,#0f3340 100%);po
 .gcard .k{color:#8fb0bf}.gcard input{width:100%;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.25);color:#fff;border-radius:12px;padding:12px;font:inherit;font-size:16px;margin-bottom:10px}
 .gcard #gCode{text-align:center;letter-spacing:.14em;font-weight:700;font-size:20px;text-transform:uppercase}
 .gcard .btn{width:100%;justify-content:center;margin-top:4px}.gcard .btn.primary{background:#1a8ad1;color:#fff;border-color:#1a8ad1;padding:11px}
+.gcard .gat{display:grid;gap:6px;margin:0 0 10px}.gcard .gat label{display:flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.25);border-radius:12px;padding:11px 12px;font-size:15px;color:#fff;cursor:pointer}.gcard .gat input{width:18px;height:18px;margin:0;padding:0;flex:none;accent-color:#1a8ad1}.gcard .gat label:has(input:checked){border-color:#7fd3ff;background:rgba(26,138,209,.22)}
 .gcard .btn.glink{background:transparent;border:0;color:#7fd3ff;font-weight:600;margin-top:8px}
 .gcard .gsub{color:#b0c8d4;font-size:13px;margin:4px 0 10px}.gcard .eyebrow{color:#7fd3ff}
 .gerr{color:#ffb4a8;font-size:12px;margin:-4px 0 8px}
@@ -1393,7 +1394,7 @@ function track(type,extra){
 function trackFlush(){if(!TRACK.url||!navigator.onLine)return;const q=trackQueue();if(!q.length)return;try{localStorage.removeItem(TQK)}catch(e){}q.forEach(p=>{if(!trackSend(p)){const q2=trackQueue();q2.push(p);try{localStorage.setItem(TQK,JSON.stringify(q2))}catch(e){}}})}
 window.addEventListener('online',trackFlush);setTimeout(trackFlush,3000);
 /* CADASTRO CONFIRMADO (06/11/2026): o acesso só é liberado depois que o servidor da Maxces confirma a gravação do cadastro. */
-function cadastroPayload(extra){const g=(typeof gateRead==='function'&&gateRead())||{};return Object.assign({key:TRACK.key,type:'cadastro',ts:new Date().toISOString(),code:g.code||'',nome:PERFIL.nome||'',imob:PERFIL.imob||'',creci:PERFIL.creci||'',wa:PERFIL.wa||'',email:PERFIL.email||'',lang:(typeof LANG==='string'?LANG:'pt'),host:location.hostname,dev:DEV_ID,ua:(navigator.userAgent||'').slice(0,120)},extra||{})}
+function cadastroPayload(extra){const g=(typeof gateRead==='function'&&gateRead())||{};return Object.assign({key:TRACK.key,type:'cadastro',ts:new Date().toISOString(),code:g.code||'',nome:PERFIL.nome||'',imob:PERFIL.imob||'',creci:PERFIL.creci||'',wa:PERFIL.wa||'',email:PERFIL.email||'',lang:(typeof LANG==='string'?LANG:'pt'),host:location.hostname,dev:DEV_ID,ua:(navigator.userAgent||'').slice(0,120)},PERFIL.atend?{detalhe:'atendimento: '+PERFIL.atend}:{},extra||{})}
 async function cadastroConfirm(extra){
   let last='';
   try{const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),20000);
@@ -1411,13 +1412,13 @@ async function cadastroConfirm(extra){
   }
   return {ok:false,err:last};
 }
-function cadastroWaMsg(){return 'Cadastro · Área do corretor Conecta Towers\nNome: '+(PERFIL.nome||'')+'\nImobiliária: '+(PERFIL.imob||'')+'\nCRECI: '+(PERFIL.creci||'—')+'\nWhatsApp: '+(PERFIL.wa||'')+'\nE-mail: '+(PERFIL.email||'')+'\n(A página não conseguiu registrar meu cadastro automaticamente.)'}
+function cadastroWaMsg(){return 'Cadastro · Área do corretor Conecta Towers\nNome: '+(PERFIL.nome||'')+'\nImobiliária: '+(PERFIL.imob||'')+'\nCRECI: '+(PERFIL.creci||'—')+'\nWhatsApp: '+(PERFIL.wa||'')+'\nE-mail: '+(PERFIL.email||'')+'\nAtendimento: '+(PERFIL.atend==='nenhum'?'ainda não estou sendo atendido':(PERFIL.atend||'não informado'))+'\n(A página não conseguiu registrar meu cadastro automaticamente.)'}
 function gateFail(F,err){
   const h=x=>String(x||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
   let d=F.querySelector('#rFail');if(!d){d=document.createElement('div');d.id='rFail';d.className='gerr';F.querySelector('#rGo').insertAdjacentElement('afterend',d)}
   d.hidden=false;d.style.cssText='display:block;margin-top:10px;line-height:1.45';
   d.innerHTML='<b>'+P3(['Não foi possível registrar seu cadastro na Maxces.','We could not register you with Maxces.','No fue posible registrar su registro en Maxces.'])+'</b><br>'+P3(['Verifique a internet, desative bloqueadores de anúncio e tente de novo — ou envie seus dados pelo WhatsApp para liberar o acesso.','Check your connection, disable ad blockers and try again — or send your details via WhatsApp to get access.','Verifique la conexión, desactive bloqueadores de anuncios e intente de nuevo — o envíe sus datos por WhatsApp para liberar el acceso.'])+(err?'<br><span style="opacity:.7;font-weight:400;font-size:11px">'+h(err).slice(0,140)+'</span>':'')+'<a class="btn gwa" id="rWaSend" style="margin-top:8px" href="https://wa.me/'+GATE_WA+'?text='+encodeURIComponent(cadastroWaMsg())+'" target="_blank" rel="noopener">'+WA_ICON+P3(['Enviar cadastro pelo WhatsApp','Send registration via WhatsApp','Enviar registro por WhatsApp'])+'</a>';
-  d.querySelector('#rWaSend').onclick=()=>{PERFIL.registered=new Date().toISOString();PERFIL.cadVia='whatsapp';savePerfil();track('cadastro_whatsapp',{detalhe:err?String(err).slice(0,120):''});
+  d.querySelector('#rWaSend').onclick=()=>{PERFIL.registered=new Date().toISOString();PERFIL.cadVia='whatsapp';savePerfil();track('cadastro_whatsapp',{detalhe:err?String(err).slice(0,120):''});if(PERFIL.atend)track('atendimento',{detalhe:PERFIL.atend});
     setTimeout(()=>{const m=document.getElementById('gate');if(m)m.remove();document.body.classList.remove('gated');if(typeof render==='function')try{render()}catch(x){}},800)};
 }
 function cadastroPendente(){
@@ -2545,17 +2546,28 @@ function gateRegister(m,q){
     <div class="k">${P3(['Imobiliária','Agency','Inmobiliaria'])} *</div><input type="text" id="rImob" value="${PERFIL.imob||''}" autocomplete="organization">
     <div class="row2"><div><div class="k">CRECI</div><input type="text" id="rCreci" value="${PERFIL.creci||''}"></div><div><div class="k">WhatsApp *</div><input type="tel" id="rWa" value="${PERFIL.wa?PERFIL.wa.replace(/^55/,''):''}" placeholder="47 99999-0000" autocomplete="tel"></div></div>
     <div class="k">E-mail *</div><input type="email" id="rEmail" value="${PERFIL.email||''}" autocomplete="email">
+    <div class="k">${P3(['Você já está sendo atendido?','Are you already being assisted?','¿Ya está siendo atendido?'])} *</div>
+    <div class="gat" id="rAtend" role="radiogroup">
+      <label><input type="radio" name="rAt" value="Ingrid Ribeiro"${PERFIL.atend==='Ingrid Ribeiro'?' checked':''}>Ingrid Ribeiro</label>
+      <label><input type="radio" name="rAt" value="Pedro Becker"${PERFIL.atend==='Pedro Becker'?' checked':''}>Pedro Becker</label>
+      <label><input type="radio" name="rAt" value="nenhum"${PERFIL.atend==='nenhum'?' checked':''}>${P3(['Ainda não estou sendo atendido','I am not being assisted yet','Aún no estoy siendo atendido'])}</label>
+    </div>
+    <div class="gerr" id="rErrAt" hidden>${P3(['Informe se você já está sendo atendido.','Tell us whether you are already being assisted.','Indique si ya está siendo atendido.'])}</div>
     <div class="gerr" id="rErr" hidden>${P3(['Preencha nome, imobiliária, WhatsApp e e-mail.','Fill in name, agency, WhatsApp and e-mail.','Complete nombre, inmobiliaria, WhatsApp y e-mail.'])}</div>
     <button class="btn primary" id="rGo" type="button" style="margin-top:10px">${P3(['Concluir cadastro e entrar','Complete registration and enter','Concluir registro y entrar'])}</button>
 `;
   const v=id=>F.querySelector('#'+id).value.trim();
   F.querySelector('#rGo').onclick=()=>{const n=v('rNome'),i=v('rImob'),c=v('rCreci'),w=v('rWa').replace(/\D/g,''),e=v('rEmail');
+    const atEl=F.querySelector('input[name=rAt]:checked'),at=atEl?atEl.value:'';
+    F.querySelector('#rErr').hidden=true;F.querySelector('#rErrAt').hidden=true;
     if(!n||!i||w.length<10||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){F.querySelector('#rErr').hidden=false;return}
+    if(!at){F.querySelector('#rErrAt').hidden=false;return}
+    PERFIL.atend=at;
     const btn=F.querySelector('#rGo');const lbl=btn.textContent;btn.disabled=true;btn.textContent=P3(['Enviando cadastro…','Sending registration…','Enviando registro…']);const fl=F.querySelector('#rFail');if(fl)fl.hidden=true;
     blockCheck(w.startsWith('55')?w:'55'+w,e).then(b=>{if(b){btn.disabled=false;btn.textContent=lbl;PERFIL.nome=n;PERFIL.imob=i;PERFIL.wa=w.startsWith('55')?w:'55'+w;PERFIL.email=e;savePerfil();blockedOut();return}
     PERFIL.nome=n;PERFIL.imob=i;PERFIL.creci=c;PERFIL.wa=w.startsWith('55')?w:'55'+w;PERFIL.email=e;savePerfil();
     return cadastroConfirm().then(res=>{btn.disabled=false;btn.textContent=lbl;
-      if(res.ok){PERFIL.registered=new Date().toISOString();savePerfil();track('login');m.remove();document.body.classList.remove('gated');if(typeof render==='function')try{render()}catch(x){}return}
+      if(res.ok){PERFIL.registered=new Date().toISOString();savePerfil();if(PERFIL.atend)track('atendimento',{detalhe:PERFIL.atend});track('login');m.remove();document.body.classList.remove('gated');if(typeof render==='function')try{render()}catch(x){}return}
       gateFail(F,res.err)})})};
   setTimeout(()=>F.querySelector('#rNome').focus(),50);
 }
