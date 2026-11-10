@@ -245,6 +245,7 @@ table.dist.small{font-size:12px}table.dist.small td{padding:5px 8px}
 .btn.voice.on{background:#e0323f;color:#fff;border-color:#e0323f}
 .vbar{height:8px;border-radius:4px;background:var(--surface-2);overflow:hidden;margin-top:6px}.vbar i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
 .dict{display:flex;gap:6px;width:100%;margin:4px 0}.dict input{flex:1;min-width:0;border:1px dashed var(--line);background:var(--surface);border-radius:8px;padding:8px 9px;font-size:12px}.dict .btn{flex:none}
+.sim label.chk,.bolso label.chk{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;margin:10px 0 4px;cursor:pointer}.sim label.chk input[type=checkbox],.bolso label.chk input[type=checkbox]{width:18px;height:18px;flex:none;margin:0;padding:0;accent-color:var(--accent)}
 .bolso .row3b{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}@media (max-width:640px){.bolso .row3b{grid-template-columns:1fr}}
 .bolso input{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px;font-family:var(--f-mono);font-size:15px}
 .bolso .k{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:8px 0 4px}
@@ -1341,7 +1342,7 @@ function closeLightbox(){lb.classList.remove('open');document.getElementById('lb
 lb.addEventListener('click',e=>{if(e.target.id!=='lbImg')closeLightbox()});
 document.getElementById('lbClose').onclick=closeLightbox;
 // ---------- simulador de proposta ----------
-const SIM={ENTRADA_MIN:0.07,META:0.60,META_DATA:'2032-12-30',N_MENSAIS:120,N_REFORCOS:10,QUASE_META:0.55,QUASE_TOTAL:0.95,QUASE_ENTRADA:0.06};
+const SIM={ENTRADA_MIN:0.07,CHAVES_MAX:0.10,META:0.60,META_DATA:'2032-12-30',N_MENSAIS:120,N_REFORCOS:10,QUASE_META:0.55,QUASE_TOTAL:0.95,QUASE_ENTRADA:0.06};
 const brl2=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2,maximumFractionDigits:2});
 const parseBRL=s=>{const d=String(s||'').replace(/[^\d,]/g,'').replace(/\./g,'').replace(',','.');const n=parseFloat(d);return isNaN(n)?0:n};
 const fmtIn=v=>v?v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'';
@@ -1451,7 +1452,7 @@ const T={
  resumo:['Entrada em <b>{a}</b> · mensais de <b>{b}</b> a <b>{c}</b> · reforços de <b>{d}</b> a <b>{e}</b>.<br>Até 30/12/2032 entram <b>{m}</b> mensais e <b>{r}</b> reforços.','Down payment on <b>{a}</b> · monthly from <b>{b}</b> to <b>{c}</b> · annual from <b>{d}</b> to <b>{e}</b>.<br>By 30 Dec 2032: <b>{m}</b> monthly and <b>{r}</b> annual payments.','Entrada el <b>{a}</b> · mensuales de <b>{b}</b> a <b>{c}</b> · refuerzos de <b>{d}</b> a <b>{e}</b>.<br>Hasta el 30/12/2032 entran <b>{m}</b> mensuales y <b>{r}</b> refuerzos.'],
  aprovada:['PROPOSTA APROVADA','OFFER APPROVED','PROPUESTA APROBADA'],quase:['FALTA POUCO PARA APROVAR!','ALMOST THERE!','¡FALTA POCO PARA APROBAR!'],quase_s:['Negocie agora mesmo!','Negotiate now!','¡Negocie ahora mismo!'],fora:['PROPOSTA FORA DOS CRITÉRIOS','OFFER OUTSIDE CRITERIA','PROPUESTA FUERA DE CRITERIOS'],enviar:['Enviar agora','Send now','Enviar ahora'],negocie:['NEGOCIE AGORA','NEGOTIATE NOW','NEGOCIE AHORA'],pdf_prop:['Gerar PDF da proposta','Generate offer PDF','Generar PDF de la propuesta'],
  wa_prop:['Olá! Segue PROPOSTA para a unidade {u} ({t}, {m} m²) da {tw} – Conecta Towers.','Hello! Here is an OFFER for unit {u} ({t}, {m} m²) at {tw} – Conecta Towers.','¡Hola! Sigue PROPUESTA para la unidad {u} ({t}, {m} m²) de la {tw} – Conecta Towers.'],
- wa_tab:['Valor de tabela','List price','Precio de lista'],wa_ent:['Entrada','Down payment','Entrada'],wa_em:['em','on','el'],wa_men:['120 mensais de','120 monthly payments of','120 mensuales de'],wa_ref:['10 reforços anuais de','10 annual payments of','10 refuerzos anuales de'],wa_prim:['1ª em','1st on','1ª el'],wa_ult:['última em','last on','última el'],wa_prim2:['1º em','1st on','1º el'],wa_ult2:['último em','last on','último el'],wa_total:['Total','Total','Total'],wa_datab:['da tabela','of list price','de la lista'],wa_abaixo:['abaixo','below','por debajo'],wa_pago:['Pago até as chaves (30/12/2032)','Paid by handover (30 Dec 2032)','Pagado hasta las llaves (30/12/2032)'],wa_faltam:['faltam {f} pontos para 60%','{f} points short of 60%','faltan {f} puntos para 60%'],wa_status:['Status da simulação','Simulation status','Estado de la simulación'],wa_ref_moeda:['Valores em {m} são referência convertida pela cotação acima; o contrato é firmado em reais.','Amounts in {m} are a reference converted at the rate above; the contract is signed in Brazilian reais.','Los valores en {m} son referencia convertida por la cotización anterior; el contrato se firma en reales.'],moeda_usd:['dólar','US dollars','dólares'],moeda_eur:['euro','euros','euros'],
+ wa_tab:['Valor de tabela','List price','Precio de lista'],wa_ent:['Entrada','Down payment','Entrada'],wa_em:['em','on','el'],wa_men:['120 mensais de','120 monthly payments of','120 mensuales de'],ch_opt:['Incluir parcela de chaves (opcional)','Add a handover payment (optional)','Incluir pago de llaves (opcional)'],ch_val:['Chaves ({c}) · máx. 10% = {v}','Handover payment ({c}) · max. 10% = {v}','Llaves ({c}) · máx. 10% = {v}'],ch_data:['Paga na entrega das chaves, em 30/12/2032. Não entra no fluxo de 60%.','Paid at handover, on 30 Dec 2032. Not counted in the 60% plan.','Se paga en la entrega de llaves, el 30/12/2032. No entra en el flujo del 60%.'],ch_ok:['Chaves: {v} = {p}% do valor de tabela','Handover payment: {v} = {p}% of list price','Llaves: {v} = {p}% del precio de lista'],ch_no:['Chaves acima do limite de 10% do valor da unidade. Máximo: {v}','Handover payment above the limit of 10% of the unit price. Maximum: {v}','Llaves por encima del límite del 10% del valor de la unidad. Máximo: {v}'],wa_ch:['Chaves (na entrega, 30/12/2032)','Handover payment (at delivery, 30 Dec 2032)','Llaves (en la entrega, 30/12/2032)'],wa_ref:['10 reforços anuais de','10 annual payments of','10 refuerzos anuales de'],wa_prim:['1ª em','1st on','1ª el'],wa_ult:['última em','last on','última el'],wa_prim2:['1º em','1st on','1º el'],wa_ult2:['último em','last on','último el'],wa_total:['Total','Total','Total'],wa_datab:['da tabela','of list price','de la lista'],wa_abaixo:['abaixo','below','por debajo'],wa_pago:['Pago até as chaves (30/12/2032)','Paid by handover (30 Dec 2032)','Pagado hasta las llaves (30/12/2032)'],wa_faltam:['faltam {f} pontos para 60%','{f} points short of 60%','faltan {f} puntos para 60%'],wa_status:['Status da simulação','Simulation status','Estado de la simulación'],wa_ref_moeda:['Valores em {m} são referência convertida pela cotação acima; o contrato é firmado em reais.','Amounts in {m} are a reference converted at the rate above; the contract is signed in Brazilian reais.','Los valores en {m} son referencia convertida por la cotización anterior; el contrato se firma en reales.'],moeda_usd:['dólar','US dollars','dólares'],moeda_eur:['euro','euros','euros'],
  st_aprov:['PROPOSTA APROVADA','OFFER APPROVED','PROPUESTA APROBADA'],st_quase:['FALTA POUCO PARA APROVAR (negociação)','ALMOST APPROVED (negotiation)','FALTA POCO PARA APROBAR (negociación)'],st_pend:['ENTRADA INFERIOR A 7% — PENDENTE DE APROVAÇÃO','DOWN PAYMENT BELOW 7% — PENDING APPROVAL','ENTRADA INFERIOR AL 7% — PENDIENTE DE APROBACIÓN'],pend_v:['ENTRADA INFERIOR A 7%','DOWN PAYMENT BELOW 7%','ENTRADA INFERIOR AL 7%'],pend_s:['Proposta pendente de aprovação. Fale conosco agora!','Offer pending approval. Talk to us now!','Propuesta pendiente de aprobación. ¡Hable con nosotros ahora!'],pend_b:['FALE CONOSCO AGORA','TALK TO US NOW','HABLE CON NOSOTROS AHORA'],st_fora:['fora dos critérios','outside criteria','fuera de criterios'],
  wa_res:['Olá! Quero reservar a unidade {u} ({t}, {m} m²) da {tw} – Conecta Towers. Valor de tabela: {v}.','Hello! I want to reserve unit {u} ({t}, {m} m²) at {tw} – Conecta Towers. List price: {v}.','¡Hola! Quiero reservar la unidad {u} ({t}, {m} m²) de la {tw} – Conecta Towers. Precio de lista: {v}.'],
  // renda
@@ -1623,6 +1624,7 @@ function correcaoCalc(raw){
   const pays=[{n:0,v:raw.en,k:'en'}];
   for(let i=0;i<SIM.N_MENSAIS;i++)pays.push({n:monthsBetween(t0,isoOf(addMonths(raw.inicio,i))),v:raw.mn,k:'mn'});
   for(let i=0;i<SIM.N_REFORCOS;i++)if(raw.rf>0)pays.push({n:monthsBetween(t0,isoOf(addMonths(raw.inicioR,12*i))),v:raw.rf,k:'rf'});
+  if(raw.ch>0)pays.push({n:nK,v:raw.ch,k:'ch'});
   pays.sort((a,b)=>a.n-b.n);
   const fA=n=>Math.pow(1+mC,n);
   const gT=idxAvg(IDX.tr),mT=Math.pow((1+gT)*(1+IDX.jurosAA/100),1/12)-1;
@@ -2125,35 +2127,38 @@ function bindAudio(root,ctx){root.querySelectorAll('[data-audio]').forEach(b=>b.
 if('speechSynthesis' in window){try{window.speechSynthesis.getVoices()}catch(e){}}
 
 // ---------- 1. O que cabe no seu bolso (busca reversa) ----------
-function simEval(u,en,mn,rf,moeda){
+function simEval(u,en,mn,rf,moeda,chIn){
   const r={BRL:1,USD:FX.USD,EUR:FX.EUR}[moeda]||1;const V=Math.round(u.valor/r*100)/100;
   const d0=todayISO2(),ini=isoOf(addMonths(d0,1)),iniR=isoOf(addMonths(ini,12));
   const nM=countUntil(ini,1,SIM.N_MENSAIS,SIM.META_DATA),nR=countUntil(iniR,12,SIM.N_REFORCOS,SIM.META_DATA);
-  const ate=en+nM*mn+nR*rf,total=en+SIM.N_MENSAIS*mn+SIM.N_REFORCOS*rf;
+  const ch=Math.min(Math.max(0,chIn||0),Math.floor(V*SIM.CHAVES_MAX*100)/100); // chaves: no máximo 10% desta unidade; fora da meta de 60%
+  const ate=en+nM*mn+nR*rf,total=en+SIM.N_MENSAIS*mn+SIM.N_REFORCOS*rf+ch;
   const ok=en>=V*SIM.ENTRADA_MIN-0.005&&ate>=V*SIM.META-0.005&&total>=V-0.005&&en>0&&mn>0;
   const pend=!ok&&en>0&&mn>0&&en<V*SIM.ENTRADA_MIN-0.005&&ate>=V*SIM.META-0.005&&total>=V-0.005;
   const quase=!ok&&((en>=V*SIM.QUASE_ENTRADA&&ate>=V*SIM.QUASE_META&&total>=V*SIM.QUASE_TOTAL)||pend);
-  const entMin=V*SIM.ENTRADA_MIN;const needEn=Math.max(0,entMin-en);const needMn=nM?Math.max(0,(V*SIM.META-Math.max(en,entMin)-nR*rf)/nM):0;const needMn2=Math.max(0,(V-Math.max(en,entMin)-SIM.N_REFORCOS*rf)/SIM.N_MENSAIS);
-  const needRf=(nR&&mn>0)?Math.max(0,(V*SIM.META-Math.max(en,entMin)-nM*mn)/nR,(V-Math.max(en,entMin)-SIM.N_MENSAIS*mn)/SIM.N_REFORCOS):null;
-  return {ok,quase,pend,pct:100*ate/V,pctTot:100*total/V,V,falta:Math.max(0,V-total),needEn,needMn:Math.max(needMn,needMn2),needRf,entMin,nM,nR};
+  const entMin=V*SIM.ENTRADA_MIN;const needEn=Math.max(0,entMin-en);const needMn=nM?Math.max(0,(V*SIM.META-Math.max(en,entMin)-nR*rf)/nM):0;const needMn2=Math.max(0,(V-Math.max(en,entMin)-SIM.N_REFORCOS*rf-ch)/SIM.N_MENSAIS);
+  const needRf=(nR&&mn>0)?Math.max(0,(V*SIM.META-Math.max(en,entMin)-nM*mn)/nR,(V-Math.max(en,entMin)-SIM.N_MENSAIS*mn-ch)/SIM.N_REFORCOS):null;
+  return {ch,ok,quase,pend,pct:100*ate/V,pctTot:100*total/V,V,falta:Math.max(0,V-total),needEn,needMn:Math.max(needMn,needMn2),needRf,entMin,nM,nR};
 }
 function renderBolso(){
   const el=document.getElementById('view-bolso');if(!el)return;
-  const st=renderBolso.st||(renderBolso.st={en:'',mn:'',rf:'',moeda:'BRL',tipo:'',torre:''});
+  const st=renderBolso.st||(renderBolso.st={en:'',mn:'',rf:'',ch:'',chOn:false,moeda:'BRL',tipo:'',torre:''});
   const sym={BRL:'R$',USD:'US$',EUR:'€'}[st.moeda];
   el.innerHTML=`<div class="viewhead"><h2>${P3(['Tenho “x” para investir','I have “x” to invest','Tengo “x” para invertir'])}</h2><span class="sub" style="color:var(--muted);font-size:12px">${P3(['Entrada mínima de 7%. Com entrada + mensal, cada cartão mostra o reforço anual que aprova a unidade; com entrada + reforço anual, mostra a mensal necessária.','Minimum down payment 7%. With down payment + monthly, each card shows the annual payment that approves the unit; with down payment + annual, it shows the monthly needed.','Entrada mínima del 7%. Con entrada + mensual, cada tarjeta muestra el refuerzo anual que aprueba la unidad; con entrada + refuerzo anual, muestra la mensual necesaria.'])}</span><div class="grow"></div><button class="btn small" data-view="espelho">${t('nav_tabela')}</button></div>
    <div class="bolso">
     <div class="curs"><span class="k" style="margin:0 4px 0 0">${t('gerar_em')}</span>${['BRL','USD','EUR'].map(c=>`<button type="button" class="chipc ${st.moeda===c?'on':''}" data-cur="${c}">${({BRL:'R$',USD:'US$',EUR:'€'})[c]}</button>`).join('')}<span class="fxnote" style="margin-left:8px">${st.moeda==='BRL'?'':t('cot',{d:FX.date})+' · '+(st.moeda==='USD'?'US$ 1 = R$ '+FX.USD.toFixed(4).replace('.',','):'€ 1 = R$ '+FX.EUR.toFixed(4).replace('.',','))}</span></div>
     <div class="row3b"><div><div class="k">${P3(['Entrada disponível','Down payment available','Entrada disponible'])} (${sym})</div><input type="text" inputmode="decimal" id="bEn" value="${fmtIn(st.en)}" placeholder="0,00"></div><div><div class="k">${P3(['Mensal que cabe','Monthly that fits','Mensual que cabe'])} (${sym})</div><input type="text" inputmode="decimal" id="bMn" value="${fmtIn(st.mn)}" placeholder="0,00"></div><div><div class="k">${P3(['Reforço anual','Annual payment','Refuerzo anual'])} (${sym})</div><input type="text" inputmode="decimal" id="bRf" value="${fmtIn(st.rf)}" placeholder="0,00"></div></div>
+    <label class="chk"><input type="checkbox" id="bChOn"${st.chOn?' checked':''}>${t('ch_opt')}</label>
+    <div class="row3b" id="bChRow"><div><div class="k">${P3(['Chaves, na entrega','Handover payment','Llaves, en la entrega'])} (${sym})</div><input type="text" inputmode="decimal" id="bCh" value="${fmtIn(st.ch)}" placeholder="0,00"></div><div style="grid-column:span 2;align-self:end"><div class="fxnote" style="margin:0 0 8px">${P3(['Limitadas a 10% do valor de cada unidade. Pagas em 30/12/2032. Não entram no fluxo de 60%.','Limited to 10% of each unit price. Paid on 30 Dec 2032. Not counted in the 60% plan.','Limitadas al 10% del valor de cada unidad. Se pagan el 30/12/2032. No entran en el flujo del 60%.'])}</div></div></div>
     <div class="curs" style="margin-top:8px"><span class="k" style="margin:0 4px 0 0">${t('tipo')}</span>${['','Flat','2 Suítes','Loft Ap','Loft Studio','Comercial'].map(x=>`<button type="button" class="chipc tp ${st.tipo===x?'on':''}" data-tp="${x}">${x||P3(['Todos','All','Todos'])}</button>`).join('')}<span class="k" style="margin:0 4px 0 10px">${P3(['Torre','Tower','Torre'])}</span>${['','Park','Mar'].map(x=>`<button type="button" class="chipc tw ${st.torre===x?'on':''}" data-tw="${x}">${x||P3(['Ambas','Both','Ambas'])}</button>`).join('')}</div>
     <div id="bRes" style="margin-top:12px"></div>
    </div>`;
   const run=()=>{
-    st.en=parseBRL(el.querySelector('#bEn').value);st.mn=parseBRL(el.querySelector('#bMn').value);st.rf=parseBRL(el.querySelector('#bRf').value);
+    st.en=parseBRL(el.querySelector('#bEn').value);st.mn=parseBRL(el.querySelector('#bMn').value);st.rf=parseBRL(el.querySelector('#bRf').value);st.chOn=el.querySelector('#bChOn').checked;st.ch=parseBRL(el.querySelector('#bCh').value);el.querySelector('#bChRow').style.display=st.chOn?'':'none';const chv=st.chOn?(st.ch||0):0;
     const res=el.querySelector('#bRes');
     if(!st.en){res.innerHTML=`<div class="tp-empty">${P3(['Informe a entrada (mínimo de 7% do valor da unidade). Depois, preencha a mensal — a lista mostra o reforço anual que aprova cada unidade — ou preencha o reforço anual — a lista mostra a mensal necessária.','Enter the down payment (minimum 7% of the unit price). Then fill in the monthly — the list shows the annual payment that approves each unit — or fill in the annual payment — the list shows the monthly needed.','Indique la entrada (mínimo 7% del valor de la unidad). Luego complete la mensual — la lista muestra el refuerzo anual que aprueba cada unidad — o complete el refuerzo anual — la lista muestra la mensual necesaria.'])}</div>`;return}
     const mode=st.mn>0?'rf':'mn'; // o que falta: com mensal informada, calcula o reforço; sem mensal, calcula a mensal
-    const list=UNITS.filter(u=>u.status==='D'&&u.valor&&(!st.tipo||u.tipo===st.tipo)&&(!st.torre||u.torre===st.torre)).map(u=>({u,r:simEval(u,st.en,st.mn,st.rf,st.moeda)}));
+    const list=UNITS.filter(u=>u.status==='D'&&u.valor&&(!st.tipo||u.tipo===st.tipo)&&(!st.torre||u.torre===st.torre)).map(u=>({u,r:simEval(u,st.en,st.mn,st.rf,st.moeda,chv)}));
     const up=v=>Math.ceil(v/10)*10,up100=v=>Math.ceil(v/100)*100;
     list.forEach(x=>{x.mnNeed=up(x.r.needMn);x.rfNeed=x.r.needRf==null?null:up100(x.r.needRf);x.cat=x.r.ok?'ok':(x.r.pend?'pend':(x.r.needEn>0?'en':(mode==='rf'&&x.rfNeed!=null?'rf':'mn')))});
     const ok=list.filter(x=>x.cat==='ok').sort((a,b)=>(b.u.andar||0)-(a.u.andar||0)||a.u.valor-b.u.valor);
@@ -2174,10 +2179,11 @@ function renderBolso(){
     const head=mode==='rf'
       ?P3([`Entrada de ${M(st.en)} e mensal de ${M(st.mn)}${st.rf?' + reforço anual de '+M(st.rf):''}: <b>${ok.length}</b> ${ok.length===1?'unidade aprova':'unidades aprovam'} como está; outras <b>${fit}</b> cabem com o reforço anual indicado em cada cartão (${fluxo}).`,`Down payment ${M(st.en)} and monthly ${M(st.mn)}${st.rf?' + annual '+M(st.rf):''}: <b>${ok.length}</b> approved as is; <b>${fit}</b> more fit with the annual payment shown on each card (${fluxo}).`,`Entrada ${M(st.en)} y mensual ${M(st.mn)}${st.rf?' + refuerzo '+M(st.rf):''}: <b>${ok.length}</b> aprueban así; otras <b>${fit}</b> caben con el refuerzo anual indicado en cada tarjeta (${fluxo}).`])
       :P3([`Com entrada de ${M(st.en)}${st.rf?' e reforço anual de '+M(st.rf):''}, <b>${fit}</b> ${fit===1?'unidade cabe':'unidades cabem'} — a mensal necessária aparece em cada cartão (${fluxo}).`,`With a down payment of ${M(st.en)}${st.rf?' and annual '+M(st.rf):''}, <b>${fit}</b> unit(s) fit — the monthly needed is on each card (${fluxo}).`,`Con una entrada de ${M(st.en)}${st.rf?' y refuerzo anual de '+M(st.rf):''}, <b>${fit}</b> unidad(es) caben — la mensual necesaria está en cada tarjeta (${fluxo}).`]);
+    const headCh=chv?' '+P3([`Chaves de ${M(chv)} na entrega, limitadas a 10% de cada unidade e fora do fluxo de 60%.`,`Handover payment of ${M(chv)}, limited to 10% of each unit and not counted in the 60% plan.`,`Llaves de ${M(chv)} en la entrega, limitadas al 10% de cada unidad y fuera del flujo del 60%.`]):'';
     const secFit=mode==='rf'?P3(['Cabem com reforço anual (menor reforço primeiro)','Fit with an annual payment (lowest first)','Caben con refuerzo anual (menor primero)']):(st.rf>0?P3(['Cabem com a mensal indicada (menor mensal primeiro)','Fit with the monthly shown (lowest first)','Caben con la mensual indicada (menor primero)']):P3(['O que esta entrada compra — menor mensal primeiro','What this down payment buys — lowest monthly first','Lo que compra esta entrada — menor mensual primero']));
     const fitList=mode==='rf'?rfl.concat(mn):mn;
     res.innerHTML=`<div class="psum"><span class="cnt" style="background:var(--ok-bg);color:var(--ok)"><b>${ok.length}</b> ${P3(['aprovam','approved','aprueban'])}</span><span class="cnt" style="background:rgba(26,138,209,.14);color:var(--accent)"><b>${fit}</b> ${mode==='rf'?P3(['cabem (ver reforço)','fit (see annual)','caben (ver refuerzo)']):P3(['cabem (ver mensal)','fit (see monthly)','caben (ver mensual)'])}</span>${pend.length?`<span class="cnt" style="background:#ffe8cc;color:#b45309"><b>${pend.length}</b> ${P3(['pendentes (entrada < 7%)','pending (down payment < 7%)','pendientes (entrada < 7%)'])}</span>`:''}<span class="cnt" style="background:var(--warn-bg);color:var(--warn)"><b>${en.length}</b> ${P3(['falta entrada','more down payment','falta entrada'])}</span></div>
-      <div class="tp-empty" style="text-align:left;border-style:solid">${head}</div>
+      <div class="tp-empty" style="text-align:left;border-style:solid">${head}${headCh}</div>
       ${pend.length?`<div class="k" style="margin-top:12px">${P3(['Pendentes de aprovação — fluxo de 60% e valor total atingidos, entrada abaixo de 7% (fale conosco)','Pending approval — 60% plan and total price met, down payment below 7% (talk to us)','Pendientes de aprobación — flujo del 60% y valor total alcanzados, entrada inferior al 7% (hable con nosotros)'])}</div><div class="bgrid">${pend.slice(0,40).map(card).join('')}</div>`:''}
       ${ok.length?`<div class="k" style="margin-top:12px">${P3(['Aprovam com os valores informados (andar mais alto primeiro)','Approved with the amounts entered (highest floor first)','Aprueban con los valores informados (piso más alto primero)'])}</div><div class="bgrid">${ok.slice(0,40).map(card).join('')}</div>`:''}
       ${fitList.length?`<div class="k" style="margin-top:12px">${secFit}</div><div class="bgrid">${fitList.slice(0,60).map(card).join('')}</div>`:''}
@@ -2186,13 +2192,13 @@ function renderBolso(){
     res.querySelectorAll('.bcard').forEach(b=>b.onclick=()=>{const u=UNITS.find(x=>x.id===b.dataset.id);const x=list.find(y=>y.u.id===u.id);const c=b.dataset.cat;const needMn=+b.dataset.mn||0;const needRf=b.dataset.rf===''?null:+b.dataset.rf;
       const useRf=(c==='rf')||(c==='en'&&mode==='rf'&&needRf!=null);
       const mnUse=(useRf||c==='pend')?st.mn:(st.mn>=needMn&&st.mn>0?st.mn:needMn);const rfUse=useRf?Math.max(needRf,st.rf||0):st.rf;const enUse=(c!=='pend'&&x&&x.r.needEn>0)?Math.ceil(x.r.entMin):st.en;
-      u._sim={entrada:enUse,mensal:mnUse,reforco:rfUse,dEntrada:todayISO2(),inicio:isoOf(addMonths(todayISO2(),1)),inicioR:'',moeda:st.moeda,cli:''};openDrawer(u.id);const sb=drawer.querySelector('[data-act=sim]');if(sb)sb.click()});
+      u._sim={entrada:enUse,mensal:mnUse,reforco:rfUse,dEntrada:todayISO2(),inicio:isoOf(addMonths(todayISO2(),1)),inicioR:'',moeda:st.moeda,cli:'',chaves:x&&x.r.ch?x.r.ch:'',chavesOn:!!(x&&x.r.ch)};openDrawer(u.id);const sb=drawer.querySelector('[data-act=sim]');if(sb)sb.click()});
   };
   el.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>showView(b.dataset.view));
-  el.querySelectorAll('.chipc[data-cur]').forEach(b=>b.onclick=()=>{const o={BRL:1,USD:FX.USD,EUR:FX.EUR}[st.moeda];st.moeda=b.dataset.cur;const n={BRL:1,USD:FX.USD,EUR:FX.EUR}[st.moeda];['en','mn','rf'].forEach(k=>{if(st[k])st[k]=Math.round(st[k]*o/n*100)/100});renderBolso()});
+  el.querySelectorAll('.chipc[data-cur]').forEach(b=>b.onclick=()=>{const o={BRL:1,USD:FX.USD,EUR:FX.EUR}[st.moeda];st.moeda=b.dataset.cur;const n={BRL:1,USD:FX.USD,EUR:FX.EUR}[st.moeda];['en','mn','rf','ch'].forEach(k=>{if(st[k])st[k]=Math.round(st[k]*o/n*100)/100});renderBolso()});
   el.querySelectorAll('.chipc.tp').forEach(b=>b.onclick=()=>{st.tipo=b.dataset.tp;renderBolso()});
   el.querySelectorAll('.chipc.tw').forEach(b=>b.onclick=()=>{st.torre=b.dataset.tw;renderBolso()});
-  el.querySelectorAll('input').forEach(i=>{i.addEventListener('input',run);i.addEventListener('blur',()=>{i.value=fmtIn(parseBRL(i.value))})});
+  el.querySelectorAll('input').forEach(i=>{i.addEventListener('input',run);if(i.type==='text')i.addEventListener('blur',()=>{i.value=fmtIn(parseBRL(i.value))})});
   run();
 }
 // ---------- 2. Proposta por voz ----------
@@ -2283,7 +2289,7 @@ async function makeVideo(u,cli,d){
     if(T<4){const k=T/4;cover(hero,0,0,W,H,1+0.08*k);ctx.fillStyle='rgba(11,26,51,'+(0.35+0.3*k)+')';ctx.fillRect(0,0,W,H);const a=ease(T/0.8);ctx.globalAlpha=a;txt(ola+(cli?', '+cli:'')+'!',80,760,96,white,true);txt(P3(['esta unidade é para você','this unit is for you','esta unidad es para usted']),80,850,48,gold,false);ctx.globalAlpha=1;ctx.globalAlpha=ease((T-1)/0.8);txt('CONECTA TOWERS',80,1500,92,white,true);txt('Vivapark · Porto Belo · SC',80,1575,48,mute,false);ctx.globalAlpha=1}
     else if(T<9){const k=(T-4)/5;const imgs=[p1,p2,p3];const i=Math.min(2,Math.floor(k*3)),f=(k*3)%1;cover(imgs[i],0,0,W,H,1+0.1*f);if(f>0.85&&imgs[i+1]){ctx.globalAlpha=(f-0.85)/0.15;cover(imgs[i+1],0,0,W,H,1);ctx.globalAlpha=1}ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(0,1300,W,620);txt(P3(['30+ espaços de lazer','30+ leisure spaces','30+ espacios de lazer']),80,1460,84,white,true);wrap(P3(['Piscinas, spa, academia, padel, coworking, gourmet e lounge — no 8º pavimento, para as duas torres.','Pools, spa, gym, padel, coworking, gourmet and lounge — on the 8th floor, for both towers.','Piscinas, spa, gimnasio, pádel, coworking, gourmet y lounge — en el piso 8, para las dos torres.']),80,1550,42,mute,false,920,54)}
     else if(T<14){ctx.fillStyle='#f3efe9';ctx.fillRect(0,0,W,1300);contain(plan,60,80,960,1160);ctx.fillStyle=navy;ctx.fillRect(0,1300,W,620);const a=ease((T-9)/0.6);ctx.globalAlpha=a;txt(P3(['Unidade','Unit','Unidad'])+' '+u.unidade,80,1420,96,white,true);txt(TW(u)+' · '+tipoTxt(u)+' · '+fmt(u.m2)+' m²',80,1500,46,gold,true);txt(andarTxt(u)+' · '+t('frente')+' '+frenteTxt(u),80,1570,44,mute,false);ctx.globalAlpha=1;bottomBar(1)}
-    else if(T<18){cover(fac,0,0,W,H,1.02+0.04*((T-14)/4));ctx.fillStyle='rgba(11,26,51,.78)';ctx.fillRect(0,0,W,H);const a=ease((T-14)/0.6);ctx.globalAlpha=a;txt(t('tabela'),80,520,46,mute,true);txt(pr,80,620,92,white,true);let y=760;if(sim){txt(P3(['Sua proposta','Your offer','Su propuesta']),80,y,46,gold,true);y+=80;sim.lines.slice(1,4).forEach(l=>{txt(l[0].split(' · ')[0],80,y,40,mute,false);txt(l[1].split(' (')[0],1000,y,44,white,true,'right');y+=70});txt(sim.status,80,y+40,52,sim.ok?'#3ccf91':sim.quase?'#f5a623':'#ff8a8a',true)}else{[[P3(['Entrada','Down payment','Entrada']),'7%'],[P3(['Mensais','Monthly','Mensuales']),'120'],[P3(['Reforços anuais','Annual payments','Refuerzos anuales']),'10'],[P3(['Até as chaves (30/12/2032)','By handover (30 Dec 2032)','Hasta las llaves (30/12/2032)']),'60%']].forEach(l=>{txt(l[0],80,y,44,mute,false);txt(l[1],1000,y,56,white,true,'right');y+=90})}ctx.globalAlpha=1;bottomBar(1)}
+    else if(T<18){cover(fac,0,0,W,H,1.02+0.04*((T-14)/4));ctx.fillStyle='rgba(11,26,51,.78)';ctx.fillRect(0,0,W,H);const a=ease((T-14)/0.6);ctx.globalAlpha=a;txt(t('tabela'),80,520,46,mute,true);txt(pr,80,620,92,white,true);let y=760;if(sim){txt(P3(['Sua proposta','Your offer','Su propuesta']),80,y,46,gold,true);y+=80;sim.lines.slice(1,sim.raw&&sim.raw.ch>0?5:4).forEach(l=>{txt(l[0].split(' · ')[0],80,y,40,mute,false);txt(l[1].split(' (')[0],1000,y,44,white,true,'right');y+=70});txt(sim.status,80,y+40,52,sim.ok?'#3ccf91':sim.quase?'#f5a623':'#ff8a8a',true)}else{[[P3(['Entrada','Down payment','Entrada']),'7%'],[P3(['Mensais','Monthly','Mensuales']),'120'],[P3(['Reforços anuais','Annual payments','Refuerzos anuales']),'10'],[P3(['Até as chaves (30/12/2032)','By handover (30 Dec 2032)','Hasta las llaves (30/12/2032)']),'60%']].forEach(l=>{txt(l[0],80,y,44,mute,false);txt(l[1],1000,y,56,white,true,'right');y+=90})}ctx.globalAlpha=1;bottomBar(1)}
     else{cover(hero,0,0,W,H,1.1);ctx.fillStyle='rgba(11,26,51,.85)';ctx.fillRect(0,0,W,H);const a=ease((T-18)/0.6);ctx.globalAlpha=a;txt(P3(['Fale comigo','Talk to me','Hable conmigo']),540,700,56,gold,true,'center');txt(who,540,820,88,white,true,'center');if(imob)txt(imob,540,900,48,mute,false,'center');txt(wa,540,1040,72,white,true,'center');txt('WhatsApp',540,1110,40,mute,false,'center');if(logo)contain(logo,340,1400,400,120);txt('CONECTA TOWERS',540,1620,60,white,true,'center');txt('Vivapark · Porto Belo',540,1690,40,mute,false,'center');ctx.globalAlpha=1}
   }
   // record
@@ -2365,7 +2371,7 @@ function loadJsPDF(){return JSPDF?Promise.resolve(JSPDF):new Promise((res,rej)=>
 let LAST_PROP=null;
 async function gerarPDF(u,sim,btn,rst){
   LAST_PROP={u,sim:sim||null,rst:rst||null};
-  track(sim?(rst?'pdf_proposta_renda':'pdf_proposta'):'pdf_ficha',trackUnit(u,sim&&sim.raw?{entrada:sim.raw.en,mensal:sim.raw.mn,reforco:sim.raw.rf,moeda:sim.raw.moeda,resultado:(sim.status||'').replace(/<[^>]+>/g,'')}:{}));
+  track(sim?(rst?'pdf_proposta_renda':'pdf_proposta'):'pdf_ficha',trackUnit(u,sim&&sim.raw?Object.assign({entrada:sim.raw.en,mensal:sim.raw.mn,reforco:sim.raw.rf,moeda:sim.raw.moeda,resultado:(sim.status||'').replace(/<[^>]+>/g,'')},sim.raw.ch?{detalhe:'chaves '+sim.raw.ch}:{}):{}));
   const old=btn?btn.textContent:'';if(btn){btn.disabled=true;btn.textContent='…'}
   try{
     const jsPDF=await loadJsPDF();const doc=new jsPDF({unit:'mm',format:'a4'});const W=210,H=297,MX=14,CW=W-2*MX;
@@ -2427,7 +2433,7 @@ async function gerarPDF(u,sim,btn,rst){
 
 function renderSim(u,root){
   root=root||drawer;const el=root.querySelector('#sim');if(!el)return;
-  const st=u._sim||(u._sim={entrada:'',mensal:'',reforco:'',dEntrada:todayISO2(),inicio:isoOf(addMonths(todayISO2(),1)),inicioR:'',moeda:'BRL',cli:''});
+  const st=u._sim||(u._sim={entrada:'',mensal:'',reforco:'',dEntrada:todayISO2(),inicio:isoOf(addMonths(todayISO2(),1)),inicioR:'',moeda:'BRL',cli:'',chaves:'',chavesOn:false});
   const CUR={BRL:['R$',1],USD:['US$',FX.USD],EUR:['€',FX.EUR]};
   const rate=()=>CUR[st.moeda][1],cv=v=>Math.round(v/rate()*100)/100,toBRL=v=>Math.round(v*rate()*100)/100;
   const f2=v=>v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -2441,21 +2447,27 @@ function renderSim(u,root){
     <div class="row2"><div><div class="k">${t('entrada',{v:M(cv(u.valor)*SIM.ENTRADA_MIN)})}</div><input type="text" inputmode="decimal" id="sEntrada" value="${fmtIn(st.entrada)}" placeholder="0,00"></div><div><div class="k">${t('d_entrada')}</div><input type="date" id="sDEntrada" value="${st.dEntrada}"></div></div><div id="eEntrada"></div>
     <div class="row2"><div><div class="k">${t('mensais',{c:CUR[st.moeda][0]})}</div><input type="text" inputmode="decimal" id="sMensal" value="${fmtIn(st.mensal)}" placeholder="0,00"></div><div><div class="k">${t('reforcos',{c:CUR[st.moeda][0]})}</div><input type="text" inputmode="decimal" id="sReforco" value="${fmtIn(st.reforco)}" placeholder="0,00"></div></div>
     <div class="row2"><div><div class="k">${t('p_mensal')}</div><input type="date" id="sInicio" value="${st.inicio}"></div><div><div class="k">${t('p_reforco')}</div><input type="date" id="sInicioR" value="${st.inicioR||''}"></div></div>
+    <label class="chk"><input type="checkbox" id="sChOn"${st.chavesOn?' checked':''}>${t('ch_opt')}</label>
+    <div class="row2" id="sChRow"><div><div class="k">${t('ch_val',{c:CUR[st.moeda][0],v:M(cv(u.valor)*SIM.CHAVES_MAX)})}</div><input type="text" inputmode="decimal" id="sChaves" value="${fmtIn(st.chaves)}" placeholder="0,00"></div><div><div class="k">&nbsp;</div><div class="fxnote" style="margin:0">${t('ch_data')}</div></div></div><div id="eChaves"></div>
     <div><div class="k">${t('ap_cli')}</div><input type="text" id="sCli" value="${st.cli||PRESENT.cli||''}" placeholder="—"></div>
     <div id="eMeta"></div>
     <div class="tot" id="sTot"></div>
     <div id="sVerdict"></div>
     <div class="pacts" style="margin-top:8px"><button class="btn small dlpdf" id="sPdf" type="button">${t('pdf_prop')}</button></div>`;
   const calc=()=>{
-    st.entrada=parseBRL(el.querySelector('#sEntrada').value);st.mensal=parseBRL(el.querySelector('#sMensal').value);st.reforco=parseBRL(el.querySelector('#sReforco').value);st.cli=el.querySelector('#sCli').value.trim();
+    st.entrada=parseBRL(el.querySelector('#sEntrada').value);st.mensal=parseBRL(el.querySelector('#sMensal').value);st.reforco=parseBRL(el.querySelector('#sReforco').value);st.chavesOn=el.querySelector('#sChOn').checked;st.chaves=parseBRL(el.querySelector('#sChaves').value);el.querySelector('#sChRow').style.display=st.chavesOn?'':'none';st.cli=el.querySelector('#sCli').value.trim();
     st.dEntrada=el.querySelector('#sDEntrada').value||todayISO2();st.inicio=el.querySelector('#sInicio').value||isoOf(addMonths(todayISO2(),1));st.inicioR=el.querySelector('#sInicioR').value||'';
     const V=cv(u.valor),en=st.entrada,mn=st.mensal,rf=st.reforco;const B=v=>st.moeda==='BRL'?'':' ('+brl2(toBRL(v))+')';
     el.querySelector('#sTabela').textContent=MB(V);el.querySelector('#sFx').textContent=fxLine();const entMin=V*SIM.ENTRADA_MIN;
     const inicioR=st.inicioR||isoOf(addMonths(st.inicio,12));const okDEnt=st.dEntrada<=SIM.META_DATA;
     const nM=countUntil(st.inicio,1,SIM.N_MENSAIS,SIM.META_DATA),nR=countUntil(inicioR,12,SIM.N_REFORCOS,SIM.META_DATA);
     const ate=(okDEnt?en:0)+nM*mn+nR*rf;const meta=V*SIM.META;
-    const total=en+SIM.N_MENSAIS*mn+SIM.N_REFORCOS*rf;
+    /* chaves: parcela opcional paga na entrega, limitada a 10% da unidade; entra no total, nunca na meta de 60% */
+    const ch=st.chavesOn?(st.chaves||0):0,chMax=V*SIM.CHAVES_MAX,okCh=ch<=chMax+0.005;
+    const total=en+SIM.N_MENSAIS*mn+SIM.N_REFORCOS*rf+ch;
     const okEnt=en>=entMin-0.005,okMeta=ate>=meta-0.005,okTot=total>=V-0.005;
+    el.querySelector('#sChaves').classList.toggle('bad',!okCh);
+    el.querySelector('#eChaves').innerHTML=ch?(okCh?`<div class="ok">${t('ch_ok',{v:M(ch),p:(100*ch/V).toFixed(1)})}</div>`:`<div class="err">${t('ch_no',{v:M(chMax)})}</div>`):'';
     const any=en||mn||rf;
     el.querySelector('#sEntrada').classList.toggle('bad',!okEnt&&en>0);
     el.querySelector('#eEntrada').innerHTML=en?(okEnt?`<div class="ok">${t('ok_pct',{p:(100*en/V).toFixed(1)})}</div>`:`<div class="err">${t('abaixo',{a:M(entMin-en),b:M(entMin)})}</div>`):'';
@@ -2468,23 +2480,23 @@ function renderSim(u,root){
     }
     el.querySelector('#eMeta').innerHTML=metaMsg;
     const ultM=brDate(isoOf(addMonths(st.inicio,SIM.N_MENSAIS-1))),ultR=brDate(isoOf(addMonths(inicioR,12*(SIM.N_REFORCOS-1))));
-    el.querySelector('#sTot').innerHTML=t('resumo',{a:brDate(st.dEntrada),b:brDate(st.inicio),c:ultM,d:brDate(inicioR),e:ultR,m:nM,r:nR});
-    const ok=okEnt&&okMeta&&okTot&&en>0&&mn>0;
-    const pend=!ok&&any&&en>0&&mn>0&&!okEnt&&okMeta&&okTot;
-    const quase=!ok&&!pend&&any&&en>=V*SIM.QUASE_ENTRADA&&ate>=V*SIM.QUASE_META&&total>=V*SIM.QUASE_TOTAL;
+    el.querySelector('#sTot').innerHTML=t('resumo',{a:brDate(st.dEntrada),b:brDate(st.inicio),c:ultM,d:brDate(inicioR),e:ultR,m:nM,r:nR})+(ch?'<br>'+t('wa_ch')+': <b>'+M(ch)+'</b>':'');
+    const ok=okEnt&&okMeta&&okTot&&okCh&&en>0&&mn>0;
+    const pend=!ok&&any&&en>0&&mn>0&&!okEnt&&okMeta&&okTot&&okCh;
+    const quase=!ok&&!pend&&any&&okCh&&en>=V*SIM.QUASE_ENTRADA&&ate>=V*SIM.QUASE_META&&total>=V*SIM.QUASE_TOTAL;
     const status=ok?t('st_aprov'):pend?t('st_pend'):quase?t('st_quase'):t('st_fora');
     const fxTxt=st.moeda==='BRL'?'':fxLine()+' (PTAX, Banco Central)';
-    const msg=`${t('wa_prop',{u:u.unidade,t:tipoTxt(u),m:fmt(u.m2),tw:TW(u)})}\n${t('wa_tab')}: ${MB(V)}\n${fxTxt?fxTxt+'\n':''}${t('wa_ent')}: ${M(en)}${B(en)} ${t('wa_em')} ${brDate(st.dEntrada)}\n${t('wa_men')} ${M(mn)}${B(mn)}: ${t('wa_prim')} ${brDate(st.inicio)}, ${t('wa_ult')} ${ultM}\n${t('wa_ref')} ${M(rf)}${B(rf)}: ${t('wa_prim2')} ${brDate(inicioR)}, ${t('wa_ult2')} ${ultR}\n${t('wa_total')}: ${M(total)}${B(total)} (${pctTot.toFixed(1)}% ${t('wa_datab')}${okTot?'':', '+M(V-total)+' '+t('wa_abaixo')})\n${t('wa_pago')}: ${M(ate)} (${pct.toFixed(1)}%${okMeta?'':', '+t('wa_faltam',{f:(60-pct).toFixed(1)})})\n${t('wa_status')}: ${status}${st.moeda==='BRL'?'':'\n'+t('wa_ref_moeda',{m:st.moeda==='USD'?t('moeda_usd'):t('moeda_eur')})}${PERFIL.nome?'\n'+(LANG==='pt'?'Corretor':LANG==='en'?'Broker':'Corredor')+': '+PERFIL.nome+(PERFIL.imob?' · '+PERFIL.imob:'')+(PERFIL.creci?' · CRECI '+PERFIL.creci:''):''}${st.cli?'\n'+t('ap_cli')+': '+st.cli:''}`;
+    const msg=`${t('wa_prop',{u:u.unidade,t:tipoTxt(u),m:fmt(u.m2),tw:TW(u)})}\n${t('wa_tab')}: ${MB(V)}\n${fxTxt?fxTxt+'\n':''}${t('wa_ent')}: ${M(en)}${B(en)} ${t('wa_em')} ${brDate(st.dEntrada)}\n${t('wa_men')} ${M(mn)}${B(mn)}: ${t('wa_prim')} ${brDate(st.inicio)}, ${t('wa_ult')} ${ultM}\n${t('wa_ref')} ${M(rf)}${B(rf)}: ${t('wa_prim2')} ${brDate(inicioR)}, ${t('wa_ult2')} ${ultR}\n${ch?t('wa_ch')+': '+M(ch)+B(ch)+'\n':''}${t('wa_total')}: ${M(total)}${B(total)} (${pctTot.toFixed(1)}% ${t('wa_datab')}${okTot?'':', '+M(V-total)+' '+t('wa_abaixo')})\n${t('wa_pago')}: ${M(ate)} (${pct.toFixed(1)}%${okMeta?'':', '+t('wa_faltam',{f:(60-pct).toFixed(1)})})\n${t('wa_status')}: ${status}${st.moeda==='BRL'?'':'\n'+t('wa_ref_moeda',{m:st.moeda==='USD'?t('moeda_usd'):t('moeda_eur')})}${PERFIL.nome?'\n'+(LANG==='pt'?'Corretor':LANG==='en'?'Broker':'Corredor')+': '+PERFIL.nome+(PERFIL.imob?' · '+PERFIL.imob:'')+(PERFIL.creci?' · CRECI '+PERFIL.creci:''):''}${st.cli?'\n'+t('ap_cli')+': '+st.cli:''}`;
     const wa=`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
     el.querySelector('#sVerdict').innerHTML=ok?`<div class="verdict ok">${t('aprovada')}</div><a class="btn wa" style="margin-top:8px" href="${wa}" target="_blank" rel="noopener">${WA_ICON}${t('enviar')}</a>`
       :pend?`<div class="verdict warn">${t('pend_v')}<br><span style="font-weight:600;letter-spacing:0;font-size:12px">${t('pend_s')}</span></div><a class="btn wa" style="margin-top:8px" href="${wa}" target="_blank" rel="noopener">${WA_ICON}${t('pend_b')}</a>`
       :quase?`<div class="verdict warn">${t('quase')}<br><span style="font-weight:600;letter-spacing:0;font-size:12px">${t('quase_s')}</span></div><a class="btn wa" style="margin-top:8px" href="${wa}" target="_blank" rel="noopener">${WA_ICON}${t('negocie')}</a>`
       :(any?`<div class="verdict no">${t('fora')}</div>`:'');
-    if(ok&&!st._okTracked){st._okTracked=true;track('simulacao_aprovada',trackUnit(u,{entrada:en,mensal:mn,reforco:rf,moeda:st.moeda,resultado:'aprovada'}))}
-    st._pdf={raw:{V,en,mn,rf,dEntrada:st.dEntrada,inicio:st.inicio,inicioR,moeda:st.moeda},cli:st.cli,ok,quase,status,fx:fxTxt?fxTxt+'. '+t('wa_ref_moeda',{m:st.moeda==='USD'?t('moeda_usd'):t('moeda_eur')}):'',lines:[[t('wa_tab'),MB(V)],[t('wa_ent')+' · '+brDate(st.dEntrada),M(en)+B(en)],[t('wa_men')+' · '+brDate(st.inicio)+' → '+ultM,M(mn)+B(mn)],[t('wa_ref')+' · '+brDate(inicioR)+' → '+ultR,M(rf)+B(rf)],[t('wa_pago'),M(ate)+' ('+pct.toFixed(1)+'%)'],[t('wa_total'),M(total)+B(total)+' ('+pctTot.toFixed(1)+'%)']]};
+    if(ok&&!st._okTracked){st._okTracked=true;track('simulacao_aprovada',trackUnit(u,Object.assign({entrada:en,mensal:mn,reforco:rf,moeda:st.moeda,resultado:'aprovada'},ch?{detalhe:'chaves '+ch}:{})))}
+    st._pdf={raw:{V,en,mn,rf,ch,dEntrada:st.dEntrada,inicio:st.inicio,inicioR,moeda:st.moeda},cli:st.cli,ok,quase,status,fx:fxTxt?fxTxt+'. '+t('wa_ref_moeda',{m:st.moeda==='USD'?t('moeda_usd'):t('moeda_eur')}):'',lines:[[t('wa_tab'),MB(V)],[t('wa_ent')+' · '+brDate(st.dEntrada),M(en)+B(en)],[t('wa_men')+' · '+brDate(st.inicio)+' → '+ultM,M(mn)+B(mn)],[t('wa_ref')+' · '+brDate(inicioR)+' → '+ultR,M(rf)+B(rf)]].concat(ch?[[t('wa_ch'),M(ch)+B(ch)]]:[]).concat([[t('wa_pago'),M(ate)+' ('+pct.toFixed(1)+'%)'],[t('wa_total'),M(total)+B(total)+' ('+pctTot.toFixed(1)+'%)']])};
     const pb=el.querySelector('#sPdf');pb.hidden=!any;
   };
-  el.querySelectorAll('.chipc').forEach(b=>b.onclick=()=>{const o=rate();st.moeda=b.dataset.cur;const n=rate();['entrada','mensal','reforco'].forEach(k=>{if(st[k])st[k]=Math.round(st[k]*o/n*100)/100});renderSim(u,root)});
+  el.querySelectorAll('.chipc').forEach(b=>b.onclick=()=>{const o=rate();st.moeda=b.dataset.cur;const n=rate();['entrada','mensal','reforco','chaves'].forEach(k=>{if(st[k])st[k]=Math.round(st[k]*o/n*100)/100});renderSim(u,root)});
   el.querySelectorAll('input').forEach(i=>{i.addEventListener('input',calc);if(i.type==='text'&&i.id!=='sCli')i.addEventListener('blur',()=>{const v=parseBRL(i.value);i.value=fmtIn(v);calc()})});
   el.querySelector('#sPdf').onclick=e=>{if(st._pdf&&st._pdf.ok)openRendaForm(u,st._pdf);else gerarPDF(u,st._pdf,e.currentTarget)};el.querySelector('[data-back]').onclick=()=>exitModes(root);
   calc();
