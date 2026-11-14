@@ -2599,7 +2599,8 @@ document.getElementById('mback').onclick=mobileHome;
 // ---------- Aviso especial (pop-up da página inicial) ----------
 // Ligue/desligue em AVISO.on. O aviso só aparece se a unidade indicada estiver Disponível na tabela;
 // preço, metragem e andar vêm sempre da tabela atual. Opcional: ate:'2026-11-20' encerra o aviso nessa data.
-const AVISO={on:true,torre:'Mar',unidade:'1004',ate:null}; /*AVISO*/
+// som:true toca o alerta sonoro (dois bipes) a cada pulso; som:false deixa o aviso mudo.
+const AVISO={on:true,torre:'Mar',unidade:'1004',ate:null,som:true}; /*AVISO*/
 function avisoShow(){
   try{
     if(!AVISO||!AVISO.on||document.getElementById('avs'))return;
@@ -2674,12 +2675,26 @@ function avisoShow(){
 <button class="avs-no" type="button" data-avs="x">${tx}</button></div>
 </div>
 </div></div>`;
-    const close=()=>{m.remove();document.removeEventListener('keydown',esc)};
+    // Alerta sonoro: dois bipes curtos a cada pulso (1,1 s), até o corretor acessar a unidade ou fechar.
+    // Navegadores só liberam áudio após um toque/clique: se estiver bloqueado, começa no primeiro toque na tela.
+    // Não toca com a aba em segundo plano e silencia sozinho após 60 s (o card continua pulsando).
+    let actx=null,beepT=null,beepN=0;
+    const unlockEv=['pointerdown','touchend','keydown'];
+    const beep=()=>{if(!actx||document.hidden)return;if(++beepN>55){clearInterval(beepT);beepT=null;return}
+      const t=actx.currentTime+0.02;[0,0.16].forEach(o=>{const os=actx.createOscillator(),g=actx.createGain();os.type='square';os.frequency.setValueAtTime(1245,t+o);g.gain.setValueAtTime(0.0001,t+o);g.gain.exponentialRampToValueAtTime(0.16,t+o+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t+o+0.09);os.connect(g);g.connect(actx.destination);os.start(t+o);os.stop(t+o+0.12)})};
+    const sndStart=()=>{if(beepT||!actx||actx.state!=='running'||!document.getElementById('avs'))return;unlockEv.forEach(e=>document.removeEventListener(e,sndUnlock,true));
+      m.querySelectorAll('.avs-card,.avs-msg').forEach(el=>{el.style.animation='none';void el.offsetWidth;el.style.animation=''});beep();beepT=setInterval(beep,1100)};
+    const sndUnlock=()=>{if(!actx)return;try{const p=actx.resume();if(p&&p.then)p.then(sndStart,()=>{});else sndStart()}catch(e){}};
+    const sndStop=()=>{if(beepT){clearInterval(beepT);beepT=null}unlockEv.forEach(e=>document.removeEventListener(e,sndUnlock,true));if(actx){try{actx.close()}catch(e){}actx=null}};
+    const sndInit=()=>{if(!AVISO.som)return;try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;actx=new AC();
+      if(actx.state==='running')sndStart();else{unlockEv.forEach(e=>document.addEventListener(e,sndUnlock,true));try{const p=actx.resume();if(p&&p.then)p.then(sndStart,()=>{})}catch(e){}}}catch(e){actx=null}};
+    const close=()=>{sndStop();m.remove();document.removeEventListener('keydown',esc)};
     const esc=e=>{if(e.key==='Escape'&&!document.getElementById('gate'))close()};
     m.querySelectorAll('[data-avs="x"]').forEach(b=>b.onclick=close);
     m.querySelector('[data-avs="go"]').onclick=()=>{close();try{openDrawer(u.id)}catch(e){}};
     document.addEventListener('keydown',esc);
     document.body.appendChild(m);
+    sndInit();
   }catch(e){}
 }
 avisoShow();
