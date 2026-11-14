@@ -2398,7 +2398,21 @@ async function gerarPDF(u,sim,btn,rst){
     y+=36;
     // plan + mini gallery
     const photo=photoFor(u);const galIdx=[1,2,14,4];const gal=galIdx.map(i=>GALERIA[i]).filter(Boolean);
-    const planW=sim?84:CW,planHmax=sim?64:96;let planH=0;
+    const planW=sim?84:CW;let planHmax=sim?64:96,planH=0,rowH=8.5;
+    const propNotes=sim?[T(['Proposta válida por 7 dias, sujeita à disponibilidade da unidade e à aprovação da Maxces. Reserva confirmada somente após o aceite formal.','Offer valid for 7 days, subject to unit availability and Maxces approval. Reservation confirmed only after formal acceptance.','Propuesta válida por 7 días, sujeta a disponibilidad y aprobación de Maxces. Reserva confirmada solo tras aceptación formal.'])].concat(sim.fx?[sim.fx]:[]):[];
+    // Ajuste de altura: a 1ª página da proposta nunca transborda (evita página quase em branco quando há Chaves, moeda estrangeira ou nomes longos).
+    // Mede o que vem abaixo (corretor/cliente, condições, status e notas) e, se faltar espaço, reduz primeiro o bloco planta + localização e depois a altura das linhas.
+    if(sim){
+      doc.setFont('helvetica','bold');doc.setFontSize(9.5);
+      const _cli=sim.cli?sim.cli:(PRESENT.cli||'');let _box=0;
+      if(PERFIL.nome||_cli){const _nl=doc.splitTextToSize(PERFIL.nome||'—',CW/2-12);const _sub=[PERFIL.imob,PERFIL.creci?'CRECI '+PERFIL.creci:'',PERFIL.wa?'+'+PERFIL.wa:''].filter(Boolean).join(' · ');const _sl=_sub?doc.splitTextToSize(_sub,CW/2-12):[];_box=Math.max(18,8+_nl.length*4.5+_sl.length*4+3)+7}
+      doc.setFont('helvetica','normal');doc.setFontSize(8);
+      const _nh=propNotes.reduce((a,n)=>a+doc.splitTextToSize(n,CW).length*3.8+2,0)-2;
+      const _n=(sim.lines||[]).length;
+      let over=(y+planHmax+7+_box+6+_n*rowH+5+17+_nh)-275.5;
+      if(over>0){const c=Math.min(over,planHmax-34);planHmax-=c;over-=c}
+      if(over>0&&_n)rowH=Math.max(6.2,rowH-over/_n);
+    }
     if(photo){try{const im=await loadImg(photo);const ratio=im?im.height/im.width:0.75;let w=planW,h=w*ratio;if(h>planHmax){h=planHmax;w=h/ratio}doc.setFillColor(...soft);doc.setDrawColor(...line);doc.roundedRect(MX,y,planW,sim?planHmax:h+4,3,3,'FD');doc.addImage(photo,'JPEG',MX+(planW-w)/2,y+(sim?(planHmax-h)/2:2),w,h);planH=sim?planHmax:h+4}catch(e){}}
     if(sim){const gx=MX+planW+5,gw=CW-planW-5,gh=planHmax;const d=await cover(MZ.air,gw,gh,0);if(d){doc.addImage(d,'JPEG',gx,y,gw,gh,undefined,'FAST');doc.setDrawColor(...line);doc.setLineWidth(0.25);doc.rect(gx,y,gw,gh);doc.setFillColor(10,28,40);doc.rect(gx,y+gh-7,gw,7,'F');doc.setFontSize(7);doc.setFont('helvetica','bold');doc.setTextColor(...white);doc.text(T(['Localização: Av. Colombo Machado Salles, 1600','Location: Av. Colombo Machado Salles, 1600','Ubicación: Av. Colombo Machado Salles, 1600']),gx+2.5,y+gh-2.5)}}
     if(!sim&&gal.length){y+=planH+5;const gw=(CW-3*3)/4,gh=gw*0.66;for(let i=0;i<Math.min(4,gal.length);i++){const d=await cover(gal[i].thumb||gal[i].src,gw,gh);if(!d)continue;const x=MX+i*(gw+3);doc.addImage(d,'JPEG',x,y,gw,gh,undefined,'FAST');doc.setDrawColor(...line);doc.rect(x,y,gw,gh)}planH=gh}
@@ -2412,10 +2426,11 @@ async function gerarPDF(u,sim,btn,rst){
       doc.setFontSize(10);doc.setTextColor(...ink);doc.setFont('helvetica','bold');doc.text(doc.splitTextToSize(cli||'—',CW/2-8),MX+CW/2+2,y+11);doc.setFont('helvetica','normal');y+=bh+7}
     if(sim){
       const L=sim.lines;doc.setFontSize(11);doc.setFont('helvetica','bold');doc.setTextColor(...ink);doc.text(T(['Condições propostas','Proposed terms','Condiciones propuestas']),MX,y);doc.setFillColor(...blue);doc.rect(MX,y+1.8,14,0.8,'F');y+=6;doc.setFont('helvetica','normal');doc.setFontSize(9.5);
-      L.forEach((l,i)=>{if(y>252){foot(pg);pg++;doc.addPage();hdr(T(['Proposta de Reserva','Reservation Proposal','Propuesta de Reserva']));y=44;doc.setFont('helvetica','normal');doc.setFontSize(9.5)}if(i%2===0){doc.setFillColor(...soft);doc.rect(MX,y,CW,8.5,'F')}doc.setTextColor(...grey);doc.text(l[0],MX+3,y+5.6);doc.setFont('helvetica','bold');doc.setTextColor(...ink);doc.text(l[1],W-MX-3,y+5.6,{align:'right'});doc.setFont('helvetica','normal');y+=8.5});
+      const rowF=rowH>=8?9.5:rowH>=7.2?9:8.5;doc.setFontSize(rowF);
+      L.forEach((l,i)=>{if(y>252){foot(pg);pg++;doc.addPage();hdr(T(['Proposta de Reserva','Reservation Proposal','Propuesta de Reserva']));y=44;doc.setFont('helvetica','normal');doc.setFontSize(rowF)}if(i%2===0){doc.setFillColor(...soft);doc.rect(MX,y,CW,rowH,'F')}doc.setTextColor(...grey);doc.text(l[0],MX+3,y+rowH*0.66);doc.setFont('helvetica','bold');doc.setTextColor(...ink);doc.text(l[1],W-MX-3,y+rowH*0.66,{align:'right'});doc.setFont('helvetica','normal');y+=rowH});
       doc.setDrawColor(...line);doc.setLineWidth(0.3);doc.line(MX,y,W-MX,y);
       y+=5;const col=sim.ok?green:sim.quase?[217,119,6]:[180,35,24];doc.setFillColor(...col);doc.roundedRect(MX,y,CW,11,5.5,5.5,'F');doc.setTextColor(...white);doc.setFont('helvetica','bold');doc.setFontSize(10.5);doc.text(sim.status.toUpperCase(),W/2,y+5.5,{align:'center',baseline:'middle'});y+=17;
-      doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...grey);const notes=[T(['Proposta válida por 7 dias, sujeita à disponibilidade da unidade e à aprovação da Maxces. Reserva confirmada somente após o aceite formal.','Offer valid for 7 days, subject to unit availability and Maxces approval. Reservation confirmed only after formal acceptance.','Propuesta válida por 7 días, sujeta a disponibilidad y aprobación de Maxces. Reserva confirmada solo tras aceptación formal.'])];if(sim.fx)notes.push(sim.fx);notes.forEach(n=>{const ls=doc.splitTextToSize(n,CW);if(y+ls.length*3.8>276){foot(pg);pg++;doc.addPage();hdr(T(['Proposta de Reserva','Reservation Proposal','Propuesta de Reserva']));y=44;doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...grey)}doc.text(ls,MX,y);y+=ls.length*3.8+2});
+      doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...grey);propNotes.forEach(n=>{const ls=doc.splitTextToSize(n,CW);if(y+ls.length*3.8>276){foot(pg);pg++;doc.addPage();hdr(T(['Proposta de Reserva','Reservation Proposal','Propuesta de Reserva']));y=44;doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...grey)}doc.text(ls,MX,y);y+=ls.length*3.8+2});
     }else{
       doc.setFontSize(8.5);doc.setTextColor(...grey);doc.setFont('helvetica','normal');doc.text(doc.splitTextToSize(T(['Lazer: piscinas interna e externa, spa, sauna, academia, crossfit, quadras de padel e poliesportiva, salões de festas, gourmet, coworking, brinquedoteca, pet space, mini market, lavanderia (8º pavimento) · Espaço Garden 19º · Coworking externo 28º (Park) · Yoga externo 30º (Mar) · Cobertura com lazer 35º.','Amenities: indoor and outdoor pools, spa, sauna, gym, crossfit, padel and sports courts, party rooms, gourmet, coworking, kids room, pet space, mini market, laundry (8th floor) · Garden 19th · Outdoor coworking 28th (Park) · Outdoor yoga 30th (Mar) · Rooftop leisure 35th.','Amenities: piscinas interna y externa, spa, sauna, gimnasio, crossfit, canchas de pádel y polideportiva, salones de fiestas, gourmet, coworking, ludoteca, pet space, mini market, lavandería (8º piso) · Garden 19º · Coworking externo 28º (Park) · Yoga externo 30º (Mar) · Azotea con lazer 35º.']),CW),MX,y);
     }
