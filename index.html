@@ -2595,6 +2595,95 @@ function mobileEnter(v){if(!isMobile())return;document.body.classList.remove('mh
 document.getElementById('mback').onclick=mobileHome;
 (function(){mobileMenuDecorate();if(isMobile())mobileHome();window.addEventListener('resize',()=>{if(!isMobile())document.body.classList.remove('mhome')})})();
 
+
+// ---------- Aviso especial (pop-up da página inicial) ----------
+// Ligue/desligue em AVISO.on. O aviso só aparece se a unidade indicada estiver Disponível na tabela;
+// preço, metragem e andar vêm sempre da tabela atual. Opcional: ate:'2026-11-20' encerra o aviso nessa data.
+const AVISO={on:true,torre:'Mar',unidade:'1004',ate:null}; /*AVISO*/
+function avisoShow(){
+  try{
+    if(!AVISO||!AVISO.on||document.getElementById('avs'))return;
+    if(AVISO.ate&&new Date()>new Date(AVISO.ate+'T23:59:59'))return;
+    const u=UNITS.find(x=>x.torre===AVISO.torre&&x.unidade===AVISO.unidade);
+    if(!u||u.status!=='D'||u.valor==null)return;
+    if(!document.getElementById('avsFont')){const l=document.createElement('link');l.id='avsFont';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&display=swap';document.head.appendChild(l)}
+    if(!document.getElementById('avsCss')){const st=document.createElement('style');st.id='avsCss';st.textContent=`
+.avs{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;padding:12px;background:rgba(4,10,16,.8);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);font-family:Inter,system-ui,sans-serif;color:#fff}
+.avs *{box-sizing:border-box}
+.avs-card{width:100%;max-width:400px;max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow:auto;border-radius:28px;background:#13212C;border:1px solid rgba(255,255,255,.1);padding:22px;display:flex;flex-direction:column;gap:20px;animation:avsCard 1.1s ease-in-out infinite}
+.avs-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.avs-pill{display:flex;align-items:center;gap:10px;height:32px;padding:0 14px;border-radius:16px;background:rgba(61,220,151,.12);border:1px solid rgba(61,220,151,.35);font-size:12px;font-weight:700;letter-spacing:.14em;color:#5FE8AE;white-space:nowrap}
+.avs-dot{width:8px;height:8px;border-radius:4px;background:#3DDC97;animation:avsDot 1.6s ease-out infinite}
+.avs-x{height:44px;min-width:44px;padding:0;margin:-6px -8px -6px 0;border-radius:22px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:#C9D6E0;font:600 14px Inter,system-ui,sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer}
+.avs-x span{display:none}
+.avs-body,.avs-l,.avs-r{display:flex;flex-direction:column;gap:20px}
+.avs-msg{display:flex;flex-direction:column;gap:6px;animation:avsTxt 1.1s ease-in-out infinite}
+.avs-eye{font-size:13px;font-weight:700;letter-spacing:.22em;color:#9DB2C2}
+.avs-h{margin:0;font-family:'Space Grotesk',Inter,sans-serif;font-size:38px;line-height:1.02;font-weight:700;letter-spacing:-.02em;color:#fff}
+.avs-h b{font-weight:700;color:#3DDC97;display:block}
+.avs-unit{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding-top:18px;border-top:1px solid rgba(255,255,255,.08)}
+.avs-k{font-size:11px;font-weight:700;letter-spacing:.18em;color:#9DB2C2}
+.avs-num{font-family:'Space Grotesk',Inter,sans-serif;font-size:56px;line-height:.95;font-weight:700;letter-spacing:-.03em}
+.avs-tw{display:flex;flex-direction:column;align-items:flex-end;gap:4px;padding-bottom:6px;text-align:right}
+.avs-tw strong{font-size:17px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.avs-chips{display:grid;grid-template-columns:1fr 1fr;gap:8px;order:-1}
+.avs-chips div{min-height:44px;border-radius:12px;background:#1A2B38;display:flex;align-items:center;padding:0 14px;font-size:15px;font-weight:600}
+.avs-price{border-radius:20px;padding:18px 18px 20px;background:#0E1A24;border:1px solid rgba(61,220,151,.45);box-shadow:inset 0 0 40px rgba(61,220,151,.08);display:flex;flex-direction:column;gap:6px}
+.avs-price .avs-k{color:#5FE8AE;letter-spacing:.2em}
+.avs-val{display:flex;align-items:baseline;gap:8px;white-space:nowrap;font-family:'Space Grotesk',Inter,sans-serif;font-weight:700;color:#fff}
+.avs-val i{font-style:normal;font-size:20px;font-weight:600;color:#C9D6E0}
+.avs-val span{font-size:clamp(34px,11vw,44px);line-height:1;letter-spacing:-.03em}
+.avs-val small{font-size:.6em;color:#C9D6E0}
+.avs-cta{display:flex;flex-direction:column;gap:6px}
+.avs-go{height:54px;border:0;border-radius:16px;background:#3DDC97;color:#06231A;font:800 16px Inter,system-ui,sans-serif;letter-spacing:.02em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 14px}
+.avs-no{height:44px;border:0;background:transparent;color:#9DB2C2;font:600 14px Inter,system-ui,sans-serif;cursor:pointer}
+@keyframes avsCard{0%,100%{border-color:rgba(61,220,151,.95);box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 3px rgba(61,220,151,.55),0 0 90px rgba(61,220,151,.45)}50%{border-color:rgba(255,255,255,.1);box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 0 rgba(61,220,151,0),0 0 0 rgba(61,220,151,0)}}
+@keyframes avsTxt{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes avsDot{0%{box-shadow:0 0 0 0 rgba(61,220,151,.55)}100%{box-shadow:0 0 0 10px rgba(61,220,151,0)}}
+@media (max-width:899px) and (max-height:720px){.avs-card{padding:16px;gap:12px}.avs-body,.avs-l,.avs-r{gap:12px}.avs-h{font-size:30px}.avs-num{font-size:42px}.avs-unit{padding-top:12px}.avs-chips div{min-height:36px;font-size:14px}.avs-price{padding:14px 16px}.avs-go{height:50px}.avs-no{display:none}}
+@media (min-width:900px){
+.avs-card{max-width:960px;border-radius:32px;padding:36px 40px 40px;gap:30px}
+.avs-pill{height:36px;border-radius:18px;padding:0 16px;font-size:13px}
+.avs-x{padding:0 18px;margin:0}.avs-x span{display:inline}
+.avs-body{display:grid;grid-template-columns:1fr 400px;gap:40px;align-items:stretch}
+.avs-l{gap:28px}.avs-r{gap:16px}
+.avs-msg{gap:10px}.avs-eye{font-size:16px;letter-spacing:.24em}.avs-h{font-size:68px;line-height:.98}
+.avs-unit{justify-content:flex-start;gap:28px;padding-top:24px}.avs-num{font-size:76px}.avs-k{font-size:12px}
+.avs-tw{align-items:flex-start;text-align:left;padding-bottom:8px}.avs-tw strong{font-size:20px}
+.avs-chips{order:0;gap:10px}.avs-chips div{min-height:46px;padding:0 16px}
+.avs-price{border-radius:22px;padding:22px 24px 26px;gap:8px}.avs-val{gap:10px}.avs-val i{font-size:24px}.avs-val span{font-size:58px}
+.avs-cta{margin-top:auto}.avs-go{height:60px;border-radius:18px;font-size:17px}.avs-no{display:none}
+}
+@media (prefers-reduced-motion:reduce){.avs-card,.avs-msg,.avs-dot{animation:none}.avs-card{border-color:rgba(61,220,151,.95);box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 3px rgba(61,220,151,.55)}}
+`;document.head.appendChild(st)}
+    const v=brl(u.valor).replace(/^R\$\s*/,''),vi=v.split(',')[0],vc=v.split(',')[1]||'00';
+    const tx=P3(['Fechar','Close','Cerrar']);
+    const m=document.createElement('div');m.id='avs';m.className='avs';
+    m.innerHTML=`<div class="avs-card" role="dialog" aria-modal="true" aria-labelledby="avsH">
+<div class="avs-top"><div class="avs-pill"><span class="avs-dot" aria-hidden="true"></span>${P3(['DISPONÍVEL AGORA','AVAILABLE NOW','DISPONIBLE AHORA'])}</div>
+<button class="avs-x" type="button" data-avs="x" aria-label="${tx}"><span>${tx}</span><svg aria-hidden="true" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"></path></svg></button></div>
+<div class="avs-body">
+<div class="avs-l">
+<div class="avs-msg"><div class="avs-eye">${P3(['ATENÇÃO, CORRETOR!','ATTENTION, BROKER!','¡ATENCIÓN, CORREDOR!'])}</div><h2 class="avs-h" id="avsH">${P3(['Unidade <b>disponível!</b>','Unit <b>available!</b>','¡Unidad <b>disponible!</b>'])}</h2></div>
+<div class="avs-unit"><div><div class="avs-k">${P3(['UNIDADE','UNIT','UNIDAD'])}</div><div class="avs-num">${u.unidade}</div></div><div class="avs-tw"><div class="avs-k">CONECTA TOWERS</div><strong>${TW(u)}</strong></div></div>
+</div>
+<div class="avs-r">
+<div class="avs-price"><div class="avs-k">${P3(['VALOR DE TABELA','LIST PRICE','VALOR DE TABLA'])}</div><div class="avs-val"><i>R$</i><span>${vi}<small>,${vc}</small></span></div></div>
+<div class="avs-chips"><div>${tipoTxt(u)}</div><div>${fmt(u.m2)} m²</div><div>${andarTxt(u)}</div><div>${frenteTxt(u)}</div></div>
+<div class="avs-cta"><button class="avs-go" type="button" data-avs="go">${P3(['Acessar a unidade','Open unit','Acceder a la unidad'])} ${u.unidade}<svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h12M10 4l5 5-5 5"></path></svg></button>
+<button class="avs-no" type="button" data-avs="x">${tx}</button></div>
+</div>
+</div></div>`;
+    const close=()=>{m.remove();document.removeEventListener('keydown',esc)};
+    const esc=e=>{if(e.key==='Escape'&&!document.getElementById('gate'))close()};
+    m.querySelectorAll('[data-avs="x"]').forEach(b=>b.onclick=close);
+    m.querySelector('[data-avs="go"]').onclick=()=>{close();try{openDrawer(u.id)}catch(e){}};
+    document.addEventListener('keydown',esc);
+    document.body.appendChild(m);
+  }catch(e){}
+}
+avisoShow();
+
 </script>
 
 </body></html>
