@@ -2615,7 +2615,7 @@ document.getElementById('mback').onclick=mobileHome;
 // Ligue/desligue em AVISO.on. O aviso só aparece se a unidade indicada estiver Disponível na tabela;
 // preço, metragem e andar vêm sempre da tabela atual. Opcional: ate:'2026-11-20' encerra o aviso nessa data.
 // som:true toca o alerta sonoro (dois bipes) a cada pulso; som:false deixa o aviso mudo.
-const AVISO={on:true,torre:'Mar',unidade:'1004',ate:null,som:true}; /*AVISO*/
+const AVISO={on:false,torre:'Mar',unidade:'1004',ate:null,som:true}; /*AVISO*/
 function avisoShow(){
   try{
     if(!AVISO||!AVISO.on||document.getElementById('avs'))return;
@@ -2713,6 +2713,51 @@ function avisoShow(){
   }catch(e){}
 }
 avisoShow();
+
+// ---------- Vídeo em pop-up na página inicial ----------
+// Ligue/desligue em VIDEOPOP.on. Opcional: ate:'2026-11-30' encerra o pop-up nessa data.
+// O vídeo começa sem som (os navegadores bloqueiam som automático); o botão "Ativar som" liga o áudio.
+const VIDEOPOP={on:true,src:'gal/reservas-52.mp4',poster:'gal/reservas-52.jpg',ate:null}; /*VIDEOPOP*/
+function videoPopShow(){
+  try{
+    if(!VIDEOPOP||!VIDEOPOP.on||document.getElementById('vpop')||document.getElementById('avs'))return;
+    if(VIDEOPOP.ate&&new Date()>new Date(VIDEOPOP.ate+'T23:59:59'))return;
+    /* com a tela de código de acesso aberta, o vídeo espera o corretor entrar: não toca escondido atrás dela */
+    if(document.getElementById('gate')){if(!videoPopShow.mo){videoPopShow.mo=new MutationObserver(()=>{if(!document.getElementById('gate')){videoPopShow.mo.disconnect();videoPopShow.mo=null;setTimeout(videoPopShow,400)}});videoPopShow.mo.observe(document.body,{childList:true,subtree:true})}return}
+    const st=document.createElement('style');st.id='vpopCss';st.textContent=`
+.vpop{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;padding:12px;background:rgba(4,10,16,.86);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);font-family:Inter,system-ui,sans-serif}
+.vpop *{box-sizing:border-box}
+.vpop-card{position:relative;height:min(calc(100vh - 24px),860px);height:min(calc(100dvh - 24px),860px);aspect-ratio:9/16;max-width:calc(100vw - 24px);border-radius:22px;overflow:hidden;background:#05080c;border:1px solid rgba(255,255,255,.14);box-shadow:0 30px 80px rgba(0,0,0,.6)}
+@media (max-aspect-ratio:9/16){.vpop-card{height:auto;width:calc(100vw - 24px)}}
+.vpop video{width:100%;height:100%;display:block;object-fit:cover;background:#05080c}
+.vpop-x{position:absolute;top:8px;right:8px;height:44px;width:44px;justify-content:center;padding:0;border-radius:22px;border:1px solid rgba(255,255,255,.3);background:rgba(4,10,16,.6);color:#fff;font:600 14px Inter,system-ui,sans-serif;display:flex;align-items:center;gap:8px;cursor:pointer}
+.vpop-bar{position:absolute;left:0;right:0;bottom:0;display:flex;gap:8px;justify-content:center;padding:14px 12px calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,transparent,rgba(4,10,16,.75))}
+.vpop-b{height:44px;padding:0 18px;border-radius:22px;border:1px solid rgba(255,255,255,.3);background:rgba(4,10,16,.6);color:#fff;font:700 14px Inter,system-ui,sans-serif;cursor:pointer}
+.vpop-b.on{background:#fff;color:#05080c;border-color:#fff}
+.vpop-b[hidden],.vpop[hidden]{display:none}`;
+    if(!document.getElementById('vpopCss'))document.head.appendChild(st);
+    const tx=P3(['Fechar','Close','Cerrar']),tSom=P3(['Ativar som','Sound on','Activar sonido']),tMudo=P3(['Desligar som','Mute','Silenciar']),tDeNovo=P3(['Ver de novo','Replay','Ver de nuevo']);
+    const m=document.createElement('div');m.className='vpop';m.id='vpop';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.setAttribute('aria-label','Conecta Towers');
+    m.innerHTML=`<div class="vpop-card"><video src="${VIDEOPOP.src}" poster="${VIDEOPOP.poster}" autoplay muted playsinline preload="auto"></video>
+<button class="vpop-x" type="button" data-vp="x" aria-label="${tx}" title="${tx}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"></path></svg></button>
+<div class="vpop-bar"><button class="vpop-b" type="button" data-vp="som">${tSom}</button><button class="vpop-b" type="button" data-vp="re" hidden>${tDeNovo}</button></div></div>`;
+    const v=m.querySelector('video'),bs=m.querySelector('[data-vp="som"]'),br=m.querySelector('[data-vp="re"]');
+    /* a tela de código de acesso pode abrir depois do vídeo: enquanto ela estiver na frente, o vídeo fica parado e escondido, e recomeça do início quando o corretor entra */
+    const sync=()=>{const g=!!document.getElementById('gate');if(g&&!m.hidden){m.hidden=true;try{v.pause()}catch(e){}}else if(!g&&m.hidden){m.hidden=false;try{v.currentTime=0}catch(e){}br.hidden=true;const p=v.play();if(p&&p.catch)p.catch(()=>{})}};
+    const mo=new MutationObserver(sync);mo.observe(document.body,{childList:true,subtree:true});
+    const close=()=>{mo.disconnect();try{v.pause()}catch(e){}m.remove();document.removeEventListener('keydown',esc)};
+    const esc=e=>{if(e.key==='Escape'&&!document.getElementById('gate'))close()};
+    m.querySelector('[data-vp="x"]').onclick=close;
+    m.addEventListener('click',e=>{if(e.target===m)close()});
+    bs.onclick=()=>{v.muted=!v.muted;bs.textContent=v.muted?tSom:tMudo;bs.classList.toggle('on',!v.muted);if(!v.muted&&(v.ended||v.currentTime>1)){v.currentTime=0;br.hidden=true}const p=v.play();if(p&&p.catch)p.catch(()=>{})};
+    br.onclick=()=>{v.currentTime=0;br.hidden=true;const p=v.play();if(p&&p.catch)p.catch(()=>{})};
+    v.addEventListener('ended',()=>{br.hidden=false});
+    document.addEventListener('keydown',esc);
+    document.body.appendChild(m);
+    const p=v.play();if(p&&p.catch)p.catch(()=>{});
+  }catch(e){}
+}
+videoPopShow();
 
 </script>
 
