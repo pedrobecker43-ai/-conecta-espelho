@@ -231,7 +231,7 @@ async function load(){
     try{localStorage.setItem('conecta-admin',KEY)}catch(e){}
     $('#gate').classList.add('hidden');$('#app').classList.remove('hidden');
     $('#sheet').href=SHEET;
-    $('#upd').innerHTML='<i></i>'+esc(String(d.at).slice(-5));$('#upd').title='Atualizado '+d.at;
+    {const hm=/(\d\d:\d\d)(:\d\d)?\s*$/.exec(String(d.at));$('#upd').innerHTML='<i></i>Atualizado '+esc(hm?hm[1]:d.at);$('#upd').title='Dados lidos da planilha em '+d.at}
     render();
   }catch(e){
     if(!DATA){$('#gerr').style.display='block';$('#gate').classList.remove('hidden')}
