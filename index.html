@@ -3119,6 +3119,30 @@ body.present #skSheet [data-v="guia"],body.present #skSheet [data-v="obj"],body.
 /* tela inicial: torres nas cores oficiais; no computador o texto fica centralizado na altura */
 #view-home .hr .ey b{font-weight:500}#view-home .hr .ey .pk{color:#3ee0a6}#view-home .hr .ey .mr{color:#4aa8ff}#view-home .hr .ey{color:#8fb1c0}
 @media (min-width:1024px){#view-home .hr{top:calc(50% - 12px);bottom:auto!important;transform:translateY(calc(-50% + 16px))}#view-home.s3 .hr{transform:translateY(-50%)}}
+
+/* GC (tarja de identificação) no vídeo de apresentação */
+#skVid .vw{position:relative;display:inline-block;line-height:0;max-width:min(1000px,94vw)}
+#skVid .vw video{max-width:100%}
+.skgc{position:absolute;left:4%;bottom:17%;display:flex;align-items:stretch;line-height:1;pointer-events:none;opacity:0;transform:translateX(-18px);transition:opacity .9s ease,transform .9s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 10px 26px rgba(0,0,0,.55))}
+.skgc.on{opacity:1;transform:none}
+.skgc .th{flex:none;width:clamp(44px,7.4vw,78px);aspect-ratio:1;border-radius:14px 0 0 14px;background-size:205% auto;background-position:50% 9%;border:1.5px solid #f2c46b;border-right:0;box-sizing:border-box}
+.skgc .br{position:relative;display:flex;flex-direction:column;justify-content:center;gap:clamp(5px,.8vw,9px);padding:0 clamp(16px,3vw,34px) 0 clamp(12px,2vw,22px);background:linear-gradient(100deg,rgba(2,11,18,.94),rgba(6,32,46,.86));border:1.5px solid rgba(94,230,255,.28);border-left:0;border-radius:0 14px 14px 0;overflow:hidden}
+.skgc .br::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#3ee0a6,#4aa8ff)}
+.skgc b{font:800 clamp(15px,2.7vw,30px) var(--f-body);letter-spacing:.16em;text-transform:uppercase;color:#fff;white-space:nowrap}
+.skgc u{display:block;height:2px;width:0;background:linear-gradient(90deg,#3ee0a6,#4aa8ff 55%,#f2c46b);transition:width 1.2s cubic-bezier(.2,.8,.2,1) .5s}
+.skgc.on u{width:100%}
+/* GC v2: foto das torres maior que a barra; nome menor */
+.skgc{align-items:center;bottom:15%}
+.skgc .th{position:relative;z-index:1;width:clamp(64px,11.5vw,124px);aspect-ratio:4/5;border-radius:14px;border:2px solid #f2c46b;background-size:190% auto;background-position:50% 12%;box-shadow:0 8px 22px rgba(0,0,0,.5)}
+.skgc .br{margin-left:-14px;padding:clamp(9px,1.5vw,15px) clamp(16px,2.6vw,30px) clamp(9px,1.5vw,15px) clamp(26px,3.2vw,38px);gap:clamp(4px,.6vw,7px);border-left:0;border-radius:0 12px 12px 0}
+.skgc .br::before{display:none}
+.skgc b{font-size:clamp(11.5px,1.75vw,20px);letter-spacing:.2em}
+/* GC v3: conjunto menor; barra do nome junto à base da foto */
+.skgc{align-items:flex-end;bottom:15%}
+.skgc .th{width:clamp(48px,8.4vw,90px);border-radius:11px}
+.skgc .br{margin-left:-12px;margin-bottom:clamp(4px,.8vw,9px);padding:clamp(6px,1vw,10px) clamp(12px,1.9vw,22px) clamp(6px,1vw,10px) clamp(21px,2.6vw,30px);gap:clamp(3px,.45vw,5px);border-radius:0 9px 9px 0}
+.skgc b{font-size:clamp(9.5px,1.3vw,15px)}
+.skgc u{height:1.5px}
 </style>
 <script>window.SKCFG={always:false,base:"sk/"};</script>
 <script>
@@ -3156,7 +3180,9 @@ d.body.insertAdjacentHTML('beforeend',`<div id="skTop"><img class="lg" id="skLg"
  <div id="skOpen"><div class="st cn" id="skGate"><div><img src="${LOGO}" alt="Conecta Towers"><div><button id="skGo" type="button"></button></div><p class="mn" id="skGoS" style="margin:16px 0 0"></p></div></div>
   <div class="st cn" id="skBoot"><div class="skring"><svg viewBox="0 0 400 400"><circle class="r1" cx="200" cy="200" r="196"/><circle class="r2" cx="200" cy="200" r="182"/><circle class="r3" cx="200" cy="200" r="168"/></svg><img src="${LOGO}" alt=""></div><div class="mn" id="skBootT"></div></div>
   <div class="st" id="skArr"><video id="skV" muted playsinline preload="none"></video><div class="tl"><span class="mn" id="skTk"></span><b id="skTd">— km</b><b id="skTa">ALT — m</b></div><div class="tl r"><span class="mn">Porto Belo · SC</span><b>27°09′39″ S</b><b>48°35′56″ O</b></div><div class="cp"><span class="mn" id="skCk"></span><h2 id="skCh"></h2></div></div>
-  <p class="crd">Sistema desenvolvido por Pedro Becker · © 2026. Todos os direitos reservados.</p><button id="skSkip" type="button"></button><div class="skhud"><i></i><i></i><i></i><i></i></div></div><div id="skFlash"></div><div id="skVid"><button type="button" id="skVidX" aria-label="Fechar">✕</button><video id="skVidV" controls playsinline preload="none"></video></div>`);
+  <p class="crd">Sistema desenvolvido por Pedro Becker · © 2026. Todos os direitos reservados.</p><button id="skSkip" type="button"></button><div class="skhud"><i></i><i></i><i></i><i></i></div></div><div id="skFlash"></div><div id="skVid"><button type="button" id="skVidX" aria-label="Fechar">✕</button><div class="vw"><video id="skVidV" controls playsinline preload="none"></video><div class="skgc" id="skGc"><i class="th" style="background-image:url(${CFG.base}fachada.jpg)"></i><div class="br"><b>Pedro Becker</b><u></u></div></div></div></div>`);
+/* GC do vídeo de apresentação: entra em fade no início e sai depois de alguns segundos */
+$('#skVidV').addEventListener('timeupdate',e=>{const t=e.target.currentTime;$('#skGc').classList.toggle('on',t>=1&&t<7.5)});
 
 /* ---------- textos (PT/EN/ES) ---------- */
 const HS=[[['Rooftop','Rooftop','Rooftop'],['O coroamento das duas torres, com vista aberta para o mar e para o bairro-parque.','The crown of both towers, with open views to the sea and the park-neighbourhood.','La coronación de las dos torres, con vista abierta al mar y al barrio-parque.']],
