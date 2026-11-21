@@ -1854,7 +1854,7 @@ const DIST=[['Colégio Bom Jesus · bairro-parque','300 m','1 min'],['Trevo da B
 function renderLocal(){
   const el=document.getElementById('view-local');if(!el)return;
   el.innerHTML=`<div class="viewhead"><h2>${t('loc_h')}</h2><span class="sub" style="color:var(--muted);font-size:12px">${t('loc_s')}</span><div class="grow"></div>${audioBtn('local')}<button class="btn small" data-view="espelho">${t('nav_tabela')}</button></div>
-   <div class="lm-wrap"><iframe class="lm-frame" src="localizacao.html" title="${t('loc_map')}" loading="lazy" allowfullscreen style="flex:1;min-height:0;width:100%;border:1px solid var(--line);border-radius:18px;background:#020b12;display:block"></iframe></div>`;
+   <div class="lm-wrap"><iframe class="lm-frame" src="localizacao.html?v=2026112103" title="${t('loc_map')}" loading="lazy" allowfullscreen style="flex:1;min-height:0;width:100%;border:1px solid var(--line);border-radius:18px;background:#020b12;display:block"></iframe></div>`;
   bindAudio(el,{});el.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>showView(b.dataset.view));
 }
 function initMapa(root){
