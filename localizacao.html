@@ -96,8 +96,8 @@ const MAPX=(()=>{
   const okCam=c=>!!c&&isFinite(c.k)&&c.k>0&&isFinite(c.x)&&isFinite(c.y);
   const visible=()=>app.clientWidth>60&&app.clientHeight>60;
   function flyTo(to,ms=1400){if(!okCam(to))return;if(!okCam(cam)||!visible()){cam={...to};fly=null;return}fly={a:{...cam},b:to,t:performance.now(),ms}}
-  function step(now){if(!fly)return;let t=Math.min(1,(now-fly.t)/fly.ms);const e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2,{a,b}=fly;
-    cam.k=a.k*Math.pow(b.k/a.k,e);const u=Math.abs(1/a.k-1/b.k)<1e-12?e:(1/a.k-1/cam.k)/(1/a.k-1/b.k);cam.x=a.x+(b.x-a.x)*u;cam.y=a.y+(b.y-a.y)*u;
+  function step(now){if(!fly)return;let t=Math.max(0,Math.min(1,(now-fly.t)/fly.ms));const e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2,{a,b}=fly;
+    cam.k=Math.min(Math.max(a.k,b.k),Math.max(Math.min(a.k,b.k),a.k*Math.pow(b.k/a.k,e)));const u=Math.abs(1/a.k-1/b.k)<1e-12?e:(1/a.k-1/cam.k)/(1/a.k-1/b.k);cam.x=a.x+(b.x-a.x)*u;cam.y=a.y+(b.y-a.y)*u;
     if(!okCam(cam))cam={...b};
     if(t>=1){cam={...b};fly=null;if(!arrived){arrived=now;panel.classList.add('in')}}}
   const sx=x=>(x-cam.x)*cam.k+app.clientWidth/2,sy=y=>(y-cam.y)*cam.k+app.clientHeight/2;
@@ -157,7 +157,7 @@ const MAPX=(()=>{
     const alt=app.clientHeight/k;$('#mAlt').textContent='Visão de '+(alt>=1000?(alt/1000).toLocaleString('pt-BR',{maximumFractionDigits:alt>=10000?0:1})+' km':Math.round(alt/10)*10+' m');
     $('#mWhere').textContent=k<.016?'Costa Esmeralda · Santa Catarina':k<.06?'Porto Belo':k<.2?'Perequê · Porto Belo':'Av. Colombo Machado Salles, 1600';
   }
-  function loop(now){if(visible()){step(now);if(okCam(cam))draw(now)}else if(fly){fly.t=now-Math.min(now-fly.t,fly.ms*.2)}raf=requestAnimationFrame(loop)}
+  function loop(){const now=performance.now();/* nunca o relógio do requestAnimationFrame: dentro de um iframe ele pode ter outra origem */if(visible()){step(now);if(okCam(cam))draw(now)}else if(fly){fly.t=now-Math.min(now-fly.t,fly.ms*.2)}raf=requestAnimationFrame(loop)}
   function arrive(){arrived=0;sel=null;panel.classList.remove('in');const W=app.clientWidth,H=app.clientHeight,k0=Math.max(Math.min(W,H)/62000,W/86000,H/86000);cam={k:k0,x:(SATL[1].box[0]+SATL[1].box[2])/2,y:(SATL[1].box[1]+SATL[1].box[3])/2};fly=null;renderPanel();
     setTimeout(()=>{flyTo(home(),matchMedia('(prefers-reduced-motion:reduce)').matches?10:4600)},650)}
   function renderPanel(){
