@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body><script>/* ENDEREÇO OFICIAL (09/11/2026): cadastro e registros só funcionam em conecta.maxces.com.br — cópias em claude.ai e outros hosts bloqueiam a conexão com a Maxces ("Load failed"). */
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><style id="skin0">html.sk{background:#020b12}html.sk:not(.skr) body{background:#020b12!important}html.sk:not(.skr) body>*:not(#gate):not(#offhost){visibility:hidden!important}</style><script>/* evita a piscada do layout antigo: o visual novo vale desde o primeiro quadro */(function(){var h=document.documentElement;h.className+=" sk";h.setAttribute("data-theme","dark");setTimeout(function(){h.classList.add("skr")},4000)})();</script></head><body><script>/* ENDEREÇO OFICIAL (09/11/2026): cadastro e registros só funcionam em conecta.maxces.com.br — cópias em claude.ai e outros hosts bloqueiam a conexão com a Maxces ("Load failed"). */
 (function(){try{var h=location.hostname,OK='conecta.maxces.com.br';if(h===OK||h==='localhost'||h==='127.0.0.1'||location.protocol==='file:')return;
 var url='https://'+OK+'/'+(location.search||'')+(location.hash||'');window.__OFFHOST=url;
 try{if(window.top&&window.top!==window){window.top.location.replace(url);}else{location.replace(url);}}catch(e){}
@@ -3374,6 +3374,7 @@ function start(){texts();layout();
   let seen=null;try{seen=localStorage.getItem('sk-open')}catch(e){}
   if(CFG.always||!seen)opening();else showView('home')}
 if($('#gate')&&!d.body.classList.contains('present')){showView('home');const mo=new MutationObserver(()=>{if(!$('#gate')){mo.disconnect();start()}});mo.observe(d.body,{childList:true});texts();layout()}else start();
+H.classList.add('skr');
 })();
 </script>
 </body></html>
