@@ -3092,6 +3092,9 @@ html.skfsm #skTop,html.skfsm #skDock{display:none!important}
 /* modo "apresentar ao cliente": some o que é só do corretor */
 body.present #skKp,body.present #skUp,body.present #skPf,body.present #skAr,body.present #skDock [data-v="espelho"],body.present #skDock [data-v="guia"],body.present #skDock [data-v="obj"],body.present #skDock [data-v="bolso"],
 body.present #skSheet [data-v="guia"],body.present #skSheet [data-v="obj"],body.present #skSheet [data-v="bolso"],body.present #skSheet [data-a],body.present #view-home [data-go="espelho"],body.present #skTour [data-a="tabela"]{display:none!important}
+
+#skOpen .crd{position:absolute;z-index:3;left:16px;right:16px;bottom:calc(40px + env(safe-area-inset-bottom,0px));margin:0;text-align:center;font:500 11px var(--sk-mono);letter-spacing:.06em;color:#9fbccb}
+#skArr.on~.crd{display:none}
 </style>
 <script>window.SKCFG={always:false,base:"sk/"};</script>
 <script>
@@ -3127,7 +3130,7 @@ d.body.insertAdjacentHTML('beforeend',`<div id="skTop"><img class="lg" id="skLg"
  <div id="skOpen"><div class="st cn" id="skGate"><div><img src="${LOGO}" alt="Conecta Towers"><div><button id="skGo" type="button"></button></div><p class="mn" id="skGoS" style="margin:16px 0 0"></p></div></div>
   <div class="st cn" id="skBoot"><div class="skring"><svg viewBox="0 0 400 400"><circle class="r1" cx="200" cy="200" r="196"/><circle class="r2" cx="200" cy="200" r="182"/><circle class="r3" cx="200" cy="200" r="168"/></svg><img src="${LOGO}" alt=""></div><div class="mn" id="skBootT"></div></div>
   <div class="st" id="skArr"><video id="skV" muted playsinline preload="none"></video><div class="tl"><span class="mn" id="skTk"></span><b id="skTd">— km</b><b id="skTa">ALT — m</b></div><div class="tl r"><span class="mn">Porto Belo · SC</span><b>27°09′39″ S</b><b>48°35′56″ O</b></div><div class="cp"><span class="mn" id="skCk"></span><h2 id="skCh"></h2></div></div>
-  <button id="skSkip" type="button"></button><div class="skhud"><i></i><i></i><i></i><i></i></div></div><div id="skFlash"></div><div id="skVid"><button type="button" id="skVidX" aria-label="Fechar">✕</button><video id="skVidV" controls playsinline preload="none"></video></div>`);
+  <p class="crd">Sistema desenvolvido por Pedro Becker · © 2026. Todos os direitos reservados.</p><button id="skSkip" type="button"></button><div class="skhud"><i></i><i></i><i></i><i></i></div></div><div id="skFlash"></div><div id="skVid"><button type="button" id="skVidX" aria-label="Fechar">✕</button><video id="skVidV" controls playsinline preload="none"></video></div>`);
 
 /* ---------- textos (PT/EN/ES) ---------- */
 const HS=[[['Rooftop','Rooftop','Rooftop'],['O coroamento das duas torres, com vista aberta para o mar e para o bairro-parque.','The crown of both towers, with open views to the sea and the park-neighbourhood.','La coronación de las dos torres, con vista abierta al mar y al barrio-parque.']],
