@@ -3099,6 +3099,22 @@ body.present #skSheet [data-v="guia"],body.present #skSheet [data-v="obj"],body.
 @media (min-width:1024px) and (max-height:700px){#view-home .hr{bottom:calc(var(--sk-bot) + 18px)}#view-home .hr h1{font-size:clamp(28px,7.4vh,50px);margin:6px 0 8px}#view-home .hr p{display:none}#view-home .ob{margin-top:8px}#view-home .ct{margin-top:12px}#view-home .ct.pri button{padding:12px 18px;font-size:14px}}
 @media (min-width:1024px) and (max-height:560px){#view-home .ob{display:none}}
 @media (min-width:1024px){html.sk #tPanel .tp-plan{display:block;background:#f3efe9;border-radius:16px;overflow:hidden}html.sk #tPanel .tp-plan img{display:block;width:100%;max-height:max(260px,calc(100vh - var(--sk-top) - var(--sk-bot) - 330px));object-fit:contain}}
+
+/* Loft duplex: dois andares */
+.skpl.dupw{display:grid;grid-template-columns:1fr 1fr;gap:3px}
+.skpl.dupw figure{position:relative;margin:0;min-width:0;min-height:0}
+.skpl.dupw figcaption{position:absolute;z-index:1;left:50%;bottom:10px;transform:translateX(-50%);padding:6px 14px;border-radius:999px;background:#02222c;border:1px solid var(--sk-gold);color:#fff;font:700 13px var(--f-body);white-space:nowrap}
+.skpl.dupw .dn,.skpl.dupw .dc{display:none}
+.skpl.dupw.fp{aspect-ratio:3.75/1;min-height:0;margin-bottom:8px}
+.skpl.dupw .nm{display:none}
+@media (max-width:1023px){
+ .skpl.dupw,.skpw.ls .skpl.dupw,.skpl.dupw.fp{grid-template-columns:1fr;aspect-ratio:1.72/1}
+ .skpl.dupw figure{display:none}.skpl.dupw figure.on{display:block}
+ .skpl.dupw .dn{display:grid;place-items:center;position:absolute;z-index:2;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;border:1px solid var(--sk-gold);background:rgba(2,11,18,.82);color:#fff;font-size:22px;cursor:pointer;padding:0}
+ .skpl.dupw .dn.pv{left:6px}.skpl.dupw .dn.nx{right:6px}
+ .skpl.dupw .dc{display:block;position:absolute;z-index:2;right:10px;bottom:12px;font:600 11px var(--sk-mono);color:#02222c;background:rgba(255,255,255,.8);padding:3px 8px;border-radius:999px}
+ .skpl.dupw .zo{top:8px;right:8px}.skpw{padding:12px}
+}
 </style>
 <script>window.SKCFG={always:false,base:"sk/"};</script>
 <script>
@@ -3211,7 +3227,7 @@ $('#view-home').addEventListener('click',()=>{tip.classList.remove('in');tipOn=n
 const PG=()=>{const pl=id=>PLANTAS.find(p=>p.id===id)||{};const fin=n=>({n:PLANTAS_FINAL[n-1].nome,a:PLANTAS_FINAL[n-1].tag,src:PLANTAS_FINAL[n-1].src,us:UNITS.filter(u=>u.final===n&&u.andar>8&&u.andar!==33&&u.andar<35)});
   return [{k:['Flat','Flat','Flat'],s:['36 a 38 m² · com varanda','36 to 38 m² · with balcony','36 a 38 m² · con balcón'],v:[2,3,4,5,6].map(fin)},
    {k:['2 Suítes','2 Suites','2 Suites'],s:['73,40 m²','73.40 m²','73,40 m²'],v:[1,7].map(fin)},
-   {k:['Loft duplex','Duplex loft','Loft dúplex'],s:['33º pavimento','33rd floor','Piso 33'],v:[{n:T(['Loft duplex · térreo + mezanino','Duplex loft · lower floor + mezzanine','Loft dúplex · planta baja + entrepiso']),a:T(['54 a 110 m²','54 to 110 m²','54 a 110 m²']),src:pl('loft').src,us:UNITS.filter(u=>u.andar===33),lg:1}]},
+   {k:['Loft duplex','Duplex loft','Loft dúplex'],s:['33º pavimento','33rd floor','Piso 33'],v:[{n:T(['Loft duplex · térreo + mezanino','Duplex loft · lower floor + mezzanine','Loft dúplex · planta baja + entrepiso']),a:T(['54 a 110 m²','54 to 110 m²','54 a 110 m²']),src:pl('loft').src,us:UNITS.filter(u=>u.andar===33),lg:1,pair:1}]},
    {k:['Cobertura','Penthouse','Ático'],s:['231 m² · lazer privativo','231 m² · private leisure','231 m² · ocio privado'],v:[{n:T(['Cobertura · apartamento + lazer privativo','Penthouse · apartment + private leisure','Ático · apartamento + ocio privado']),a:'231 m²',src:pl('cobertura').src,us:UNITS.filter(u=>u.andar===35),lg:1}]}]};
 
 /* ---------- Lazer em movimento: pontos sobre a planta do 8º e cartões com os trechos em vídeo ---------- */
@@ -3234,13 +3250,20 @@ function lzPanel(el,kind){const list=LZK[kind];if(!list)return;const play='<svg 
     w.insertAdjacentHTML('afterend',`<p class="skhint" style="margin:6px 0 2px">${T(['Toque nos pontos da planta para ver cada espaço em movimento.','Tap the points on the plan to see each space in motion.','Toque los puntos de la planta para ver cada espacio en movimiento.'])}</p>`+cards)}
   else{const h=el.querySelector('h3');(h||el.firstElementChild).insertAdjacentHTML('afterend',cards)}
   el.querySelectorAll('[data-lz]').forEach(b=>b.onclick=e=>{e.preventDefault();audio();sfx.tick();lzOpen(list,+b.dataset.lz)})}
-const PS={g:0,v:0,auto:true,tm:0};
+
+/* Loft duplex: térreo e 2º andar em imagens separadas (lado a lado no computador; uma por vez, com setas, no celular) */
+const LOFT=()=>[[T(['Térreo','Lower floor','Planta baja']),CFG.base+'loft-1.jpg'],[T(['2º andar · mezanino','2nd floor · mezzanine','2º piso · entrepiso']),CFG.base+'loft-2.jpg']];
+const dupImgs=()=>LOFT().map(([l,s],i)=>`<figure class="${i===PS.lf?'on':''}"><img class="bp" src="${s}" alt=""><img class="re" src="${s}" alt="${l}"><figcaption>${l}</figcaption></figure>`).join('')+`<button type="button" class="dn pv" data-lf="-1" aria-label="${T(['Andar anterior','Previous floor','Piso anterior'])}">‹</button><button type="button" class="dn nx" data-lf="1" aria-label="${T(['Próximo andar','Next floor','Piso siguiente'])}">›</button><span class="dc"></span>`;
+function dupBind(box){const upd=()=>{box.querySelectorAll('figure').forEach((f,i)=>f.classList.toggle('on',i===PS.lf));const d=box.querySelector('.dc');if(d)d.textContent=(PS.lf+1)+' / 2'};upd();
+  box.querySelectorAll('[data-lf]').forEach(b=>b.onclick=e=>{e.stopPropagation();PS.auto=false;PS.lf=(PS.lf+1)%2;audio();sfx.tick();upd()});
+  box.onclick=e=>{if(e.target.closest('[data-lf]'))return;PS.auto=false;const f=e.target.closest('figure');const i=f&&innerWidth>=1024?[...box.querySelectorAll('figure')].indexOf(f):PS.lf;openLightboxList(LOFT().map(([l,s])=>({nome:'Loft duplex',tag:l,src:s})),Math.max(0,i))}}
+const PS={g:0,v:0,auto:true,tm:0,lf:0};
 function plShow(el,anim){const G=PG(),g=G[PS.g],x=g.v[PS.v],D=x.us.filter(u=>u.status==='D'),mn=D.reduce((m,u)=>u.valor&&(!m||u.valor<m)?u.valor:m,0);
   const fl=t=>x.lg?x.us.filter(u=>u.torre===t).sort((p,q)=>p.unidade.localeCompare(q.unidade)).map(u=>`<button type="button" class="skfl ${u.status}" data-id="${u.id}" ${u.status==='V'?'disabled':''}>${u.unidade}</button>`).join(''):[...new Set(x.us.filter(u=>u.torre===t).map(u=>u.andar))].sort((a,b)=>b-a).map(f=>{const us=x.us.filter(u=>u.torre===t&&u.andar===f);const u=us.find(q=>q.status==='D')||us[0];return `<button type="button" class="skfl ${u.status}" data-id="${u.id}" ${u.status==='V'?'disabled':''} title="${u.unidade}">${x.lg?u.unidade:f+'º'}</button>`}).join('');
   el.innerHTML=`<div class="skpw ${x.lg?'ls':'pt'}"><div class="skph"><span class="ey">${T(['Plantas','Floor plans','Plantas'])}</span><h3>${T(['Escolha <em>como quer morar</em>','Choose <em>how you want to live</em>','Elija <em>cómo quiere vivir</em>'])}</h3></div>
    <div class="skpg">${G.map((q,i)=>`<button type="button" data-g="${i}" class="${i===PS.g?'on':''}"><b>${T(q.k)}</b><small>${T(q.s)}</small></button>`).join('')}</div>
    ${g.v.length>1?`<div class="skpv">${g.v.map((q,i)=>`<button type="button" data-v="${i}" class="${i===PS.v?'on':''}">${q.n.replace(/^.*–\s*/,'')} · ${q.a}</button>`).join('')}</div>`:''}
-   <div class="skbd"><div class="skpl${anim?'':' in'}" id="skPl"><img class="bp" src="${x.src}" alt=""><img class="re" src="${x.src}" alt="${x.n}"><i class="sc"></i><span class="nm">${x.n}</span><button type="button" class="zo" id="skZo">${T(['Ampliar','Enlarge','Ampliar'])} ⤢</button>${PS.auto?'<u class="pr"></u>':''}</div>
+   <div class="skbd"><div class="skpl${x.pair?' dupw':''}${anim?'':' in'}" id="skPl">${x.pair?dupImgs():`<img class="bp" src="${x.src}" alt=""><img class="re" src="${x.src}" alt="${x.n}">`}<i class="sc"></i><span class="nm">${x.n}</span><button type="button" class="zo" id="skZo">${T(['Ampliar','Enlarge','Ampliar'])} ⤢</button>${PS.auto?'<u class="pr"></u>':''}</div>
    <div class="skin"><div class="skst"><span><small>${T(['Área privativa','Private area','Área privada'])}</small><b>${x.a}</b></span><span><small>${T(['Disponíveis','Available','Disponibles'])}</small><b class="ok">${D.length}</b></span><span><small>${T(['A partir de','From','Desde'])}</small><b>${mn?brl(mn).replace(/,00$/,''):'—'}</b></span></div>
    <div class="skfw"><div class="k">${x.lg?T(['Escolha a unidade para abrir a ficha','Pick a unit to open its sheet','Elija la unidad para abrir la ficha']):T(['Escolha o andar para abrir a ficha','Pick a floor to open the unit sheet','Elija el piso para abrir la ficha'])} · <i class="lg D"></i>${T(['disponível','available','disponible'])} <i class="lg R"></i>${T(['em reserva','on hold','en reserva'])} <i class="lg V"></i><span class="lgv">${T(['reservado','reserved','reservado'])}</span></div>
     ${['Park','Mar'].map(t=>{const h=fl(t);return h?`<div class="skfr"><span class="tw ${t}">Torre ${t}</span><div>${h}</div></div>`:''}).join('')}</div>
@@ -3250,13 +3273,14 @@ function plShow(el,anim){const G=PG(),g=G[PS.g],x=g.v[PS.v],D=x.us.filter(u=>u.s
   el.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{PS.auto=false;PS.g=+b.dataset.g;PS.v=0;audio();sfx.tick();plShow(el,true)});
   el.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{PS.auto=false;PS.v=+b.dataset.v;audio();sfx.tick();plShow(el,true)});
   el.querySelectorAll('.skfl').forEach(b=>b.onclick=()=>{PS.auto=false;openDrawer(b.dataset.id)});
-  $('#skZo').onclick=e=>{e.stopPropagation();PS.auto=false;openLightbox(x.src,x.n+' · '+x.a)};$('#skPl').onclick=()=>{PS.auto=false;openLightbox(x.src,x.n+' · '+x.a)};
+  if(x.pair){dupBind($('#skPl'));$('#skZo').onclick=e=>{e.stopPropagation();$('#skPl').querySelector('figure.on img.re').click()}}else{$('#skZo').onclick=e=>{e.stopPropagation();PS.auto=false;openLightbox(x.src,x.n+' · '+x.a)};$('#skPl').onclick=()=>{PS.auto=false;openLightbox(x.src,x.n+' · '+x.a)}}
   clearTimeout(PS.tm);if(PS.auto)PS.tm=setTimeout(()=>{if(!PS.auto||TOUR.f||!$('#view-tour').classList.contains('on')||$('#drawer.open,.lightbox.open'))return;PS.v++;if(PS.v>=PG()[PS.g].v.length){PS.v=0;PS.g=(PS.g+1)%4}plShow(el,true)},6500)}
 const _rtp=window.renderTourPanel;
 window.renderTourPanel=function(){_rtp();const el=$('#tPanel');if(!el)return;
   if(!TOUR.f){plShow(el,true);return}
   d.querySelectorAll('#tBuild .fl.skhl').forEach(b=>b.classList.remove('skhl'));
   try{lzPanel(el,floorKind(TOUR.f))}catch(e){}
+  try{const p0=planFor(TOUR.t,TOUR.f),a=el.querySelector('.tp-plan');if(p0&&p0.id==='loft'&&a){const w=d.createElement('div');w.className='skpl dupw fp in';w.innerHTML=dupImgs();a.replaceWith(w);dupBind(w)}}catch(e){}
   el.insertAdjacentHTML('afterbegin',`<button type="button" class="skbk" id="skBk">‹ ${T(['Todas as plantas','All floor plans','Todas las plantas'])}</button>`);
   $('#skBk').onclick=()=>{TOUR.f=null;d.querySelectorAll('#tBuild .fl.sel').forEach(b=>b.classList.remove('sel'));PS.auto=false;renderTourPanel();if(innerWidth<1024)el.scrollIntoView({behavior:'smooth',block:'start'})}};
 try{renderTourPanel()}catch(e){}
