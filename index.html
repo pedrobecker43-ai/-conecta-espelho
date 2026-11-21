@@ -3299,7 +3299,7 @@ setTimeout(skFit,60);setTimeout(skFit,600);
 /* ---------- Tour virtual pelo Conecta (tela cheia) ---------- */
 const VT={i:0,t:0,pause:false,on:false,last:0,list:[]};
 function vtScenes(){const G=i=>(GALERIA[i]||{}).src,P=id=>(PLANTAS.find(p=>p.id===id)||{}).src,b=CFG.base;
-  const av=f=>{const D=UNITS.filter(u=>f(u)&&u.status==='D'),m=D.reduce((a,u)=>u.valor&&(!a||u.valor<a)?u.valor:a,0);return D.length?D.length+' disponíveis'+(m?', a partir de '+brl(m).replace(/,00$/,''):''):''};
+  const av=f=>{const n=UNITS.filter(u=>f(u)&&u.status==='D').length;return n?n+(n===1?' disponível':' disponíveis'):''};
   const lz=k=>({t:'L',k,d:4300});
   return [
    {t:'H',v:b+'tv/torres.mp4',ey:'Tour virtual',h:'Conecta <em>Towers</em>',p:'Duas torres de 35 pavimentos, ligadas por passarelas, na entrada de Porto Belo.',d:6000},
