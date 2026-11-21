@@ -1854,7 +1854,7 @@ const DIST=[['Colégio Bom Jesus · bairro-parque','300 m','1 min'],['Trevo da B
 function renderLocal(){
   const el=document.getElementById('view-local');if(!el)return;
   el.innerHTML=`<div class="viewhead"><h2>${t('loc_h')}</h2><span class="sub" style="color:var(--muted);font-size:12px">${t('loc_s')}</span><div class="grow"></div>${audioBtn('local')}<button class="btn small" data-view="espelho">${t('nav_tabela')}</button></div>
-   <div class="lm-wrap"><iframe class="lm-frame" src="localizacao.html?v=2026112103" title="${t('loc_map')}" loading="lazy" allowfullscreen style="flex:1;min-height:0;width:100%;border:1px solid var(--line);border-radius:18px;background:#020b12;display:block"></iframe></div>`;
+   <div class="lm-wrap"><iframe class="lm-frame" src="localizacao.html?v=2026112110" title="${t('loc_map')}" loading="lazy" allowfullscreen style="flex:1;min-height:0;width:100%;border:1px solid var(--line);border-radius:18px;background:#020b12;display:block"></iframe></div>`;
   bindAudio(el,{});el.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>showView(b.dataset.view));
 }
 function initMapa(root){
@@ -2707,7 +2707,7 @@ avisoShow();
 // ---------- Vídeo em pop-up na página inicial ----------
 // Ligue/desligue em VIDEOPOP.on. Opcional: ate:'2026-11-30' encerra o pop-up nessa data.
 // O vídeo começa sem som (os navegadores bloqueiam som automático); o botão "Ativar som" liga o áudio.
-const VIDEOPOP={on:true,src:'gal/reservas-52.mp4',poster:'gal/reservas-52.jpg',ate:null}; /*VIDEOPOP*/
+const VIDEOPOP={on:false,src:'gal/reservas-52.mp4',poster:'gal/reservas-52.jpg',ate:null}; /*VIDEOPOP*/
 function videoPopShow(){
   try{
     if(!VIDEOPOP||!VIDEOPOP.on||document.getElementById('vpop')||document.getElementById('avs'))return;
@@ -2751,4 +2751,587 @@ videoPopShow();
 
 </script>
 
+<style id="skin">
+/* ===== v90: pele JARVIS — abertura, tela inicial cinematográfica, barra superior e menu inferior ===== */
+html.sk{--bg:#020b12;--surface:#06171f;--surface-2:#0b2330;--line:#16384a;--fg:#eaf6fb;--muted:#8fb1c0;--accent:#5ee6ff;--accent-fg:#02222c;
+  --ok:#3ee0a6;--ok-bg:#0a3226;--warn:#ffb35c;--warn-bg:#3a2a10;--sold:#a3b6c1;--sold-bg:#1d3542;--shadow:0 12px 34px rgba(0,0,0,.5);
+  --sk-cy:#5ee6ff;--sk-gold:#f2c46b;--sk-line:rgba(94,230,255,.2);--sk-serif:"Cormorant Garamond",Georgia,serif;--sk-mono:"IBM Plex Mono",ui-monospace,monospace;--sk-e:cubic-bezier(.2,.8,.2,1);
+  --sk-top:60px;--sk-bot:84px;--hdh:60px;color-scheme:dark;background:#020b12}
+html.sk body{display:block!important;min-height:100vh;background:radial-gradient(1100px 600px at 80% -10%,rgba(26,138,209,.16),transparent 60%),radial-gradient(900px 600px at 0 110%,rgba(27,154,103,.12),transparent 60%),#020b12 fixed;color:var(--fg)}
+html.sk body::before{display:none}
+html.sk header,html.sk .mbar,html.sk #topMenu{display:none!important}
+html.sk main,html.sk body.mhome main{display:block!important;grid-column:auto;max-width:1560px;margin:0 auto;padding:calc(var(--sk-top) + 18px) max(22px,env(safe-area-inset-left,0px)) calc(var(--sk-bot) + 26px)}
+html.sk footer,html.sk body.mhome footer{display:block!important;border-top:1px solid var(--line);padding:14px 22px calc(var(--sk-bot) + 14px)!important;color:var(--muted);background:transparent;text-align:center}
+html.sk body.skhome footer{display:none!important}
+html.sk .viewhead{display:flex!important}
+html.sk .viewhead h2{font:500 clamp(28px,3.2vw,40px)/1.05 var(--sk-serif);letter-spacing:0}
+html.sk .tbuild{top:calc(var(--sk-top) + 14px)}
+@media (min-width:1024px){html.sk .tour{grid-template-columns:clamp(260px,calc((100vh - var(--sk-top) - var(--sk-bot) - 104px)*.66),520px) minmax(0,1fr)}html.sk .tpanel{max-height:calc(100vh - var(--sk-top) - var(--sk-bot) - 30px)}html.sk #view-tour .viewhead{display:none!important}}
+html.sk .lm-wrap{height:calc(100vh - var(--sk-top) - var(--sk-bot) - 96px);min-height:420px}
+/* barra superior */
+#skTop{position:fixed;z-index:15;left:0;right:0;top:0;height:var(--sk-top);display:none;align-items:center;gap:16px;padding:0 max(22px,env(safe-area-inset-left,0px));padding-top:env(safe-area-inset-top,0px);background:linear-gradient(180deg,rgba(2,11,18,.94),rgba(2,11,18,.72));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--sk-line)}
+html.sk #skTop{display:flex}
+#skTop .lg{height:32px;cursor:pointer;display:block}
+#skTop .ar{font:500 10.5px var(--sk-mono);letter-spacing:.22em;text-transform:uppercase;color:var(--sk-cy)}
+#skTop .gr{flex:1}
+#skTop .kp{display:flex;gap:16px;padding:6px 14px;border:1px solid var(--sk-line);border-radius:12px;background:rgba(2,11,18,.5)}
+#skTop .kp span{display:grid;font:500 8.5px var(--sk-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);line-height:1.25}
+#skTop .kp b{font:700 17px var(--f-body);letter-spacing:0;color:var(--fg)}
+#skTop .kp .D b{color:var(--ok)}#skTop .kp .R b{color:var(--warn)}
+#skTop .up{font:500 10px var(--sk-mono);letter-spacing:.08em;color:var(--muted);text-align:right;line-height:1.35}
+#skTop .ib{width:38px;height:38px;border:1px solid var(--sk-line);border-radius:50%;display:grid;place-items:center;background:transparent;color:var(--fg);cursor:pointer}
+#skTop .ib svg{width:18px;height:18px}
+/* menu inferior */
+#skDock{position:fixed;z-index:15;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 28px);display:none;gap:4px;padding:7px;border:1px solid var(--sk-line);border-radius:22px;background:rgba(3,18,27,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 14px 40px rgba(0,0,0,.55);overflow-x:auto;scrollbar-width:none}
+#skDock::-webkit-scrollbar{display:none}
+html.sk #skDock{display:flex}
+#skDock button{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:74px;padding:8px 10px 7px;border:0;border-radius:16px;background:transparent;color:var(--muted);font:600 10.5px var(--f-body);letter-spacing:.01em;cursor:pointer;white-space:nowrap;transition:background .2s,color .2s,transform .2s}
+#skDock button svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#skDock button:hover{color:var(--fg);background:rgba(94,230,255,.08);transform:translateY(-2px)}
+#skDock button.on{color:var(--sk-cy);background:rgba(94,230,255,.14);box-shadow:inset 0 0 0 1px rgba(94,230,255,.35)}
+#skDock .mo{display:none}
+#skSheet{position:fixed;z-index:18;inset:0;display:none;align-items:flex-end;background:rgba(2,11,18,.6);backdrop-filter:blur(4px)}
+#skSheet.on{display:flex}
+#skSheet .bx{width:100%;max-height:82vh;overflow:auto;padding:10px 16px calc(18px + env(safe-area-inset-bottom,0px));border-radius:24px 24px 0 0;border-top:1px solid var(--sk-line);background:#041620;animation:skUp .32s var(--sk-e)}
+@keyframes skUp{from{transform:translateY(40px);opacity:0}}
+#skSheet .gp{width:44px;height:4px;border-radius:4px;background:#2a4a5a;margin:4px auto 12px}
+#skSheet .it{display:flex;align-items:center;gap:14px;width:100%;min-height:56px;padding:8px 6px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--fg);font:600 15.5px var(--f-body);text-align:left;cursor:pointer}
+#skSheet .it svg{width:22px;height:22px;flex:none;fill:none;stroke:var(--sk-cy);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#skSheet .it small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+#skSheet .it.wa{margin-top:12px;border:0;border-radius:14px;justify-content:center;background:#25d366;color:#06281b}
+#skSheet .it.wa svg{stroke:#06281b}
+#skSheet .lg2{display:flex;gap:8px;justify-content:center;padding:14px 0 2px}
+#skSheet .lg2 button{padding:8px 16px;border:1px solid var(--sk-line);border-radius:999px;background:transparent;color:var(--fg);font-weight:600}
+#skSheet .lg2 button.on{background:var(--sk-cy);color:#02222c;border-color:var(--sk-cy)}
+/* tela inicial */
+#view-home{position:fixed;inset:0;z-index:1;overflow:hidden;background:#020b12}
+#view-home .bk{position:absolute;inset:-6%;background-size:cover;background-position:center;filter:blur(34px) brightness(.5) saturate(1.1)}
+#view-home .zm{position:absolute;inset:0;transform-origin:50% 42%;animation:skKb 26s ease-in-out infinite alternate}
+@keyframes skKb{to{transform:scale(1.06)}}
+.skcover{position:absolute}
+.skcover>img{position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none}
+#skFac .ph{opacity:0;transition:opacity 1.4s ease}
+#skFac .wr{opacity:0;clip-path:inset(100% 0 0 0);transition:clip-path 1.5s cubic-bezier(.6,.1,.3,1),opacity .3s}
+#view-home.s1 #skFac .wr{opacity:1;clip-path:inset(0 0 0 0)}
+#view-home.s2 #skFac .ph{opacity:1}
+#view-home.s2 #skFac .wr{opacity:0;transition:opacity 1.4s ease .2s}
+#view-home .sh{position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,11,18,.7) 0,rgba(2,11,18,0) 24%,rgba(2,11,18,0) 46%,rgba(2,11,18,.92) 100%),linear-gradient(90deg,rgba(2,11,18,.6) 0,rgba(2,11,18,0) 44%);pointer-events:none}
+#view-home .hr{position:absolute;z-index:3;left:max(34px,env(safe-area-inset-left,0px));bottom:calc(var(--sk-bot) + 44px);max-width:min(560px,56vw);opacity:0;transform:translateY(16px);transition:all 1s var(--sk-e) .25s}
+#view-home.s3 .hr{opacity:1;transform:none}
+#view-home .hr .ey{font:500 11px var(--sk-mono);letter-spacing:.22em;text-transform:uppercase;color:var(--sk-gold)}
+#view-home .hr h1{margin:10px 0 12px;font:500 clamp(34px,4.8vw,64px)/1 var(--sk-serif);letter-spacing:0;color:#fff}
+#view-home .hr h1 em{color:var(--sk-gold)}
+#view-home .hr p{margin:0;color:#cfe3ec;font-size:15px;line-height:1.5;max-width:30em}
+#view-home .ob{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+.skchip{padding:7px 12px;border:1px solid var(--sk-line);border-radius:999px;font:500 11px var(--sk-mono);letter-spacing:.06em;color:var(--fg);background:rgba(2,11,18,.55)}
+.skchip b{color:var(--sk-gold);font-weight:500}
+#view-home .ct{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap}
+#view-home .ct button{display:flex;align-items:center;gap:9px;padding:13px 20px;border-radius:999px;border:1px solid var(--sk-cy);background:rgba(94,230,255,.1);color:var(--sk-cy);font:600 14px var(--f-body);cursor:pointer;transition:all .2s}
+#view-home .ct button.g{border-color:var(--sk-gold);background:var(--sk-gold);color:#241a05}
+#view-home .ct button:hover{transform:translateY(-2px);filter:brightness(1.1)}
+#view-home .ct svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.skhs{position:absolute;z-index:2;transform:translate(-50%,-50%);width:38px;height:38px;display:grid;place-items:center;border:0;background:transparent;cursor:pointer;opacity:0;transition:opacity .8s 1s;padding:0}
+#view-home.s3 .skhs{opacity:1}
+.skhs::before{content:"";width:11px;height:11px;border-radius:50%;background:var(--sk-gold);box-shadow:0 0 14px var(--sk-gold)}
+.skhs::after{content:"";position:absolute;inset:6px;border:1.5px solid var(--sk-gold);border-radius:50%;animation:skHp 2.4s ease-out infinite}
+@keyframes skHp{from{transform:scale(.5);opacity:1}to{transform:scale(1.7);opacity:0}}
+#skTip{position:fixed;z-index:16;width:min(280px,74vw);padding:13px 15px;border:1px solid var(--sk-gold);border-radius:14px;background:rgba(3,18,27,.95);opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
+#skTip.in{opacity:1;transform:none}
+#skTip i{font:500 10px var(--sk-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--sk-gold);font-style:normal}
+#skTip b{display:block;font-size:15px;margin:3px 0 4px;color:#fff}#skTip span{font-size:13px;color:#cfe3ec;line-height:1.45}
+/* abertura */
+#skOpen{position:fixed;inset:0;z-index:80;background:#020b12;color:#eaf6fb;display:none;overflow:hidden;font-family:var(--f-body)}
+#skOpen.on{display:block}
+#skOpen.out{opacity:0;transition:opacity .7s ease;pointer-events:none}
+#skOpen .st{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .6s var(--sk-e),visibility 0s .6s}
+#skOpen .st.on{opacity:1;visibility:visible;transition:opacity .6s var(--sk-e)}
+#skOpen .cn{display:grid;place-items:center;text-align:center;background:radial-gradient(60% 50% at 50% 45%,#06202e 0,#020b12 70%)}
+#skOpen .cn img{width:min(300px,62vw)}
+#skGo{margin-top:34px;padding:16px 32px;border:1px solid var(--sk-cy);border-radius:999px;font:600 13px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--sk-cy);background:rgba(94,230,255,.06);cursor:pointer;animation:skPul 2.2s infinite}
+@keyframes skPul{50%{box-shadow:0 0 0 12px rgba(94,230,255,0),0 0 30px rgba(94,230,255,.35)}0%,100%{box-shadow:0 0 0 0 rgba(94,230,255,.35)}}
+#skOpen .mn{font:500 11px var(--sk-mono);letter-spacing:.22em;text-transform:uppercase;color:#8fb1c0}
+.skring{position:relative;width:min(420px,82vw);aspect-ratio:1;display:grid;place-items:center}
+.skring svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.skring circle{fill:none;stroke:var(--sk-cy);stroke-width:1;transform-origin:50% 50%}
+.skring .r1{stroke-dasharray:4 10;opacity:.5;animation:skSp 18s linear infinite}
+.skring .r2{stroke-dasharray:120 500;stroke-width:2;animation:skSp 2.4s linear infinite reverse}
+.skring .r3{stroke:var(--sk-gold);stroke-dasharray:60 700;stroke-width:1.5;animation:skSp 3.6s linear infinite}
+@keyframes skSp{to{transform:rotate(360deg)}}
+.skring img{width:62%!important;opacity:0;transform:scale(.86);filter:blur(8px);transition:all 1.1s var(--sk-e)}
+#skOpen .st.on .skring img{opacity:1;transform:none;filter:none}
+#skBootT{position:absolute;left:0;right:0;bottom:12%;text-align:center;color:var(--sk-cy)!important}
+#skArr video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#skArr::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,11,18,.55) 0,rgba(2,11,18,0) 26%,rgba(2,11,18,0) 55%,rgba(2,11,18,.82) 100%);pointer-events:none}
+#skOpen .tl{position:absolute;z-index:2;left:34px;top:calc(30px + env(safe-area-inset-top,0px));display:grid;gap:5px}
+#skOpen .tl b{font:500 12px var(--sk-mono);letter-spacing:.14em;color:var(--sk-cy)}
+#skOpen .tl.r{left:auto;right:34px;text-align:right}
+#skOpen .cp{position:absolute;z-index:2;left:34px;right:34px;bottom:calc(58px + env(safe-area-inset-bottom,0px))}
+#skOpen .cp h2{margin:8px 0 0;font:500 clamp(30px,5.2vw,64px)/1.02 var(--sk-serif);letter-spacing:0;max-width:15em;color:#fff;opacity:0;transform:translateY(14px);transition:all .6s var(--sk-e)}
+#skOpen .cp h2.in{opacity:1;transform:none}#skOpen .cp h2 em{color:var(--sk-gold)}
+#skSkip{position:absolute;z-index:5;right:34px;bottom:calc(26px + env(safe-area-inset-bottom,0px));padding:10px 18px;border:1px solid var(--sk-line);border-radius:999px;font:500 12px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:#8fb1c0;background:rgba(2,11,18,.5);cursor:pointer}
+.skhud{position:absolute;inset:14px;pointer-events:none;z-index:4}
+.skhud i{position:absolute;width:26px;height:26px;border:1.5px solid var(--sk-cy);opacity:.8}
+.skhud i:nth-child(1){left:0;top:0;border-right:0;border-bottom:0}.skhud i:nth-child(2){right:0;top:0;border-left:0;border-bottom:0}
+.skhud i:nth-child(3){left:0;bottom:0;border-right:0;border-top:0}.skhud i:nth-child(4){right:0;bottom:0;border-left:0;border-top:0}
+#skFlash{position:fixed;inset:0;z-index:85;background:#dff8ff;opacity:0;pointer-events:none}
+#skFlash.go{animation:skFl .9s ease-out}
+@keyframes skFl{0%{opacity:0}18%{opacity:.8}100%{opacity:0}}
+/* passagem para a localização */
+#skFly{position:fixed;inset:0;z-index:50;display:none;overflow:hidden;background:#020b12}
+#skFly.on{display:block}
+#skFly.out{opacity:0;transition:opacity .6s ease}
+#skFly .ae{position:absolute;inset:0;transform:scale(2);filter:blur(10px);transition:transform 1.9s cubic-bezier(.2,.7,.2,1),filter 1.2s ease}
+#skFly.in .ae{transform:none;filter:none}
+#skFly .tx{position:absolute;left:34px;right:34px;bottom:calc(60px + env(safe-area-inset-bottom,0px));z-index:2;opacity:0;transform:translateY(12px);transition:all .7s var(--sk-e) .5s}
+#skFly.in .tx{opacity:1;transform:none}
+#skFly .tx h2{margin:8px 0 0;font:500 clamp(30px,4.6vw,58px)/1.02 var(--sk-serif);letter-spacing:0;color:#fff}#skFly .tx h2 em{color:var(--sk-gold)}
+#skFly::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,11,18,.5) 0,rgba(2,11,18,0) 30%,rgba(2,11,18,0) 50%,rgba(2,11,18,.9) 100%)}
+/* celular */
+@media (max-width:1023px){
+ html.sk{--sk-top:54px;--sk-bot:70px}
+ html.sk main,html.sk body.mhome main{padding:calc(var(--sk-top) + env(safe-area-inset-top,0px) + 14px) 14px calc(var(--sk-bot) + env(safe-area-inset-bottom,0px) + 22px)}
+ #skTop{gap:10px;padding-left:14px;padding-right:14px;height:calc(var(--sk-top) + env(safe-area-inset-top,0px))}
+ #skTop .lg{height:26px}#skTop .ar,#skTop .up,#skTop .ib.pf{display:none}
+ #skTop .kp{gap:11px;padding:5px 10px}#skTop .kp b{font-size:14.5px}#skTop .kp span{font-size:7px;letter-spacing:.08em}
+ #skDock{left:0;right:0;bottom:0;transform:none;max-width:none;border-radius:0;border:0;border-top:1px solid var(--sk-line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));justify-content:space-around;gap:0;background:rgba(3,18,27,.96)}
+ #skDock button{min-width:0;flex:1 1 0;padding:7px 2px 6px;font-size:10.5px;border-radius:14px}
+ #skDock button svg{width:23px;height:23px}
+ #skDock .dk{display:none}#skDock .mo{display:flex}
+ #view-home .hr{left:16px;right:16px;max-width:none;bottom:calc(var(--sk-bot) + env(safe-area-inset-bottom,0px) + 18px)}
+ #view-home .hr p{display:none}
+ #view-home .hr h1{font-size:31px;margin:8px 0 10px}
+ #view-home .ob{margin-top:0}
+ #view-home .ct{gap:8px;flex-wrap:nowrap}
+ #view-home .ct button{flex:1 1 0;justify-content:center;padding:13px 6px;font-size:13px;gap:6px}
+ #skOpen .tl{left:18px}#skOpen .tl.r{right:18px}#skOpen .cp{left:18px;right:18px;bottom:calc(70px + env(safe-area-inset-bottom,0px))}#skSkip{right:18px}
+ .skhud{inset:8px}
+ html.sk .lm-wrap{height:calc(100dvh - var(--sk-top) - var(--sk-bot) - 40px)}
+ html.sk .viewhead h2{font-size:28px}
+}
+@media (prefers-reduced-motion:reduce){#view-home .zm{animation:none}.skring circle{animation:none}}
+
+/* vídeo de apresentação */
+#skVid{position:fixed;inset:0;z-index:86;display:none;place-items:center;background:rgba(2,11,18,.92);backdrop-filter:blur(8px)}
+#skVid.on{display:grid}
+#skVid video{max-width:min(1000px,94vw);max-height:82vh;border-radius:16px;border:1px solid var(--sk-line);background:#000}
+#skVid button{position:absolute;right:20px;top:calc(18px + env(safe-area-inset-top,0px));width:44px;height:44px;border:1px solid var(--sk-line);border-radius:50%;background:rgba(2,11,18,.6);color:#fff;font-size:18px;cursor:pointer}
+/* Plantas: vitrine */
+html.sk .tpanel{background:transparent;border:0;box-shadow:none;padding:0}
+html.sk .tpanel>*:not(.skpw){ }
+.skpw{display:flex;flex-direction:column;gap:12px;padding:18px;border:1px solid var(--sk-line);border-radius:22px;background:linear-gradient(160deg,rgba(11,35,48,.9),rgba(4,18,26,.9))}
+.skph .ey{font:500 11px var(--sk-mono);letter-spacing:.22em;text-transform:uppercase;color:var(--sk-cy)}
+.skph h3{margin:4px 0 0;font:500 clamp(26px,2.6vw,38px)/1.05 var(--sk-serif);letter-spacing:0;color:#fff}
+.skph h3 em{color:var(--sk-gold)}
+.skpg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.skpg button{display:grid;gap:2px;text-align:left;padding:11px 13px;border:1px solid var(--sk-line);border-radius:14px;background:rgba(2,11,18,.45);color:var(--fg);cursor:pointer;transition:all .2s;min-width:0}
+.skpg button b{font:600 15px var(--f-body)}
+.skpg button small{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.skpg button:hover{border-color:var(--sk-cy)}
+.skpg button.on{border-color:var(--sk-gold);background:linear-gradient(160deg,rgba(242,196,107,.18),rgba(242,196,107,.04));box-shadow:0 0 0 1px rgba(242,196,107,.35) inset}
+.skpg button.on b{color:var(--sk-gold)}
+.skpv{display:flex;gap:6px;flex-wrap:wrap}
+.skpv button{padding:7px 12px;border:1px solid var(--sk-line);border-radius:999px;background:transparent;color:var(--muted);font:600 12px var(--f-body);cursor:pointer}
+.skpv button.on{background:var(--sk-cy);border-color:var(--sk-cy);color:#02222c}
+.skpl{position:relative;width:100%;aspect-ratio:16/9;min-height:210px;border-radius:18px;overflow:hidden;cursor:zoom-in;border:1px solid var(--sk-line);
+  background:linear-gradient(rgba(94,230,255,.07) 1px,transparent 1px) 0 0/100% 28px,linear-gradient(90deg,rgba(94,230,255,.07) 1px,transparent 1px) 0 0/28px 100%,#03202f}
+.skpl img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+.skpl .bp{filter:grayscale(1) invert(1) contrast(1.5) brightness(1.15) sepia(1) hue-rotate(150deg) saturate(4);mix-blend-mode:screen;opacity:.85}
+.skpl .re{background:#f3efe9;clip-path:inset(0 100% 0 0);transition:clip-path 1.5s cubic-bezier(.6,.1,.3,1) .55s}
+.skpl.in .re{clip-path:inset(0 0 0 0)}
+.skpl .sc{position:absolute;top:0;bottom:0;left:0;width:3px;background:var(--sk-cy);box-shadow:0 0 22px 4px var(--sk-cy);opacity:0;transition:left 1.5s cubic-bezier(.6,.1,.3,1) .55s,opacity .2s}
+.skpl.in .sc{left:100%;opacity:1;animation:skScOut .3s 2.05s forwards}
+@keyframes skScOut{to{opacity:0}}
+.skpl .nm{position:absolute;left:12px;top:12px;padding:6px 11px;border-radius:999px;background:rgba(2,11,18,.82);border:1px solid var(--sk-line);color:#fff;font:600 12.5px var(--f-body)}
+.skpl .zo{position:absolute;right:12px;top:12px;padding:6px 11px;border-radius:999px;background:rgba(2,11,18,.82);border:1px solid var(--sk-line);color:var(--sk-cy);font:600 12px var(--f-body);cursor:pointer}
+.skpl .pr{position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--sk-gold);animation:skPr 6.5s linear forwards}
+@keyframes skPr{to{width:100%}}
+.skst{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.skst span{display:grid;gap:2px;padding:10px 13px;border:1px solid var(--line);border-radius:14px;background:rgba(2,11,18,.4);min-width:0}
+.skst small{font:500 9.5px var(--sk-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.skst b{font:700 clamp(15px,1.5vw,20px) var(--f-body);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.skst b.ok{color:var(--ok)}
+.skfw .k{font-size:12px;color:var(--muted);margin-bottom:8px}
+.skfw .lg{display:inline-block;width:9px;height:9px;border-radius:3px;margin:0 4px 0 8px}
+.skfw .lg.D{background:var(--ok)}.skfw .lg.R{background:var(--warn)}.skfw .lg.V{background:#44606f}
+.skfr{display:grid;grid-template-columns:86px minmax(0,1fr);gap:8px;align-items:start;margin-bottom:8px}
+.skfr .tw{padding:7px 0;border-radius:10px;text-align:center;font:700 11.5px var(--f-body);color:#fff}
+.skfr .tw.Park{background:#0fa58a}.skfr .tw.Mar{background:#1f6fd1}
+.skfr>div{display:flex;flex-wrap:wrap;gap:5px}
+.skfl{min-width:42px;padding:7px 6px;border-radius:9px;border:1px solid transparent;font:700 12px var(--f-body);cursor:pointer;transition:transform .15s}
+.skfl.D{background:var(--ok-bg);color:var(--ok);border-color:rgba(62,224,166,.35)}
+.skfl.R{background:var(--warn-bg);color:var(--warn)}
+.skfl.V{background:#12222c;color:#4f6875;cursor:default}
+.skfl.D:hover{transform:translateY(-2px);background:var(--ok);color:#02251a}
+.skhint{margin:0;font-size:12px;color:var(--muted)}
+.skbk{align-self:flex-start;margin:0 0 10px;padding:8px 14px;border:1px solid var(--sk-line);border-radius:999px;background:rgba(2,11,18,.5);color:var(--sk-cy);font:600 13px var(--f-body);cursor:pointer}
+html.sk #tBuild .fl.skhl rect.b{fill:#5ee6ff;fill-opacity:.3;stroke:#5ee6ff;stroke-width:1.2;animation:skGl 2.2s ease-in-out infinite}
+@keyframes skGl{50%{fill-opacity:.12}}
+@media (max-width:1023px){
+ html.sk .tour{display:flex;flex-direction:column;gap:14px}html.sk #tPanel{order:-1;height:auto!important;max-height:none!important;overflow:visible}
+ .skpw{padding:14px;border-radius:18px}.skpg{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .skpl{aspect-ratio:4/3}.skfr{grid-template-columns:1fr}.skfr .tw{padding:6px 0}
+ .skfl{min-width:46px;padding:10px 6px;font-size:13px}
+ #view-home .ct{flex-wrap:wrap}#view-home .ct button{flex:1 1 40%}
+}
+
+/* Plantas: planta ao lado das informações (computador) */
+.skbd{display:grid;gap:12px}.skin{display:flex;flex-direction:column;gap:12px;min-width:0}
+@media (min-width:1024px){
+ .skph{display:flex;align-items:baseline;gap:14px}.skph h3{font-size:clamp(22px,2.2vw,32px);margin:0}
+ .skpw.pt .skbd{grid-template-columns:minmax(210px,34%) minmax(0,1fr);align-items:stretch}
+ .skpw.pt .skpl{aspect-ratio:auto;height:calc(100vh - var(--sk-top) - var(--sk-bot) - 262px);min-height:300px}
+ .skpw.ls .skpl{aspect-ratio:auto;height:calc(100vh - var(--sk-top) - var(--sk-bot) - 420px);min-height:210px}
+}
+@media (max-width:1023px){.skpw.pt .skpl{aspect-ratio:3/4}.skpw.ls .skpl{aspect-ratio:4/3}}
+html.sk #view-tour .viewhead{display:none!important}
+html.sk #tPanel{scroll-margin-top:calc(var(--sk-top) + env(safe-area-inset-top,0px) + 12px)}
+@media (max-width:1023px){.skst{grid-template-columns:1fr 1fr}.skst span:last-child{grid-column:1/-1}.skfl.V{display:none}.skfw .lg.V{display:none}}
+@media (max-width:1023px){.skfw .lgv{display:none}}
+
+/* Lazer em movimento */
+.sklp{border-radius:16px;overflow:hidden;border:1px solid var(--sk-line);background:#f3efe9}
+.sklp .in{position:relative}
+.sklp img{display:block;width:100%;height:auto;max-width:none}
+.sklp .hp{position:absolute;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;border:2px solid #fff;background:var(--sk-gold);display:grid;place-items:center;cursor:pointer;padding:0;box-shadow:0 2px 10px rgba(0,0,0,.45);animation:skLp 2.2s ease-out infinite}
+.sklp .hp svg{width:15px;height:15px;fill:#241a05;margin-left:2px}
+.sklp .hp:hover{transform:translate(-50%,-50%) scale(1.15)}
+@keyframes skLp{0%{box-shadow:0 2px 10px rgba(0,0,0,.45),0 0 0 0 rgba(242,196,107,.75)}100%{box-shadow:0 2px 10px rgba(0,0,0,.45),0 0 0 14px rgba(242,196,107,0)}}
+.sklc{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px;scrollbar-width:thin;scroll-snap-type:x proximity}
+.sklc button{position:relative;flex:0 0 168px;aspect-ratio:16/10;border-radius:14px;overflow:hidden;border:1px solid var(--sk-line);padding:0;cursor:pointer;background:#000;scroll-snap-align:start}
+.sklc img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.sklc button:hover img{transform:scale(1.06)}
+.sklc i{position:absolute;right:8px;top:8px;width:28px;height:28px;border-radius:50%;background:rgba(2,11,18,.7);border:1px solid var(--sk-gold);display:grid;place-items:center}
+.sklc i svg{width:12px;height:12px;fill:var(--sk-gold);margin-left:2px}
+.sklc span{position:absolute;left:0;right:0;bottom:0;padding:18px 10px 8px;background:linear-gradient(transparent,rgba(2,11,18,.92));color:#fff;font:600 12.5px var(--f-body);text-align:left}
+#skLz{position:fixed;inset:0;z-index:60;display:none;place-items:center;background:rgba(2,11,18,.92);backdrop-filter:blur(8px)}
+#skLz.on{display:grid}
+#skLz .bx{position:relative;width:min(1100px,94vw)}
+#skLz video{display:block;width:100%;max-height:78vh;border-radius:18px;border:1px solid var(--sk-line);background:#000;object-fit:contain}
+#skLz .bar{display:flex;justify-content:space-between;align-items:baseline;padding:12px 4px 0;color:#fff}
+#skLz .bar b{font:500 clamp(22px,3vw,34px) var(--sk-serif)}#skLz .bar span{font:500 11px var(--sk-mono);letter-spacing:.14em;color:var(--muted)}
+#skLz button{position:absolute;width:46px;height:46px;border-radius:50%;border:1px solid var(--sk-line);background:rgba(2,11,18,.72);color:#fff;font-size:22px;cursor:pointer}
+#skLz .pv{left:10px;top:42%}#skLz .nx{right:10px;top:42%}#skLz .cl{right:10px;top:10px;font-size:16px}
+#skLz.one .pv,#skLz.one .nx{display:none}
+@media (max-width:1023px){.sklp{overflow-x:auto}.sklp .in{width:760px}.sklc button{flex-basis:150px}}
+
+/* crédito no topo */
+#skTop .cr{font:500 10px var(--sk-mono);letter-spacing:.06em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+@media (max-width:1500px) and (min-width:1024px){#skTop .up{display:none}}
+@media (max-width:1023px){html.sk{--sk-top:66px}#skTop{align-items:flex-start;padding-top:calc(8px + env(safe-area-inset-top,0px))}#skTop .cr{position:absolute;left:0;right:0;bottom:4px;text-align:center;font-size:7.6px;letter-spacing:0;padding:0 8px}}
+/* botões da tela inicial */
+#view-home .ct.pri button{padding:15px 22px;font-size:15px}
+#view-home .ct.sec{margin-top:10px}#view-home .ct.sec button{padding:10px 15px;font-size:13px;border-color:var(--sk-line);color:var(--fg);background:rgba(2,11,18,.5)}
+@media (max-width:1023px){#view-home .ct.pri{flex-wrap:wrap}#view-home .ct.pri button{flex:1 1 100%;justify-content:center}#view-home .ct.sec{flex-wrap:nowrap;gap:6px}#view-home .ct.sec button{flex:1 1 0;padding:10px 2px;font-size:11.5px;gap:4px;justify-content:center}#view-home .ct.sec svg{display:none}#view-home .ob{display:none}}
+/* tour virtual */
+#skTour{position:fixed;inset:0;z-index:82;display:none;background:#020b12;color:#fff;overflow:hidden;font-family:var(--f-body)}
+#skTour.on{display:block}
+#skTour .stg,#skTour .sn{position:absolute;inset:0}
+#skTour .sn{animation:vtIn .7s ease both}
+@keyframes vtIn{from{opacity:0}}
+#skTour .pg{position:absolute;z-index:6;left:22px;right:22px;top:calc(14px + env(safe-area-inset-top,0px));display:flex;gap:3px}
+#skTour .pg i{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.22);overflow:hidden}#skTour .pg u{display:block;height:100%;width:0;background:var(--sk-gold)}
+#skTour .tb{position:absolute;z-index:6;left:22px;right:22px;top:calc(28px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:8px}
+#skTour .tb img{height:30px}#skTour .tb .gr{flex:1}
+#skTour .tb button,#skTour .nv{width:44px;height:44px;border-radius:50%;border:1px solid var(--sk-line);background:rgba(2,11,18,.6);color:#fff;font-size:16px;cursor:pointer}
+#skTour .nv{position:absolute;z-index:6;top:50%;transform:translateY(-50%);font-size:24px}
+#skTour .nv.pv{left:16px}#skTour .nv.nx{right:16px}
+#skTour .ey{font:500 12px var(--sk-mono);letter-spacing:.22em;text-transform:uppercase;color:var(--sk-cy)}
+#skTour h2{margin:8px 0 10px;font:500 clamp(34px,5.4vw,78px)/1 var(--sk-serif);letter-spacing:0;color:#fff}
+#skTour h2 em{color:var(--sk-gold)}
+#skTour h2.in{animation:vtUp .9s var(--sk-e) both}
+@keyframes vtUp{from{opacity:0;transform:translateY(18px)}}
+#skTour p{margin:0;max-width:34em;font-size:clamp(15px,1.6vw,20px);line-height:1.45;color:#d7e7ee}
+#skTour .tH .md{position:absolute;inset:0}
+#skTour .tH .md img,#skTour .tH .md video{width:100%;height:100%;object-fit:cover;display:block}
+#skTour .tH .md img{animation:skKb 9s ease-out both;animation-direction:reverse}
+#skTour .sd{position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,11,18,.55) 0,rgba(2,11,18,0) 28%,rgba(2,11,18,0) 45%,rgba(2,11,18,.92) 100%)}
+#skTour .tH .tx{position:absolute;left:max(70px,6vw);right:max(70px,6vw);bottom:calc(54px + env(safe-area-inset-bottom,0px))}
+#skTour .tP{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:28px;padding:96px max(76px,6vw) 56px;box-sizing:border-box;background:radial-gradient(900px 600px at 80% 0,rgba(26,138,209,.2),transparent 60%),#020b12}
+#skTour .tP.tall{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}
+#skTour .tP .skpl{height:100%;min-height:0;aspect-ratio:auto;cursor:default}
+#skTour .tP .si{display:flex;flex-direction:column;justify-content:center;gap:22px;min-width:0}
+#skTour .in2{border-radius:20px;overflow:hidden;border:1px solid var(--sk-line);aspect-ratio:16/10;background:#000;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+#skTour .tP.tall .in2{aspect-ratio:16/8}
+#skTour .in2 img,#skTour .in2 video,#skTour .cd video{width:100%;height:100%;object-fit:cover;display:block}
+#skTour .tP h2{font-size:clamp(30px,4vw,60px)}
+#skTour .tL{display:flex;flex-direction:column;background:#020b12}
+#skTour .tL .pa{position:relative;flex:1 1 58%;overflow:hidden;background:#f3efe9;margin-top:82px;border-block:1px solid var(--sk-line)}
+#skTour .tL .pa img{position:absolute;max-width:none;transition:left 1.1s var(--sk-e),top 1.1s var(--sk-e)}
+#skTour .rg{position:absolute;width:74px;height:74px;margin:-37px;border-radius:50%;border:3px solid var(--sk-gold);box-shadow:0 0 0 9999px rgba(2,11,18,.42),0 0 30px var(--sk-gold);transition:left 1.1s var(--sk-e),top 1.1s var(--sk-e);animation:vtRg 1.6s ease-in-out infinite}
+@keyframes vtRg{50%{transform:scale(1.14)}}
+#skTour .tL .bo{flex:0 0 auto;display:flex;align-items:center;gap:28px;padding:20px max(76px,6vw) calc(26px + env(safe-area-inset-bottom,0px))}
+#skTour .tL .tx{flex:1;min-width:0}
+#skTour .tL h2{font-size:clamp(30px,4.4vw,64px)}
+#skTour .cd{flex:0 0 min(42vw,520px);aspect-ratio:16/9;border-radius:18px;overflow:hidden;border:1px solid var(--sk-gold);box-shadow:0 14px 50px rgba(0,0,0,.6);background:#000}
+#skTour .tF .sd{background:rgba(2,11,18,.72)}
+#skTour .fx{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;text-align:center;gap:18px;padding:24px}
+#skTour .fx img{width:min(340px,60vw)}
+#skTour .fx .ct{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+#skTour .fx button{padding:14px 22px;border-radius:999px;border:1px solid var(--sk-cy);background:rgba(94,230,255,.1);color:var(--sk-cy);font:600 15px var(--f-body);cursor:pointer}
+#skTour .fx button.g{background:var(--sk-gold);border-color:var(--sk-gold);color:#241a05}
+@media (max-width:1023px){
+ #skTour .pg{left:12px;right:12px}#skTour .tb{left:12px;right:12px}#skTour .tb img{height:24px}
+ #skTour .nv{top:auto;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:none}#skTour .nv.pv{left:12px}#skTour .nv.nx{right:12px}
+ #skTour .tH .tx{left:18px;right:18px;bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+ #skTour .tP,#skTour .tP.tall{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;gap:14px;padding:84px 16px calc(74px + env(safe-area-inset-bottom,0px))}
+ #skTour .tP .si{gap:12px}#skTour .in2,#skTour .tP.tall .in2{aspect-ratio:16/7}
+ #skTour .tL .pa{flex:1 1 40%;margin-top:78px}
+ #skTour .tL .bo{flex-direction:column-reverse;align-items:stretch;gap:12px;padding:14px 16px calc(74px + env(safe-area-inset-bottom,0px))}
+ #skTour .cd{flex:none;width:100%}
+ #skTour .rg{width:56px;height:56px;margin:-28px}
+}
+
+/* mapa em tela cheia durante o tour pela região */
+iframe.skfs{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;height:100dvh!important;z-index:82!important;border:0!important;border-radius:0!important}
+html.skfsm #skTop,html.skfsm #skDock{display:none!important}
+
+#skOpen .cp h2.pul{transform-origin:0 100%;animation:skCh 1s ease-in-out infinite}
+#skOpen .cp h2.pul em{text-shadow:0 0 26px rgba(242,196,107,.9)}
+@keyframes skCh{0%,100%{transform:scale(1);text-shadow:0 0 0 rgba(255,255,255,0)}50%{transform:scale(1.09);text-shadow:0 0 34px rgba(255,255,255,.55)}}
+
+/* modo "apresentar ao cliente": some o que é só do corretor */
+body.present #skKp,body.present #skUp,body.present #skPf,body.present #skAr,body.present #skDock [data-v="espelho"],body.present #skDock [data-v="guia"],body.present #skDock [data-v="obj"],body.present #skDock [data-v="bolso"],
+body.present #skSheet [data-v="guia"],body.present #skSheet [data-v="obj"],body.present #skSheet [data-v="bolso"],body.present #skSheet [data-a],body.present #view-home [data-go="espelho"],body.present #skTour [data-a="tabela"]{display:none!important}
+</style>
+<script>window.SKCFG={always:false,base:"sk/"};</script>
+<script>
+/* ===== v90: pele JARVIS (abertura, tela inicial, barra superior, menu inferior). Não altera nenhuma ferramenta: só a moldura. ===== */
+(function(){
+if(window.__SK)return;window.__SK=1;
+const d=document,H=d.documentElement,$=s=>d.querySelector(s),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const CFG=Object.assign({always:false,base:'sk/'},window.SKCFG||{});
+H.classList.add('sk');H.setAttribute('data-theme','dark');
+const lk=d.createElement('link');lk.rel='stylesheet';lk.href='https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap';d.head.appendChild(lk);
+const L=()=>{try{return Math.max(0,['pt','en','es'].indexOf(PERFIL.lang))}catch(e){return 0}},T=a=>a[L()]||a[0];
+const LOGO=(($('img.clogo')||{}).src)||'';
+const I={home:'M4 11l8-7 8 7v9h-5v-6H9v6H4z',tour:'M4 4h16v16H4zM4 10h8M12 4v16',espelho:'M3 5h18M3 12h18M3 19h18M9 5v14',galeria:'M4 5h16v14H4zM4 15l5-5 4 4 3-3 4 4',docs:'M7 3h7l4 4v14H7zM14 3v4h4',local:'M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.800 12 21 12 21zM12 12a2.5 2.5 0 1 0 0-5a2.5 2.5 0 0 0 0 5',guia:'M12 21a9 9 0 1 0 0-18a9 9 0 0 0 0 18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18',obj:'M4 5h16v11H9l-5 4z',bolso:'M12 21a9 9 0 1 0 0-18a9 9 0 0 0 0 18zM12 7v10M15 9.500c-1-1.500-6-1.500-6 .800s6 1.200 6 3.500-5 2.300-6 .700',maxces:'M4 21V8l6-3v16M10 21V11h9v10M3 21h18',mais:'M5 12h.01M12 12h.01M19 12h.01',perfil:'M12 12a4 4 0 1 0 0-8a4 4 0 0 0 0 8zM4 21c0-4 4-6 8-6s8 2 8 6',play:'M7 4l13 8-13 8z',cal:'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4'};
+const V=[['home',['Início','Home','Inicio']],['tour',['Plantas','Plans','Plantas']],['espelho',['Tabela','Table','Tabla']],['galeria',['Galeria','Gallery','Galería']],['docs',['Documentos','Documents','Documentos']],['local',['Localização','Location','Ubicación']],['guia',['Exterior','Abroad','Exterior']],['obj',['Objeções','Objections','Objeciones']],['bolso',['Investir','Invest','Invertir']],['maxces',['Maxces','Maxces','Maxces']]];
+const MOB=['home','tour','espelho','local'];
+const svg=k=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${I[k]}"/></svg>`;
+const full=v=>{const b=$('.nav .btn[data-view="'+v+'"]');return b?(b.getAttribute('data-label')||(b.querySelector('.mlbl')||b).textContent.trim()):''};
+const sub=v=>{try{return P3(MSUB[v])}catch(e){return ''}};
+
+/* ---------- estrutura ---------- */
+const main=$('main');
+main.insertAdjacentHTML('afterbegin',`<div class="view" id="view-home">
+  <div class="bk" style="background-image:url(${CFG.base}fachada.jpg)"></div>
+  <div class="zm"><div class="skcover" id="skFac" data-w="2000" data-h="1493" data-fit="0.66" data-fity="1" data-sx="0.67">
+    <img class="ph" src="${CFG.base}fachada.jpg" alt="Conecta Towers"><img class="wr" src="${CFG.base}wire.webp" alt="">
+    <button class="skhs" type="button" style="left:50%;top:9%" data-k="0"></button><button class="skhs" type="button" style="left:50%;top:37.5%" data-k="1"></button>
+    <button class="skhs" type="button" style="left:36%;top:27%" data-k="2"></button><button class="skhs" type="button" style="left:50%;top:66%" data-k="3"></button>
+  </div></div><div class="sh"></div>
+  <div class="hr" id="skHero"></div></div>`);
+d.body.insertAdjacentHTML('beforeend',`<div id="skTop"><img class="lg" id="skLg" src="${LOGO}" alt="Conecta Towers"><span class="ar" id="skAr"></span><span class="cr">Sistema desenvolvido por Pedro Becker · © 2026. Todos os direitos reservados.</span><span class="gr"></span><span class="up" id="skUp"></span><div class="kp" id="skKp"></div><button class="ib pf" id="skPf" type="button" aria-label="Meu perfil">${svg('perfil')}</button></div>
+ <nav id="skDock"></nav><div id="skSheet"><div class="bx" id="skBx"></div></div><div id="skTip"><i></i><b></b><span></span></div>
+ <div id="skFly"><div class="ae"><div class="skcover" data-w="1280" data-h="956" data-fx="0.36"><img src="${CFG.base}aerea.jpg" alt=""></div></div><div class="tx"><span class="skchip" id="skFlyK"></span><h2 id="skFlyH"></h2></div></div>
+ <div id="skOpen"><div class="st cn" id="skGate"><div><img src="${LOGO}" alt="Conecta Towers"><div><button id="skGo" type="button"></button></div><p class="mn" id="skGoS" style="margin:16px 0 0"></p></div></div>
+  <div class="st cn" id="skBoot"><div class="skring"><svg viewBox="0 0 400 400"><circle class="r1" cx="200" cy="200" r="196"/><circle class="r2" cx="200" cy="200" r="182"/><circle class="r3" cx="200" cy="200" r="168"/></svg><img src="${LOGO}" alt=""></div><div class="mn" id="skBootT"></div></div>
+  <div class="st" id="skArr"><video id="skV" muted playsinline preload="none"></video><div class="tl"><span class="mn" id="skTk"></span><b id="skTd">— km</b><b id="skTa">ALT — m</b></div><div class="tl r"><span class="mn">Porto Belo · SC</span><b>27°09′39″ S</b><b>48°35′56″ O</b></div><div class="cp"><span class="mn" id="skCk"></span><h2 id="skCh"></h2></div></div>
+  <button id="skSkip" type="button"></button><div class="skhud"><i></i><i></i><i></i><i></i></div></div><div id="skFlash"></div><div id="skVid"><button type="button" id="skVidX" aria-label="Fechar">✕</button><video id="skVidV" controls playsinline preload="none"></video></div>`);
+
+/* ---------- textos (PT/EN/ES) ---------- */
+const HS=[[['Rooftop','Rooftop','Rooftop'],['O coroamento das duas torres, com vista aberta para o mar e para o bairro-parque.','The crown of both towers, with open views to the sea and the park-neighbourhood.','La coronación de las dos torres, con vista abierta al mar y al barrio-parque.']],
+ [['Passarelas entre as torres','Bridges between the towers','Pasarelas entre las torres'],['Torre Park e Torre Mar ligadas por passarelas: os dois prédios funcionam como um só.','Park and Mar towers linked by bridges: the two buildings work as one.','Torre Park y Torre Mar unidas por pasarelas: los dos edificios funcionan como uno.']],
+ [['Duas torres, 35 pavimentos','Two towers, 35 storeys','Dos torres, 35 pisos'],['Flats, 2 suítes, lofts, duplex de 3 suítes e coberturas de 4 suítes: para todas as fases da vida.','Flats, 2 suites, lofts, 3-suite duplexes and 4-suite penthouses: for every stage of life.','Flats, 2 suites, lofts, dúplex de 3 suites y áticos de 4 suites: para todas las etapas de la vida.']],
+ [['Base e acesso','Base and access','Base y acceso'],['Embasamento com fachada ativa na Av. Colombo Machado Salles, 1600.','Podium with active frontage on Av. Colombo Machado Salles, 1600.','Basamento con fachada activa en la Av. Colombo Machado Salles, 1600.']]];
+function texts(){
+  $('#skAr').textContent=T(['Área do corretor','Broker area','Área del corredor']);
+  $('#skHero').innerHTML=`<span class="ey">Torre Park · Torre Mar</span><h1>${T(['Um verdadeiro hotel de luxo <em>na entrada de Porto Belo</em>','A true luxury hotel <em>at the gateway to Porto Belo</em>','Un verdadero hotel de lujo <em>en la entrada de Porto Belo</em>'])}</h1>
+   <p>${T(['Cercado pelo primeiro bairro-parque do Brasil, na área que mais valoriza na cidade.','Surrounded by Brazil’s first park-neighbourhood, in the city’s fastest-appreciating area.','Rodeado por el primer barrio-parque de Brasil, en la zona que más se valoriza de la ciudad.'])}</p>
+   <div class="ob"><span class="skchip">${T(['Início das obras','Construction starts','Inicio de obras'])} <b>${T(['junho/2027','June 2027','junio/2027'])}</b></span><span class="skchip">${T(['Entrega','Delivery','Entrega'])} <b>${T(['dezembro/2032','December 2032','diciembre/2032'])}</b></span></div>
+   <div class="ct pri"><button class="g" type="button" data-go="vtour">${svg('play')}${T(['Tour virtual pelo Conecta','Virtual tour of Conecta','Tour virtual por Conecta'])}</button><button type="button" data-go="ltour">${svg('local')}${T(['Tour pela região','Tour of the region','Tour por la región'])}</button></div>
+   <div class="ct sec"><button type="button" data-go="tour">${svg('tour')}${T(['Plantas','Plans','Plantas'])}</button><button type="button" data-go="espelho">${svg('espelho')}${T(['Tabela','Table','Tabla'])}</button><button type="button" data-go="local">${svg('local')}${T(['Localização','Location','Ubicación'])}</button><button type="button" data-go="video">${svg('play')}${T(['Vídeo','Video','Video'])}</button></div>`;
+  $('#skGo').textContent=T(['Toque para entrar','Tap to enter','Toque para entrar']);$('#skGoS').textContent=T(['Experiência com som','Experience with sound','Experiencia con sonido']);$('#skSkip').textContent=T(['Pular ›','Skip ›','Saltar ›']);$('#skTk').textContent=T(['Aproximação','Approach','Aproximación']);
+  dock();kpis()}
+function dock(){const cur=(($('.view.on')||{}).id||'').replace('view-','');
+  $('#skDock').innerHTML=V.map(([v,l])=>`<button type="button" data-v="${v}" class="${MOB.includes(v)?'':'dk'}${cur===v?' on':''}">${svg(v)}<span>${T(l)}</span></button>`).join('')+`<button type="button" class="mo${cur&&!MOB.includes(cur)?' on':''}" data-v="+">${svg('mais')}<span>${T(['Mais','More','Más'])}</span></button>`;
+  $('#skBx').innerHTML='<div class="gp"></div>'+V.filter(([v])=>!MOB.includes(v)).map(([v])=>`<button class="it" type="button" data-v="${v}">${svg(v)}<span>${full(v)}<small>${sub(v)}</small></span></button>`).join('')+
+   `<button class="it" type="button" data-a="perfil">${svg('perfil')}<span>${T(['Meu perfil','My profile','Mi perfil'])}</span></button><button class="it wa" type="button" data-a="treino">${svg('cal')}<span>${(($('#navTreino')||{}).textContent||'').trim()}</span></button>
+    <div class="lg2">${['pt','en','es'].map((l,i)=>`<button type="button" data-l="${l}" class="${i===L()?'on':''}">${l.toUpperCase()}</button>`).join('')}</div>`}
+function kpis(){const k=$('#skKp');k.innerHTML=[...d.querySelectorAll('#counts .cnt')].map(c=>{const b=c.querySelector('b');const cls=(c.className.match(/\b[DRV]\b/)||[''])[0];return `<span class="${cls}"><b>${b?b.textContent:''}</b>${c.textContent.replace(b?b.textContent:'','').trim()}</span>`}).join('');
+  const bd=$('#baseDate');$('#skUp').innerHTML=bd?T(['Tabela atualizada','Table updated','Tabla actualizada'])+'<br>'+bd.textContent:''}
+try{new MutationObserver(kpis).observe($('#counts'),{childList:true,subtree:true})}catch(e){}
+
+/* ---------- imagens que cobrem a tela, com os pontos sempre no lugar ---------- */
+function layout(){const W=innerWidth,Hh=innerHeight;d.querySelectorAll('.skcover').forEach(c=>{const w=+c.dataset.w,h=+c.dataset.h,fit=+c.dataset.fit||0,fity=+c.dataset.fity||0,fx=+c.dataset.fx||.5;
+  let s=Math.max(W/w,Hh/h);if(fit&&W/(s*w)<fit)s=W/(fit*w);if(fity&&Hh/(s*h)<fity)s=Hh/(fity*h);const cw=w*s,ch=h*s;
+  let l=W/2-fx*cw;l=cw>=W?Math.min(0,Math.max(W-cw,l)):(W>=1024?W*(+c.dataset.sx||.5):W/2)-cw/2;const t=ch>=Hh?(Hh-ch)*.4:Math.max(56,(Hh-ch)*.24);
+  Object.assign(c.style,{width:cw+'px',height:ch+'px',left:l+'px',top:t+'px'});
+  const m=[];if(ch<Hh)m.push('linear-gradient(180deg,transparent 0,#000 12%,#000 86%,transparent 100%)');if(cw<W)m.push('linear-gradient(90deg,transparent 0,#000 14%,#000 86%,transparent 100%)');
+  c.style.webkitMaskImage=c.style.maskImage=m.join(',');c.style.webkitMaskComposite=m.length>1?'source-in':'';c.style.maskComposite=m.length>1?'intersect':''})}
+addEventListener('resize',layout);
+
+/* ---------- som sintetizado e voz ---------- */
+let AC=null;
+function audio(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}catch(e){AC=null}}
+function tone(type,f0,f1,t0,dur,g0){const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f0,t0);o.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t0+dur);g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(g0,t0+dur*.25);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);o.connect(g);g.connect(AC.destination);o.start(t0);o.stop(t0+dur+.05)}
+function noise(t0,dur,g0,f0,f1){const n=AC.sampleRate*dur,b=AC.createBuffer(1,n,AC.sampleRate),q=b.getChannelData(0);for(let i=0;i<n;i++)q[i]=Math.random()*2-1;const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=b;f.type='bandpass';f.Q.value=1.2;f.frequency.setValueAtTime(f0,t0);f.frequency.exponentialRampToValueAtTime(f1,t0+dur);g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(g0,t0+dur*.7);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);s.connect(f);f.connect(g);g.connect(AC.destination);s.start(t0)}
+const sfx={power(){if(!AC)return;const t=AC.currentTime;tone('sawtooth',38,150,t,2,.16);tone('sine',55,220,t,2,.22);tone('sine',440,1760,t+.3,1.7,.05);noise(t,2,.12,300,6000);[0,.16,.32].forEach((x,i)=>tone('square',1200+i*300,1200+i*300,t+.4+x,.07,.04))},
+ impact(){if(!AC)return;const t=AC.currentTime;tone('sine',120,28,t,1.6,.5);tone('triangle',60,30,t,2.2,.3);noise(t,.5,.3,3000,200);[523.25,659.25,783.99,1046.5].forEach((f,i)=>tone('sine',f,f,t+.05+i*.07,3,.06))},
+ whoosh(){if(!AC)return;const t=AC.currentTime;noise(t,1.1,.2,200,5000);tone('sine',90,300,t,1,.1)},tick(){if(!AC)return;tone('square',1500,1500,AC.currentTime,.05,.03)}};
+function say(x){if(CFG.voz){try{const a=new Audio(CFG.base+CFG.voz);a.play().catch(()=>tts(x));return}catch(e){}}tts(x)}
+function tts(x){try{const u=new SpeechSynthesisUtterance(x);u.lang='pt-BR';u.rate=.96;u.pitch=1;u.volume=1;const vs=speechSynthesis.getVoices().filter(v=>/^pt[-_]BR/i.test(v.lang));
+  const rank=v=>(/natural|neural|online/i.test(v.name)?8:0)+(/google/i.test(v.name)?5:0)+(/luciana|francisca|thalita|antonio|felipe/i.test(v.name)?3:0)+(/enhanced|premium|aprimorad/i.test(v.name)?4:0)+(v.localService?0:1);
+  const p=vs.sort((a,b)=>rank(b)-rank(a))[0];if(p)u.voice=p;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+try{speechSynthesis.getVoices()}catch(e){}
+function flash(){const f=$('#skFlash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go')}
+
+/* ---------- navegação ---------- */
+const _sv=window.showView;let run=0;
+window.showView=function(v){_sv(v);d.body.classList.toggle('skhome',v==='home');d.querySelectorAll('#skDock button').forEach(b=>b.classList.toggle('on',b.dataset.v===v||(b.dataset.v==='+'&&!MOB.includes(v))));$('#skSheet').classList.remove('on');$('#skTip').classList.remove('in');
+  if(v==='tour'&&!TOUR.f){PS.auto=true;try{renderTourPanel()}catch(e){}}
+  if(v==='home'){layout();const h=$('#view-home');if(!h.classList.contains('s3'))h.classList.add('s1','s2','s3')}};
+function go(v){audio();sfx.tick();if(v==='vtour')return vtStart();if(v==='ltour'){showView('local');const f=$('#view-local iframe');const k=()=>{try{f.contentWindow.__MAPTOUR()}catch(e){setTimeout(k,400)}};try{if(f.requestFullscreen)f.requestFullscreen().catch(()=>{})}catch(e){}setTimeout(k,500);return}if(v==='video'){const m=$('#skVid'),x=$('#skVidV');if(!x.src)x.src=CFG.base+'apresentacao.mp4';m.classList.add('on');const p=x.play();if(p&&p.catch)p.catch(()=>{});return}if(v==='local'&&d.body.classList.contains('skhome'))return fly();showView(v)}
+async function fly(){const my=++run,f=$('#skFly');$('#skFlyK').textContent=T(['Localização','Location','Ubicación']);$('#skFlyH').innerHTML=T(['Porto Belo, <em>na entrada da cidade</em>','Porto Belo, <em>at the city gateway</em>','Porto Belo, <em>en la entrada de la ciudad</em>']);
+  f.classList.remove('in','out');f.classList.add('on');layout();sfx.whoosh();flash();await sleep(60);f.classList.add('in');await sleep(2300);if(my!==run)return;showView('local');f.classList.add('out');await sleep(620);f.classList.remove('on','in','out')}
+$('#skDock').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.v==='+'){audio();sfx.tick();dock();$('#skSheet').classList.add('on');return}go(b.dataset.v)};
+$('#skSheet').onclick=e=>{if(e.target.id==='skSheet'){e.currentTarget.classList.remove('on');return}const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.v)return go(b.dataset.v);if(b.dataset.a==='perfil'){$('#skSheet').classList.remove('on');$('#navPerfil').click()}else if(b.dataset.a==='treino'){$('#navTreino').click()}
+  else if(b.dataset.l){const c=d.querySelector('.langchip[data-lang="'+b.dataset.l+'"]');if(c)c.click();setTimeout(texts,80)}};
+$('#skHero').onclick=e=>{const b=e.target.closest('[data-go]');if(b)go(b.dataset.go)};
+const vidClose=()=>{try{$('#skVidV').pause()}catch(e){}$('#skVid').classList.remove('on')};$('#skVidX').onclick=vidClose;$('#skVid').onclick=e=>{if(e.target.id==='skVid')vidClose()};
+$('#skLg').onclick=()=>go('home');$('#skPf').onclick=()=>$('#navPerfil').click();
+d.querySelectorAll('.langchip').forEach(c=>c.addEventListener('click',()=>setTimeout(texts,80)));
+/* destaques da fachada */
+let tipOn=null;const tip=$('#skTip');
+d.querySelectorAll('.skhs').forEach(h=>h.onclick=e=>{e.stopPropagation();audio();sfx.tick();if(tipOn===h){tip.classList.remove('in');tipOn=null;return}tipOn=h;const x=HS[+h.dataset.k];
+  tip.querySelector('i').textContent=T(['Destaque','Highlight','Destacado']);tip.querySelector('b').textContent=T(x[0]);tip.querySelector('span').textContent=T(x[1]);
+  const r=h.getBoundingClientRect(),W=innerWidth,tw=Math.min(280,W*.74);let px=r.left+r.width/2+24;if(px+tw>W-14)px=r.left-tw-10;px=Math.max(14,px);tip.style.left=px+'px';tip.style.top=Math.min(innerHeight-230,Math.max(70,r.top-12))+'px';tip.classList.add('in')});
+$('#view-home').addEventListener('click',()=>{tip.classList.remove('in');tipOn=null});
+
+
+/* ---------- Plantas: vitrine dinâmica (substitui o quadro inicial à direita) ---------- */
+const PG=()=>{const pl=id=>PLANTAS.find(p=>p.id===id)||{};const fin=n=>({n:PLANTAS_FINAL[n-1].nome,a:PLANTAS_FINAL[n-1].tag,src:PLANTAS_FINAL[n-1].src,us:UNITS.filter(u=>u.final===n&&u.andar>8&&u.andar!==33&&u.andar<35)});
+  return [{k:['Flat','Flat','Flat'],s:['36 a 38 m² · com varanda','36 to 38 m² · with balcony','36 a 38 m² · con balcón'],v:[2,3,4,5,6].map(fin)},
+   {k:['2 Suítes','2 Suites','2 Suites'],s:['73,40 m²','73.40 m²','73,40 m²'],v:[1,7].map(fin)},
+   {k:['Loft duplex','Duplex loft','Loft dúplex'],s:['33º pavimento','33rd floor','Piso 33'],v:[{n:T(['Loft duplex · térreo + mezanino','Duplex loft · lower floor + mezzanine','Loft dúplex · planta baja + entrepiso']),a:T(['54 a 110 m²','54 to 110 m²','54 a 110 m²']),src:pl('loft').src,us:UNITS.filter(u=>u.andar===33),lg:1}]},
+   {k:['Cobertura','Penthouse','Ático'],s:['231 m² · lazer privativo','231 m² · private leisure','231 m² · ocio privado'],v:[{n:T(['Cobertura · apartamento + lazer privativo','Penthouse · apartment + private leisure','Ático · apartamento + ocio privado']),a:'231 m²',src:pl('cobertura').src,us:UNITS.filter(u=>u.andar===35),lg:1}]}]};
+
+/* ---------- Lazer em movimento: pontos sobre a planta do 8º e cartões com os trechos em vídeo ---------- */
+const LZ={quadra:[['Quadra poliesportiva','Sports court','Cancha polideportiva'],5.5,30],academia:[['Academia','Gym','Gimnasio'],13,80],coworking:[['Coworking','Coworking','Coworking'],28.5,84],
+ fontes:[['Praça das fontes','Fountain plaza','Plaza de las fuentes'],50,46],gourmet:[['Gourmet externo','Outdoor gourmet','Gourmet exterior'],47,11],firepit:[['Fire pit','Fire pit','Fire pit'],46.5,88],
+ festas:[['Salão de festas','Party room','Salón de fiestas'],67,84],spa:[['Spa externo','Outdoor spa','Spa exterior'],73,9],deck:[['Deck da piscina','Pool deck','Deck de la piscina'],84,16],piscina:[['Piscinas','Pools','Piscinas'],96,62],
+ garagem:[['Garagem','Parking','Garaje']],terreo:[['Térreo e acesso','Ground floor and entrance','Planta baja y acceso']]};
+const LZK={lazer:['piscina','deck','spa','gourmet','fontes','firepit','festas','academia','quadra','coworking'],garagem:['garagem'],terreo:['terreo']};
+let lzList=[],lzI=0;
+function lzOpen(list,i){lzList=list;lzI=i;const m=$('#skLz'),v=$('#skLzV'),k=list[i];v.poster=CFG.base+'lz/'+k+'.jpg';v.src=CFG.base+'lz/'+k+'.mp4';$('#skLzT').textContent=T(LZ[k][0]);$('#skLzN').textContent=(i+1)+' / '+list.length;
+  m.classList.toggle('one',list.length<2);m.classList.add('on');const p=v.play();if(p&&p.catch)p.catch(()=>{})}
+function lzClose(){try{$('#skLzV').pause()}catch(e){}$('#skLz').classList.remove('on')}
+d.body.insertAdjacentHTML('beforeend',`<div id="skLz"><div class="bx"><video id="skLzV" muted loop playsinline preload="none"></video><div class="bar"><b id="skLzT"></b><span id="skLzN"></span></div><button type="button" class="pv" aria-label="Anterior">‹</button><button type="button" class="nx" aria-label="Próximo">›</button><button type="button" class="cl" aria-label="Fechar">✕</button></div></div>`);
+$('#skLz').onclick=e=>{if(e.target.id==='skLz'||e.target.closest('.cl'))return lzClose();if(e.target.closest('.pv'))lzOpen(lzList,(lzI-1+lzList.length)%lzList.length);else if(e.target.closest('.nx'))lzOpen(lzList,(lzI+1)%lzList.length)};
+d.addEventListener('keydown',e=>{if(!$('#skLz').classList.contains('on'))return;if(e.key==='Escape')lzClose();else if(e.key==='ArrowRight')lzOpen(lzList,(lzI+1)%lzList.length);else if(e.key==='ArrowLeft')lzOpen(lzList,(lzI-1+lzList.length)%lzList.length)});
+function lzPanel(el,kind){const list=LZK[kind];if(!list)return;const play='<svg viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z"/></svg>';
+  const cards=`<div class="k">${T(['Em movimento · toque para assistir','In motion · tap to watch','En movimiento · toque para ver'])}</div><div class="sklc">${list.map((k,i)=>`<button type="button" data-lz="${i}"><img src="${CFG.base}lz/${k}.jpg" alt="" loading="lazy"><i>${play}</i><span>${T(LZ[k][0])}</span></button>`).join('')}</div>`;
+  const a=el.querySelector('.tp-plan');
+  if(kind==='lazer'&&a){const w=d.createElement('div');w.className='sklp';w.innerHTML=`<div class="in"><img src="${a.querySelector('img').src.replace('pthumb','planta')}" alt="">${list.map((k,i)=>`<button type="button" class="hp" data-lz="${i}" style="left:${LZ[k][1]}%;top:${LZ[k][2]}%" title="${T(LZ[k][0])}">${play}</button>`).join('')}</div>`;a.replaceWith(w);
+    w.insertAdjacentHTML('afterend',`<p class="skhint" style="margin:6px 0 2px">${T(['Toque nos pontos da planta para ver cada espaço em movimento.','Tap the points on the plan to see each space in motion.','Toque los puntos de la planta para ver cada espacio en movimiento.'])}</p>`+cards)}
+  else{const h=el.querySelector('h3');(h||el.firstElementChild).insertAdjacentHTML('afterend',cards)}
+  el.querySelectorAll('[data-lz]').forEach(b=>b.onclick=e=>{e.preventDefault();audio();sfx.tick();lzOpen(list,+b.dataset.lz)})}
+const PS={g:0,v:0,auto:true,tm:0};
+function plShow(el,anim){const G=PG(),g=G[PS.g],x=g.v[PS.v],D=x.us.filter(u=>u.status==='D'),mn=D.reduce((m,u)=>u.valor&&(!m||u.valor<m)?u.valor:m,0);
+  const fl=t=>x.lg?x.us.filter(u=>u.torre===t).sort((p,q)=>p.unidade.localeCompare(q.unidade)).map(u=>`<button type="button" class="skfl ${u.status}" data-id="${u.id}" ${u.status==='V'?'disabled':''}>${u.unidade}</button>`).join(''):[...new Set(x.us.filter(u=>u.torre===t).map(u=>u.andar))].sort((a,b)=>b-a).map(f=>{const us=x.us.filter(u=>u.torre===t&&u.andar===f);const u=us.find(q=>q.status==='D')||us[0];return `<button type="button" class="skfl ${u.status}" data-id="${u.id}" ${u.status==='V'?'disabled':''} title="${u.unidade}">${x.lg?u.unidade:f+'º'}</button>`}).join('');
+  el.innerHTML=`<div class="skpw ${x.lg?'ls':'pt'}"><div class="skph"><span class="ey">${T(['Plantas','Floor plans','Plantas'])}</span><h3>${T(['Escolha <em>como quer morar</em>','Choose <em>how you want to live</em>','Elija <em>cómo quiere vivir</em>'])}</h3></div>
+   <div class="skpg">${G.map((q,i)=>`<button type="button" data-g="${i}" class="${i===PS.g?'on':''}"><b>${T(q.k)}</b><small>${T(q.s)}</small></button>`).join('')}</div>
+   ${g.v.length>1?`<div class="skpv">${g.v.map((q,i)=>`<button type="button" data-v="${i}" class="${i===PS.v?'on':''}">${q.n.replace(/^.*–\s*/,'')} · ${q.a}</button>`).join('')}</div>`:''}
+   <div class="skbd"><div class="skpl${anim?'':' in'}" id="skPl"><img class="bp" src="${x.src}" alt=""><img class="re" src="${x.src}" alt="${x.n}"><i class="sc"></i><span class="nm">${x.n}</span><button type="button" class="zo" id="skZo">${T(['Ampliar','Enlarge','Ampliar'])} ⤢</button>${PS.auto?'<u class="pr"></u>':''}</div>
+   <div class="skin"><div class="skst"><span><small>${T(['Área privativa','Private area','Área privada'])}</small><b>${x.a}</b></span><span><small>${T(['Disponíveis','Available','Disponibles'])}</small><b class="ok">${D.length}</b></span><span><small>${T(['A partir de','From','Desde'])}</small><b>${mn?brl(mn).replace(/,00$/,''):'—'}</b></span></div>
+   <div class="skfw"><div class="k">${x.lg?T(['Escolha a unidade para abrir a ficha','Pick a unit to open its sheet','Elija la unidad para abrir la ficha']):T(['Escolha o andar para abrir a ficha','Pick a floor to open the unit sheet','Elija el piso para abrir la ficha'])} · <i class="lg D"></i>${T(['disponível','available','disponible'])} <i class="lg R"></i>${T(['em reserva','on hold','en reserva'])} <i class="lg V"></i><span class="lgv">${T(['reservado','reserved','reservado'])}</span></div>
+    ${['Park','Mar'].map(t=>{const h=fl(t);return h?`<div class="skfr"><span class="tw ${t}">Torre ${t}</span><div>${h}</div></div>`:''}).join('')}</div>
+   <p class="skhint">${T(['Ou toque num andar do prédio para ver o pavimento inteiro.','Or tap a floor on the building to see the whole level.','O toque un piso del edificio para ver la planta completa.'])}</p></div></div></div>`;
+  if(anim)setTimeout(()=>{const p=$('#skPl');p&&p.classList.add('in')},80);
+  d.querySelectorAll('#tBuild .fl').forEach(b=>{const f=+b.dataset.f,t=b.dataset.t;b.classList.toggle('skhl',f>8&&D.some(u=>u.andar===f&&u.torre===t))});
+  el.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{PS.auto=false;PS.g=+b.dataset.g;PS.v=0;audio();sfx.tick();plShow(el,true)});
+  el.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{PS.auto=false;PS.v=+b.dataset.v;audio();sfx.tick();plShow(el,true)});
+  el.querySelectorAll('.skfl').forEach(b=>b.onclick=()=>{PS.auto=false;openDrawer(b.dataset.id)});
+  $('#skZo').onclick=e=>{e.stopPropagation();PS.auto=false;openLightbox(x.src,x.n+' · '+x.a)};$('#skPl').onclick=()=>{PS.auto=false;openLightbox(x.src,x.n+' · '+x.a)};
+  clearTimeout(PS.tm);if(PS.auto)PS.tm=setTimeout(()=>{if(!PS.auto||TOUR.f||!$('#view-tour').classList.contains('on')||$('#drawer.open,.lightbox.open'))return;PS.v++;if(PS.v>=PG()[PS.g].v.length){PS.v=0;PS.g=(PS.g+1)%4}plShow(el,true)},6500)}
+const _rtp=window.renderTourPanel;
+window.renderTourPanel=function(){_rtp();const el=$('#tPanel');if(!el)return;
+  if(!TOUR.f){plShow(el,true);return}
+  d.querySelectorAll('#tBuild .fl.skhl').forEach(b=>b.classList.remove('skhl'));
+  try{lzPanel(el,floorKind(TOUR.f))}catch(e){}
+  el.insertAdjacentHTML('afterbegin',`<button type="button" class="skbk" id="skBk">‹ ${T(['Todas as plantas','All floor plans','Todas las plantas'])}</button>`);
+  $('#skBk').onclick=()=>{TOUR.f=null;d.querySelectorAll('#tBuild .fl.sel').forEach(b=>b.classList.remove('sel'));PS.auto=false;renderTourPanel();if(innerWidth<1024)el.scrollIntoView({behavior:'smooth',block:'start'})}};
+try{renderTourPanel()}catch(e){}
+
+
+/* ---------- Tour virtual pelo Conecta (tela cheia) ---------- */
+const VT={i:0,t:0,pause:false,on:false,last:0,list:[]};
+function vtScenes(){const G=i=>(GALERIA[i]||{}).src,P=id=>(PLANTAS.find(p=>p.id===id)||{}).src,b=CFG.base;
+  const av=f=>{const D=UNITS.filter(u=>f(u)&&u.status==='D'),m=D.reduce((a,u)=>u.valor&&(!a||u.valor<a)?u.valor:a,0);return D.length?D.length+' disponíveis'+(m?', a partir de '+brl(m).replace(/,00$/,''):''):''};
+  const lz=k=>({t:'L',k,d:4300});
+  return [
+   {t:'H',v:b+'tv/torres.mp4',ey:'Tour virtual',h:'Conecta <em>Towers</em>',p:'Duas torres de 35 pavimentos, ligadas por passarelas, na entrada de Porto Belo.',d:6000},
+   {t:'H',i:b+'fachada.jpg',ey:'A fachada',h:'Um espetáculo <em>da arquitetura</em>',p:'Torre Park e Torre Mar: linhas orgânicas e jardins em todos os andares.',d:6000},
+   {t:'H',v:b+'tv/arq.mp4',ey:'O endereço',h:'Av. Colombo Machado Salles, <em>1600</em>',p:'Cercado pelo primeiro bairro-parque do Brasil.',d:6000},
+   {t:'P',pl:P('terreo'),v:b+'lz/terreo.mp4',ey:'1º pavimento · Térreo',h:'Fachada <em>ativa</em>',p:'Sete salas comerciais abertas para a avenida: conveniência na porta de casa.',d:8000},
+   {t:'H',v:b+'lz/garagem.mp4',ey:'G1 a G6',h:'Seis pavimentos <em>de garagem</em>',p:'Vagas, bicicletário e carregadores para carros elétricos.',d:5000},
+   {t:'H',v:b+'lz/piscina.mp4',ey:'8º pavimento',h:'Um clube <em>no 8º andar</em>',p:'Mais de 30 espaços de lazer, compartilhados pelas duas torres.',d:5500},
+   lz('piscina'),lz('deck'),lz('spa'),lz('gourmet'),lz('fontes'),lz('firepit'),lz('festas'),lz('academia'),lz('quadra'),
+   {t:'P',pl:PLANTAS_FINAL[1].src,i:G(13),tall:1,ey:'Flat · 36 a 38 m²',h:'Compacto, <em>completo</em>',p:'Ambiente integrado com varanda. '+av(u=>u.tipo==='Flat')+'.',d:8000},
+   {t:'P',pl:PLANTAS_FINAL[0].src,v:b+'tv/dono.mp4',tall:1,ey:'2 Suítes · 73,40 m²',h:'Mais espaço, <em>no mesmo andar</em>',p:'Duas suítes, living integrado e varanda. '+av(u=>u.tipo==='2 Suítes')+'.',d:8000},
+   {t:'P',pl:P('loft'),i:G(20),ey:'Loft duplex · 33º pavimento',h:'Pé-direito <em>duplo</em>',p:'Térreo e mezanino. '+av(u=>u.andar===33)+'.',d:8000},
+   {t:'P',pl:P('cobertura'),i:G(7),ey:'Cobertura · 231 m²',h:'Lazer privativo <em>no topo</em>',p:'Terraços, piscina, gourmet e salão de festas só seus. '+av(u=>u.andar===35)+'.',d:8000},
+   {t:'P',pl:P('passarela'),i:G(14),ey:'Lazer suspenso · 19º pavimento',h:'Passarela <em>Gardens</em>',p:'Um Espaço Garden em cada torre e a passarela que liga a Torre Park à Torre Mar.',d:7500},
+   {t:'P',pl:P('coworking'),v:b+'lz/coworking.mp4',ey:'Lazer suspenso · 28º pavimento · Torre Park',h:'Coworking <em>ao ar livre</em>',p:'Trabalhar com vista, sem sair de casa.',d:7500},
+   {t:'P',pl:P('yoga'),i:G(3),ey:'Lazer suspenso · 30º pavimento · Torre Mar',h:'Meditação <em>e yoga</em>',p:'Um espaço externo de 68 m² para desacelerar.',d:7500},
+   {t:'H',i:G(2),ey:'35º pavimento',h:'O topo <em>das duas torres</em>',p:'Coberturas com lazer privativo e a passarela superior.',d:6000},
+   {t:'H',v:b+'tv/dono.mp4',ey:'Todos os dias',h:'A vista <em>é sua</em>',p:'',d:5000},
+   {t:'F',i:b+'fachada.jpg',d:12000}]}
+d.body.insertAdjacentHTML('beforeend',`<div id="skTour"><div class="stg" id="vtStg"></div><div class="pg" id="vtPg"></div><div class="tb"><img src="${LOGO}" alt=""><span class="gr"></span><button type="button" data-a="pause" id="vtPa">❚❚</button><button type="button" data-a="x">✕</button></div><button type="button" class="nv pv" data-a="prev" aria-label="Anterior">‹</button><button type="button" class="nv nx" data-a="next" aria-label="Próximo">›</button><div class="skhud"><i></i><i></i><i></i><i></i></div></div>`);
+const vtMedia=s=>s.v?`<video src="${s.v}" muted loop playsinline autoplay></video>`:`<img src="${s.i}" alt="">`;
+function vtLz(){const a=$('#vtPa2');if(!a)return;const s=VT.list[VT.i],k=s.k,im=a.querySelector('img'),W=a.clientWidth,Hh=a.clientHeight,sc=Math.max(W/2400,Hh/801)*(W<700?1.25:1),iw=2400*sc,ih=801*sc,px=LZ[k][1]/100*iw,py=LZ[k][2]/100*ih;
+  const l=Math.min(0,Math.max(W-iw,W/2-px)),t=Math.min(0,Math.max(Hh-ih,Hh/2-py));Object.assign(im.style,{width:iw+'px',height:ih+'px',left:l+'px',top:t+'px'});const r=a.querySelector('.rg');r.style.left=(px+l)+'px';r.style.top=(py+t)+'px'}
+function vtShow(i){const L=VT.list;i=Math.max(0,Math.min(L.length-1,i));const prev=L[VT.i],s=L[i];VT.i=i;VT.t=0;const g=$('#vtStg');
+  $('#vtPg').querySelectorAll('u').forEach((u,k)=>u.style.width=k<i?'100%':'0');
+  if(s.t==='L'){const lzs=L.filter(x=>x.t==='L'),n=lzs.indexOf(s)+1;
+    if(!(g.firstElementChild&&g.firstElementChild.classList.contains('tL')))g.innerHTML=`<div class="sn tL"><div class="pa" id="vtPa2"><img src="${(PLANTAS.find(p=>p.id==='lazer')||{}).src}" alt=""><i class="rg"></i></div><div class="bo"><div class="tx"><span class="ey" id="vtLk"></span><h2 id="vtLh"></h2><p>8º pavimento · lazer das duas torres</p></div><div class="cd" id="vtLc"></div></div></div>`;
+    $('#vtLk').textContent='Lazer · '+n+' / '+lzs.length;const h=$('#vtLh');h.classList.remove('in');void h.offsetWidth;h.textContent=T(LZ[s.k][0]);h.classList.add('in');
+    $('#vtLc').innerHTML=`<video src="${CFG.base}lz/${s.k}.mp4" poster="${CFG.base}lz/${s.k}.jpg" muted loop playsinline autoplay></video>`;vtLz()}
+  else if(s.t==='H')g.innerHTML=`<div class="sn tH"><div class="md">${vtMedia(s)}</div><div class="sd"></div><div class="tx"><span class="ey">${s.ey}</span><h2 class="in">${s.h}</h2><p>${s.p}</p></div></div>`;
+  else if(s.t==='P'){g.innerHTML=`<div class="sn tP${s.tall?' tall':''}"><div class="skpl" id="vtPl"><img class="bp" src="${s.pl}" alt=""><img class="re" src="${s.pl}" alt=""><i class="sc"></i></div><div class="si"><div class="in2">${vtMedia(s)}</div><div class="tx"><span class="ey">${s.ey}</span><h2 class="in">${s.h}</h2><p>${s.p}</p></div></div></div>`;setTimeout(()=>{const p=$('#vtPl');p&&p.classList.add('in')},120)}
+  else g.innerHTML=`<div class="sn tH tF"><div class="md">${vtMedia(s)}</div><div class="sd"></div><div class="fx"><img src="${LOGO}" alt="Conecta Towers"><h2 class="in">Um verdadeiro hotel de luxo <em>na entrada de Porto Belo</em></h2><div class="ct"><button type="button" class="g" data-a="plantas">Ver plantas e unidades</button><button type="button" data-a="tabela">Abrir a tabela</button><button type="button" data-a="again">Rever o tour</button></div></div></div>`;
+  g.querySelectorAll('video').forEach(v=>{const p=v.play();if(p&&p.catch)p.catch(()=>{})});if(i&&prev&&prev.t!==s.t)sfx.whoosh();else sfx.tick()}
+function vtTick(){if(!VT.on)return;const now=performance.now(),dt=Math.min(100,now-VT.last);VT.last=now;if(!VT.pause){VT.t+=dt;const s=VT.list[VT.i],u=$('#vtPg').querySelectorAll('u')[VT.i];if(u)u.style.width=Math.min(100,VT.t/s.d*100)+'%';if(VT.t>=s.d){if(VT.i<VT.list.length-1)vtShow(VT.i+1);else{VT.pause=true;$('#vtPa').textContent='▶'}}}requestAnimationFrame(vtTick)}
+function vtStart(){VT.list=vtScenes();VT.on=true;VT.pause=false;VT.last=performance.now();$('#vtPa').textContent='❚❚';$('#vtPg').innerHTML=VT.list.map(()=>'<i><u></u></i>').join('');$('#vtStg').innerHTML='';$('#skTour').classList.add('on');
+  try{const e=d.documentElement;if(!d.fullscreenElement&&e.requestFullscreen)e.requestFullscreen().catch(()=>{})}catch(e){}flash();vtShow(0);requestAnimationFrame(vtTick)}
+function vtStop(){VT.on=false;$('#skTour').classList.remove('on');$('#vtStg').innerHTML='';try{if(d.fullscreenElement)d.exitFullscreen().catch(()=>{})}catch(e){}}
+$('#skTour').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;audio();
+  if(a==='x')vtStop();else if(a==='pause'){VT.pause=!VT.pause;b.textContent=VT.pause?'▶':'❚❚'}else if(a==='next'||a==='prev'){VT.pause=false;$('#vtPa').textContent='❚❚';vtShow(VT.i+(a==='next'?1:-1))}
+  else if(a==='again'){VT.pause=false;$('#vtPa').textContent='❚❚';vtShow(0)}else{vtStop();showView(a==='plantas'?'tour':'espelho')}});
+d.addEventListener('keydown',e=>{if(!VT.on)return;if(e.key==='Escape')vtStop();else if(e.key==='ArrowRight')vtShow(VT.i+1);else if(e.key==='ArrowLeft')vtShow(VT.i-1);else if(e.key===' '){e.preventDefault();$('#vtPa').click()}});
+addEventListener('resize',()=>{if(VT.on)vtLz()});
+window.SKT={start:vtStart,show:vtShow,VT};
+addEventListener('message',e=>{const f=$('#view-local iframe');if(!f||e.source!==f.contentWindow)return;if(e.data==='maptour-start'){f.classList.add('skfs');H.classList.add('skfsm')}else if(e.data==='maptour-end'){f.classList.remove('skfs');H.classList.remove('skfsm')}});
+
+/* ---------- abertura (cerca de 10 s) ---------- */
+const CAPS=[[0,['Costa Esmeralda · Santa Catarina','Costa Esmeralda · Santa Catarina','Costa Esmeralda · Santa Catarina'],['Onde o Brasil <em>passa o verão</em>','Where Brazil <em>spends the summer</em>','Donde Brasil <em>pasa el verano</em>']],[.36,['Porto Belo','Porto Belo','Porto Belo'],['A área que <em>mais valoriza</em> na cidade','The city’s <em>fastest-appreciating</em> area','La zona que <em>más se valoriza</em>']],[.855,['Av. Colombo Machado Salles, 1600','Av. Colombo Machado Salles, 1600','Av. Colombo Machado Salles, 1600'],['Você <em>chegou</em>','You have <em>arrived</em>','Usted <em>llegó</em>']]];
+const st=id=>d.querySelectorAll('#skOpen .st').forEach(s=>s.classList.toggle('on',s.id===id));
+async function typeT(el,t){el.textContent='';for(const c of t){el.textContent+=c;await sleep(20)}}
+function opening(){const o=$('#skOpen');o.classList.remove('out');o.classList.add('on');$('#skSkip').style.display='none';st('skGate');const v=$('#skV');if(!v.src){v.src=CFG.base+'chegada.mp4';v.load()}
+  $('#skGo').onclick=async()=>{const my=++run;audio();$('#skSkip').style.display='';st('skBoot');sfx.power();typeT($('#skBootT'),T(['Sistema Conecta · iniciando','Conecta system · starting','Sistema Conecta · iniciando']));await sleep(1700);if(my!==run)return;arrive(my)};
+  $('#skSkip').onclick=()=>{const my=++run;try{$('#skV').pause()}catch(e){}reveal(my)}}
+/* chegada em três cenas de duração igual; a velocidade do vídeo varia de forma contínua e cai para câmera lenta sobre o terreno */
+/* vídeo original (12,7 s) em 10 s: 7 s de passeio acelerado, 2 s de câmera lenta na vista do terreno e 1 s parado */
+const R0=1.686,CUT=[0,5.56,11.9],VEND=12.70,rateAt=t=>t<11.5?R0:t<11.9?R0-(t-11.5)/.4*(R0-.45):.45;
+function arrive(my){st('skArr');sfx.whoosh();const v=$('#skV');let ci=-1,done=false,hold=0;const end=()=>{if(done||my!==run)return;done=true;try{v.pause()}catch(e){}reveal(my)};
+  try{v.currentTime=0;v.playbackRate=R0}catch(e){}v.onended=end;v.onerror=end;const p=v.play();if(p&&p.catch)p.catch(()=>setTimeout(end,400));
+  const tk=()=>{if(my!==run||done)return;const t=v.currentTime,q=Math.min(1,t/VEND);try{const r=rateAt(t);if(Math.abs(v.playbackRate-r)>.02)v.playbackRate=r}catch(e){}
+    $('#skTd').textContent=(1.2*(1-q)).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' km';$('#skTa').textContent='ALT '+Math.round(180-120*q)+' m';
+    const i=CUT.filter(c=>t>=c).length-1;if(i!==ci){const first=ci<0;ci=i;const h=$('#skCh');h.classList.remove('in','pul');setTimeout(()=>{$('#skCk').textContent=T(CAPS[i][1]);h.innerHTML=T(CAPS[i][2]);h.classList.add('in');if(i===2)setTimeout(()=>h.classList.add('pul'),600);sfx.tick()},first||i===2?0:260)}
+    if(t>=VEND){if(!hold){hold=1;try{v.pause()}catch(e){}setTimeout(end,1000)}return}requestAnimationFrame(tk)};requestAnimationFrame(tk);setTimeout(()=>{if(!done&&v.currentTime<.2)end()},3000);setTimeout(end,16000)}
+async function reveal(my){const h=$('#view-home'),o=$('#skOpen');h.classList.remove('s1','s2','s3');_sv('home');d.body.classList.add('skhome');dock();layout();flash();sfx.impact();o.classList.add('out');
+  try{localStorage.setItem('sk-open','1')}catch(e){}
+  await sleep(150);h.classList.add('s1');setTimeout(()=>o.classList.remove('on','out'),750);await sleep(1300);h.classList.add('s2');await sleep(550);h.classList.add('s3')}
+window.SK={opening,go,layout};
+
+/* ---------- partida ---------- */
+function start(){texts();layout();
+  /* link de apresentação ao cliente ou atalho direto para uma aba: não mexe na tela que a página já abriu */
+  if(d.body.classList.contains('present')||/^#(galeria|docs|tabela)|[#&]ap=/.test(location.hash||'')){dock();return}
+  let seen=null;try{seen=localStorage.getItem('sk-open')}catch(e){}
+  if(CFG.always||!seen)opening();else showView('home')}
+if($('#gate')&&!d.body.classList.contains('present')){showView('home');const mo=new MutationObserver(()=>{if(!$('#gate')){mo.disconnect();start()}});mo.observe(d.body,{childList:true});texts();layout()}else start();
+})();
+</script>
 </body></html>
