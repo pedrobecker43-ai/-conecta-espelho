@@ -79,7 +79,7 @@ const MAPX=(()=>{
   const unmerc=(px,py,z)=>{const S=512*Math.pow(2,z);return[px/S*360-180,Math.atan(Math.sinh(Math.PI*(1-2*py/S)))*180/Math.PI]};
   const SATL=[{z:8,lon:-48.6,lat:-27.3,a:0,b:0},{z:10,lon:-48.605,lat:-27.137,a:0,b:0},{z:12,lon:LON0,lat:LAT0,a:.008,b:.02},{z:14,lon:LON0,lat:LAT0,a:.045,b:.1},{z:16,lon:LON0,lat:LAT0,a:.3,b:.6}];let sat=true,satOk=0;
   for(const L of SATL){const [cx,cy]=merc(L.lon,L.lat,L.z),[w,n]=unmerc(cx-640,cy-640,L.z),[e,s]=unmerc(cx+640,cy+640,L.z);L.box=[(w-LON0)*KX,-(n-LAT0)*KY,(e-LON0)*KX,-(s-LAT0)*KY];
-    const im=new Image();im.onload=()=>{L.im=im;satOk++};im.src=`https://api.mapbox.com/styles/v1/mapbox/satellite-v9/static/${L.lon},${L.lat},${L.z},0/1280x1280${L.z<12?'':'@2x'}?access_token=${TOKEN}&attribution=false&logo=false`}
+    const im=new Image();im.onload=()=>{L.im=im;L.m=[im];try{let src=im,w=im.naturalWidth;while(w>700){w=Math.round(w/2);const c=document.createElement('canvas');c.width=c.height=w;c.getContext('2d').drawImage(src,0,0,w,w);L.m.push(c);src=c}}catch(x){}satOk++};im.src=`https://api.mapbox.com/styles/v1/mapbox/satellite-v9/static/${L.lon},${L.lat},${L.z},0/1280x1280${L.z<12?'':'@2x'}?access_token=${TOKEN}&attribution=false&logo=false`}
   async function load(){if(M)return;const r=await Promise.resolve({json:()=>window.__CMAP});M=await r.json();
     P2.land=new Path2D();let best=0;for(const c of M.coast){const g=c.g.slice();if(!c.c){let mx=1e9;for(let i=0;i<g.length;i+=2)mx=Math.min(mx,g[i]);const fx=g[0],fy=g[1],lx=g[g.length-2],ly=g[g.length-1],s=ly<fy?-1:1;g.push(lx,ly+s*120000,mx-120000,ly+s*120000,mx-120000,fy-s*120000,fx,fy-s*120000)}else if(g.length>best){best=g.length;let sx=0,sy=0;for(let i=0;i<g.length;i+=2){sx+=g[i];sy+=g[i+1]}isl={x:sx/(g.length/2),y:sy/(g.length/2)}}P2.land.addPath(path(g,0,true))}
     P2.coast=new Path2D();for(const c of M.coast)P2.coast.addPath(path(c.g,0,!!c.c));
@@ -90,13 +90,16 @@ const MAPX=(()=>{
   const size=()=>{const d=Math.min(2,devicePixelRatio||1),W=app.clientWidth,H=app.clientHeight;if(cv.width!==W*d||cv.height!==H*d){cv.width=W*d;cv.height=H*d}return[W,H,d]};
   const free=()=>{const W=app.clientWidth,H=app.clientHeight;return wide()?{x:0,y:64,w:W-panel.offsetWidth,h:H-64}:{x:0,y:60,w:W,h:H*.54-60}};
   /* enquadra uma caixa (em metros) na área livre */
-  function fit(x0,y0,x1,y1,pad=1.25){const f=free(),k=Math.min(f.w/((x1-x0)*pad||1),f.h/((y1-y0)*pad||1));const W=app.clientWidth,H=app.clientHeight;
+  function fit(x0,y0,x1,y1,pad=1.25){const f=free();f.w=Math.max(f.w,80);f.h=Math.max(f.h,80);const k=Math.min(f.w/((x1-x0)*pad||1),f.h/((y1-y0)*pad||1));const W=app.clientWidth,H=app.clientHeight;
     return{k,x:(x0+x1)/2-((f.x+f.w/2)-W/2)/k,y:(y0+y1)/2-((f.y+f.h/2)-H/2)/k}}
   const home=()=>fit(-1500,-1800,1900,1300,1);
-  function flyTo(to,ms=1400){fly={a:{...cam},b:to,t:performance.now(),ms}}
+  const okCam=c=>!!c&&isFinite(c.k)&&c.k>0&&isFinite(c.x)&&isFinite(c.y);
+  const visible=()=>app.clientWidth>60&&app.clientHeight>60;
+  function flyTo(to,ms=1400){if(!okCam(to))return;if(!okCam(cam)||!visible()){cam={...to};fly=null;return}fly={a:{...cam},b:to,t:performance.now(),ms}}
   function step(now){if(!fly)return;let t=Math.min(1,(now-fly.t)/fly.ms);const e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2,{a,b}=fly;
     cam.k=a.k*Math.pow(b.k/a.k,e);const u=Math.abs(1/a.k-1/b.k)<1e-12?e:(1/a.k-1/cam.k)/(1/a.k-1/b.k);cam.x=a.x+(b.x-a.x)*u;cam.y=a.y+(b.y-a.y)*u;
-    if(t>=1){fly=null;if(!arrived){arrived=now;panel.classList.add('in')}}}
+    if(!okCam(cam))cam={...b};
+    if(t>=1){cam={...b};fly=null;if(!arrived){arrived=now;panel.classList.add('in')}}}
   const sx=x=>(x-cam.x)*cam.k+app.clientWidth/2,sy=y=>(y-cam.y)*cam.k+app.clientHeight/2;
   const ICO={praia:'M2 7c2-2 4-2 6 0s4 2 6 0 4-2 6 0M2 13c2-2 4-2 6 0s4 2 6 0 4-2 6 0M2 19c2-2 4-2 6 0s4 2 6 0 4-2 6 0',
     lazer:'M12 8v13M5 13a7 7 0 0 0 14 0M9 12h6M12 8a2.5 2.5 0 1 0 0-5a2.5 2.5 0 0 0 0 5',
@@ -118,7 +121,12 @@ const MAPX=(()=>{
     const [W,H,d]=size(),k=cam.k;ctx.setTransform(d,0,0,d,0,0);ctx.fillStyle='#020b12';ctx.fillRect(0,0,W,H);
     ctx.setTransform(k*d,0,0,k*d,(W/2-cam.x*k)*d,(H/2-cam.y*k)*d);
     const useSat=sat&&SATL[0].im;
-    if(useSat){ctx.imageSmoothingQuality='high';for(const L of SATL){const a=L.b?fade(k,L.a,L.b):1;if(L.im&&a>0){ctx.globalAlpha=a;ctx.drawImage(L.im,L.box[0],L.box[1],L.box[2]-L.box[0],L.box[3]-L.box[1])}}ctx.globalAlpha=1;
+    if(useSat){ctx.imageSmoothingQuality=fly?'low':'high';const vx0=cam.x-W/2/k,vx1=cam.x+W/2/k,vy0=cam.y-H/2/k,vy1=cam.y+H/2/k;let i0=0;
+      const al=SATL.map(L=>L.im?(L.b?fade(k,L.a,L.b):1):0);
+      SATL.forEach((L,i)=>{if(al[i]>=1&&L.box[0]<=vx0&&L.box[2]>=vx1&&L.box[1]<=vy0&&L.box[3]>=vy1)i0=i});
+      for(let i=i0;i<SATL.length;i++){const L=SATL[i],a=al[i];if(a<=0||L.box[2]<vx0||L.box[0]>vx1||L.box[3]<vy0||L.box[1]>vy1)continue;
+        const need=(L.box[2]-L.box[0])*k*d;let im=L.m[0];for(const c of L.m)if(c.width>=need)im=c;
+        ctx.globalAlpha=a;ctx.drawImage(im,L.box[0],L.box[1],L.box[2]-L.box[0],L.box[3]-L.box[1])}ctx.globalAlpha=1;
       ctx.fillStyle=`rgba(2,11,18,${.3-.18*fade(k,.03,.2)})`;ctx.fillRect(cam.x-W/k,cam.y-H/k,2*W/k,2*H/k)}
     else{ctx.fillStyle='#07202d';ctx.fill(P2.land,'evenodd');ctx.fillStyle='rgba(255,210,122,.2)';ctx.fill(P2.b);ctx.fill(P2.s);ctx.fillStyle='#020b12';ctx.fill(P2.w)}
     ctx.lineJoin=ctx.lineCap='round';
@@ -129,7 +137,7 @@ const MAPX=(()=>{
     /* anéis de distância */
     const ra=fade(k,.05,.12);if(ra>0){ctx.setLineDash([6/k,8/k]);ctx.strokeStyle=`rgba(94,230,255,${.35*ra})`;ctx.lineWidth=1/k;for(const r of [500,1000,2000]){ctx.beginPath();ctx.arc(0,0,r,0,7);ctx.stroke()}ctx.setLineDash([])}
     /* rota */
-    if(sel){ctx.strokeStyle=CAT[sel.c][1];ctx.lineWidth=4.5/k;ctx.shadowColor=CAT[sel.c][1];ctx.shadowBlur=14;ctx.setLineDash([14/k,9/k]);ctx.lineDashOffset=-(now/40)/k;ctx.stroke(sel.rp);ctx.setLineDash([]);ctx.shadowBlur=0}
+    if(sel){ctx.strokeStyle=CAT[sel.c][1];ctx.lineWidth=4.5/k;ctx.shadowColor=CAT[sel.c][1];ctx.shadowBlur=fly?0:14;ctx.setLineDash([14/k,9/k]);ctx.lineDashOffset=-(now/40)/k;ctx.stroke(sel.rp);ctx.setLineDash([]);ctx.shadowBlur=0}
     ctx.setTransform(d,0,0,d,0,0);ctx.textBaseline='middle';
     const text=(t,x,y,f,c,al='center')=>{ctx.font=f;ctx.textAlign=al;ctx.lineWidth=4;ctx.strokeStyle='rgba(2,11,18,.9)';ctx.strokeText(t,x,y);ctx.fillStyle=c;ctx.fillText(t,x,y)};
     if(ra>0){for(const [r,l] of [[500,'500 m'],[1000,'1 km'],[2000,'2 km']])text(l,sx(0),sy(-r)-9,'500 10px "IBM Plex Mono",monospace',`rgba(94,230,255,${.8*ra})`)}
@@ -138,7 +146,7 @@ const MAPX=(()=>{
     const rn=fade(k,.28,.5);if(rn>0)for(const r of M.rl){ctx.save();ctx.translate(sx(r.x),sy(r.y));let a=r.a;if(a>Math.PI/2)a-=Math.PI;if(a<-Math.PI/2)a+=Math.PI;ctx.rotate(a);ctx.globalAlpha=rn;text(r.n,0,-9,'500 11px "Space Grotesk",sans-serif','rgba(190,235,255,.85)');ctx.restore()}
     /* pontos */
     if(arrived){const el=now-arrived;shown().forEach((p,i)=>{const g=Math.max(0,Math.min(1,(el-250-i*70)/350));if(!g||p.np)return;const x=sx(p.x),y=sy(p.y),on=sel===p,c=CAT[p.c][1],r=(on?14:10.5)*(1+.5*(1-g)*Math.sin(g*3.14));
-      ctx.globalAlpha=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fillStyle='rgba(2,11,18,.88)';ctx.shadowColor=c;ctx.shadowBlur=on?16:6;ctx.fill();ctx.shadowBlur=0;ctx.lineWidth=on?2:1.3;ctx.strokeStyle=c;ctx.stroke();
+      ctx.globalAlpha=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fillStyle='rgba(2,11,18,.88)';ctx.shadowColor=c;ctx.shadowBlur=on&&!fly?16:0;ctx.fill();ctx.shadowBlur=0;ctx.lineWidth=on?2:1.3;ctx.strokeStyle=c;ctx.stroke();
       const q=r/10.5*.56;ctx.save();ctx.translate(x-12*q,y-12*q);ctx.scale(q,q);ctx.lineWidth=2;ctx.lineJoin=ctx.lineCap='round';ctx.strokeStyle=on?'#fff':c;ctx.stroke(ICP[ico(p)]);ctx.restore();ctx.globalAlpha=1;
       if(on||k>.55)text(p.n,x,y-r-12,'600 12px "Space Grotesk",sans-serif','#eaf6fb')})}
     /* o endereço */
@@ -149,7 +157,7 @@ const MAPX=(()=>{
     const alt=app.clientHeight/k;$('#mAlt').textContent='Visão de '+(alt>=1000?(alt/1000).toLocaleString('pt-BR',{maximumFractionDigits:alt>=10000?0:1})+' km':Math.round(alt/10)*10+' m');
     $('#mWhere').textContent=k<.016?'Costa Esmeralda · Santa Catarina':k<.06?'Porto Belo':k<.2?'Perequê · Porto Belo':'Av. Colombo Machado Salles, 1600';
   }
-  function loop(now){step(now);draw(now);raf=requestAnimationFrame(loop)}
+  function loop(now){if(visible()){step(now);if(okCam(cam))draw(now)}else if(fly){fly.t=now-Math.min(now-fly.t,fly.ms*.2)}raf=requestAnimationFrame(loop)}
   function arrive(){arrived=0;sel=null;panel.classList.remove('in');const W=app.clientWidth,H=app.clientHeight,k0=Math.max(Math.min(W,H)/62000,W/86000,H/86000);cam={k:k0,x:(SATL[1].box[0]+SATL[1].box[2])/2,y:(SATL[1].box[1]+SATL[1].box[3])/2};fly=null;renderPanel();
     setTimeout(()=>{flyTo(home(),matchMedia('(prefers-reduced-motion:reduce)').matches?10:4600)},650)}
   function renderPanel(){
@@ -160,11 +168,13 @@ const MAPX=(()=>{
      <div class="list">${l.map(p=>`<button type="button" class="prow${sel===p?' sel':''}" data-p="${M.list.indexOf(p)}" style="--c:${CAT[p.c][1]}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICO[ico(p)]}"/></svg><span class="nm">${p.n}<small>${CAT[p.c][0]}</small></span><span class="ds">${p.door?'na porta':km(p.d)}<small>${tm(p)}</small></span></button>`).join('')}</div>
      <div class="acts"><button class="btn" type="button" data-a="again">Rever chegada</button><a class="btn" href="https://www.google.com/maps/search/?api=1&query=-27.1607361,-48.5988165" target="_blank" rel="noopener">Abrir no Google Maps</a></div>
      <p class="note">Distâncias e tempos de carro, estimados sem trânsito. Imagem de satélite: <a href="https://www.mapbox.com/about/maps/" target="_blank" rel="noopener" style="color:inherit">© Mapbox</a> © Maxar <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" style="color:inherit">© OpenStreetMap</a>.</p>`}
-  function pick(p){sel=sel===p?null:p;renderPanel();if(!sel){flyTo(cat==='regiao'?region():home(),900);return}
+  function target(){if(!sel)return cat==='all'?home():catFit();const p=sel;
     let x0=0,y0=0,x1=0,y1=0;for(let i=0;i<p.r.length;i+=2){x0=Math.min(x0,p.r[i]);x1=Math.max(x1,p.r[i]);y0=Math.min(y0,p.r[i+1]);y1=Math.max(y1,p.r[i+1])}
-    const f=fit(x0-120,y0-120,x1+120,y1+120,1.3);f.k=Math.min(f.k,1.1);flyTo(f,1100)}
-  const region=()=>{let x0=0,y0=0,x1=0,y1=0;for(const p of M.poi.regiao){x0=Math.min(x0,p.x);x1=Math.max(x1,p.x);y0=Math.min(y0,p.y);y1=Math.max(y1,p.y)}return fit(x0,y0,x1,y1,1.25)};
-  panel.addEventListener('click',e=>{const c=e.target.closest('[data-c]');if(c){cat=c.dataset.c;sel=null;arrived=performance.now()-200;renderPanel();flyTo(cat==='regiao'?region():home(),1100);return}
+    const f=fit(x0-120,y0-120,x1+120,y1+120,1.3);f.k=Math.min(f.k,1.1);return fit2(f,x0,y0,x1,y1)}
+  const fit2=(f,x0,y0,x1,y1)=>{const g=free(),W=app.clientWidth,H=app.clientHeight;return{k:f.k,x:(x0+x1)/2-((g.x+g.w/2)-W/2)/f.k,y:(y0+y1)/2-((g.y+g.h/2)-H/2)/f.k}};
+  function pick(p){if(!arrived)return;sel=p;renderPanel();const r=panel.querySelector('.prow.sel');if(r&&wide()){const a=r.offsetTop,b=a+r.offsetHeight;if(a<panel.scrollTop+70)panel.scrollTop=Math.max(0,a-70);else if(b>panel.scrollTop+panel.clientHeight)panel.scrollTop=b-panel.clientHeight+8}flyTo(target(),850)}
+  const catFit=()=>{let x0=-300,y0=-300,x1=300,y1=300;for(const p of shown()){if(p.np)continue;x0=Math.min(x0,p.x);x1=Math.max(x1,p.x);y0=Math.min(y0,p.y);y1=Math.max(y1,p.y)}const f=fit(x0,y0,x1,y1,1.3);f.k=Math.min(f.k,.6);return fit2(f,x0,y0,x1,y1)};
+  panel.addEventListener('click',e=>{const c=e.target.closest('[data-c]');if(c){if(!arrived)return;cat=c.dataset.c;sel=null;arrived=performance.now()-200;renderPanel();panel.scrollTop=0;flyTo(target(),900);return}
     const r=e.target.closest('.prow');if(r){pick(M.list[+r.dataset.p]);return}const b=e.target.closest('[data-a]');if(b)arrive()});
   /* arrastar, roda e pinça */
   const pts=new Map();let moved=0,pd=0;
@@ -177,13 +187,13 @@ const MAPX=(()=>{
     if(moved<6&&arrived&&M){let hit=null,bd=20;for(const p of shown()){if(p.np)continue;const dd=Math.hypot(sx(p.x)-e.clientX,sy(p.y)-e.clientY);if(dd<bd){bd=dd;hit=p}}if(hit)pick(hit)}};
   cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
   cv.addEventListener('wheel',e=>{e.preventDefault();if(!arrived)return;zoomAt(Math.exp(-e.deltaY*.0016),e.clientX,e.clientY)},{passive:false});
-  $('#mIn').onclick=()=>arrived&&flyTo({...cam,k:Math.min(3,cam.k*1.8)},350);$('#mOut').onclick=()=>arrived&&flyTo({...cam,k:cam.k/1.8},350);$('#mSat').onclick=e=>{sat=!sat;e.currentTarget.classList.toggle('on',sat);e.currentTarget.textContent=sat?'Satélite':'Mapa'};$('#mHome').onclick=()=>{if(!arrived)return;sel=null;renderPanel();flyTo(home(),900)};
+  $('#mIn').onclick=()=>arrived&&flyTo({...cam,k:Math.min(3,cam.k*1.8)},350);$('#mOut').onclick=()=>arrived&&flyTo({...cam,k:cam.k/1.8},350);$('#mSat').onclick=e=>{sat=!sat;e.currentTarget.classList.toggle('on',sat);e.currentTarget.textContent=sat?'Satélite':'Mapa'};$('#mHome').onclick=()=>{if(!arrived)return;sel=null;renderPanel();flyTo(target(),900)};
   $('#mCoord').textContent='27°09′39″ S · 48°35′56″ O';
   async function init(){try{await load()}catch(x){panel.innerHTML='<p>Não foi possível carregar o mapa. Verifique a conexão e recarregue a página.</p>';panel.classList.add('in');return}
     /* dentro da aba do Espelho a página nasce oculta: só começa quando tiver tamanho */
     while(!(app.clientWidth>0&&app.clientHeight>0))await new Promise(r=>setTimeout(r,150));
-    arrive();requestAnimationFrame(loop)}
-  addEventListener('resize',()=>{if(arrived&&!sel)flyTo(cat==='regiao'?region():home(),300)});
+    lw=app.clientWidth;lh=app.clientHeight;arrive();requestAnimationFrame(loop)}
+  let lw=0,lh=0,rt=0;const onSize=()=>{clearTimeout(rt);rt=setTimeout(()=>{if(!visible())return;const W=app.clientWidth,H=app.clientHeight;if(Math.abs(W-lw)<8&&Math.abs(H-lh)<90)return;lw=W;lh=H;if(arrived)flyTo(target(),okCam(cam)?300:1)},160)};addEventListener('resize',onSize);if(window.ResizeObserver)new ResizeObserver(onSize).observe(app);
   init();
   return{get state(){return{k:cam.k,arrived:!!arrived,n:M?shown().length:0,sel:sel&&sel.n}}};
 })();
