@@ -3115,6 +3115,10 @@ body.present #skSheet [data-v="guia"],body.present #skSheet [data-v="obj"],body.
  .skpl.dupw .dc{display:block;position:absolute;z-index:2;right:10px;bottom:12px;font:600 11px var(--sk-mono);color:#02222c;background:rgba(255,255,255,.8);padding:3px 8px;border-radius:999px}
  .skpl.dupw .zo{top:8px;right:8px}.skpw{padding:12px}
 }
+
+/* tela inicial: torres nas cores oficiais; no computador o texto fica centralizado na altura */
+#view-home .hr .ey b{font-weight:500}#view-home .hr .ey .pk{color:#3ee0a6}#view-home .hr .ey .mr{color:#4aa8ff}#view-home .hr .ey{color:#8fb1c0}
+@media (min-width:1024px){#view-home .hr{top:calc(50% - 12px);bottom:auto!important;transform:translateY(calc(-50% + 16px))}#view-home.s3 .hr{transform:translateY(-50%)}}
 </style>
 <script>window.SKCFG={always:false,base:"sk/"};</script>
 <script>
@@ -3159,7 +3163,7 @@ const HS=[[['Rooftop','Rooftop','Rooftop'],['O coroamento das duas torres, com v
  [['Base e acesso','Base and access','Base y acceso'],['Embasamento com fachada ativa na Av. Colombo Machado Salles, 1600.','Podium with active frontage on Av. Colombo Machado Salles, 1600.','Basamento con fachada activa en la Av. Colombo Machado Salles, 1600.']]];
 function texts(){
   $('#skAr').textContent=T(['Área do corretor','Broker area','Área del corredor']);
-  $('#skHero').innerHTML=`<span class="ey">Torre Park · Torre Mar</span><h1>${T(['Um verdadeiro hotel de luxo <em>na entrada de Porto Belo</em>','A true luxury hotel <em>at the gateway to Porto Belo</em>','Un verdadero hotel de lujo <em>en la entrada de Porto Belo</em>'])}</h1>
+  $('#skHero').innerHTML=`<span class="ey"><b class="pk">Torre Park</b> · <b class="mr">Torre Mar</b></span><h1>${T(['Um verdadeiro hotel de luxo <em>na entrada de Porto Belo</em>','A true luxury hotel <em>at the gateway to Porto Belo</em>','Un verdadero hotel de lujo <em>en la entrada de Porto Belo</em>'])}</h1>
    <p>${T(['Cercado pelo primeiro bairro-parque do Brasil, na área que mais valoriza na cidade.','Surrounded by Brazil’s first park-neighbourhood, in the city’s fastest-appreciating area.','Rodeado por el primer barrio-parque de Brasil, en la zona que más se valoriza de la ciudad.'])}</p>
    <div class="ob"><span class="skchip">${T(['Início das obras','Construction starts','Inicio de obras'])} <b>${T(['junho/2027','June 2027','junio/2027'])}</b></span><span class="skchip">${T(['Entrega','Delivery','Entrega'])} <b>${T(['dezembro/2032','December 2032','diciembre/2032'])}</b></span></div>
    <div class="ct pri"><button class="g" type="button" data-go="vtour">${svg('play')}${T(['Tour virtual pelo Conecta','Virtual tour of Conecta','Tour virtual por Conecta'])}</button><button type="button" data-go="ltour">${svg('local')}${T(['Tour pela região','Tour of the region','Tour por la región'])}</button></div>
