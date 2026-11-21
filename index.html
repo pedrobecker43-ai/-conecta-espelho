@@ -1853,19 +1853,9 @@ function checkHash(){const h=location.hash||'';const m=h.match(/[#&]ap=([A-Za-z0
 const DIST=[['Colégio Bom Jesus · bairro-parque','300 m','1 min'],['Trevo da BR-101 (km 152)','1,2 km','3 min'],['Praia do Perequê','2,2 km','6 min'],['Píer de Itapema / Meia Praia','3 km','7 min'],['Centro de Porto Belo','5 km','10 min'],['Balneário Camboriú','19 km','25 min'],['Aeroporto de Navegantes','39 km','35 min'],['Aeroporto de Florianópolis','74 km','65 min']];
 function renderLocal(){
   const el=document.getElementById('view-local');if(!el)return;
-  el.innerHTML=`<div class="viewhead"><h2>${t('loc_h')}</h2><span class="sub" style="color:var(--muted);font-size:12px">${t('loc_s')}</span><div class="grow"></div>${audioBtn('local')}<button class="btn small" id="lmDist" type="button">${t('loc_dist')}</button><button class="btn small" data-view="espelho">${t('nav_tabela')}</button></div>
-   <div class="lm-wrap"><div class="lm-cats" id="lmCats"></div>
-   <div class="lm-stage" id="lmStage"><div class="lm-world anim" id="lmWorld"><img id="lmImg" src="gal/earth.jpg" alt="${t('loc_map')}"></div>
-    <div class="lm-layers"><button class="on" data-layer="mapa">${P3(['Satélite','Satellite','Satélite'])}</button><button data-layer="aerea">${P3(['Vista aérea','Aerial view','Vista aérea'])}</button></div>
-    <div class="lm-hud"><button id="lmZin" title="+">+</button><button id="lmZout" title="−">−</button><button id="lmHome" title="Conecta">⌂</button><button id="lmTour" title="Tour">▶</button></div>
-    <div class="lm-card" id="lmCard"><button class="x" id="lmCx" type="button">✕</button><div class="ey" id="lmEy"></div><h3 id="lmT"></h3><div class="m" id="lmM"></div><div class="d" id="lmD"></div></div>
-    <div class="lm-sheet" id="lmSheet"><div class="lm-sheet-h"><b>${t('loc_dist')}</b><button class="btn small" id="lmSheetX" type="button">✕</button></div><table class="dist">${DIST.map(d=>`<tr><td>${d[0]}</td><td class="num">${d[1]}</td><td class="num">${d[2]}</td></tr>`).join('')}</table></div>
-    <div class="lm-hint">${P3(['Toque nos pontos ou escolha uma categoria · pinça para zoom','Tap the points or pick a category · pinch to zoom','Toque los puntos o elija una categoría · pellizque para zoom'])}</div>
-    <div class="lm-src">${P3(['Pinos por coordenada · base Google Earth · distâncias da tabela oficial','Pins by coordinate · Google Earth base · official distance table','Pines por coordenada · base Google Earth · tabla oficial de distancias'])}</div>
-   </div></div>`;
+  el.innerHTML=`<div class="viewhead"><h2>${t('loc_h')}</h2><span class="sub" style="color:var(--muted);font-size:12px">${t('loc_s')}</span><div class="grow"></div>${audioBtn('local')}<button class="btn small" data-view="espelho">${t('nav_tabela')}</button></div>
+   <div class="lm-wrap"><iframe class="lm-frame" src="localizacao.html" title="${t('loc_map')}" loading="lazy" allowfullscreen style="flex:1;min-height:0;width:100%;border:1px solid var(--line);border-radius:18px;background:#020b12;display:block"></iframe></div>`;
   bindAudio(el,{});el.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>showView(b.dataset.view));
-  el.querySelector('#lmDist').onclick=()=>el.querySelector('#lmSheet').classList.toggle('on');el.querySelector('#lmSheetX').onclick=()=>el.querySelector('#lmSheet').classList.remove('on');
-  initMapa(el);
 }
 function initMapa(root){
   const CAT={praia:[P3(['Praia','Beach','Playa']),'#1a8ad1'],acesso:[P3(['Acessos','Access','Accesos']),'#8e8e93'],educ:[P3(['Educação','Education','Educación']),'#c27a08'],lazer:[P3(['Lazer e parque','Leisure and park','Ocio y parque']),'#1b9a67'],cidade:[P3(['Cidades','Cities','Ciudades']),'#7c4dff']};
