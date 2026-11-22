@@ -3522,7 +3522,7 @@ function start(){texts();layout();
   /* link de apresentação ao cliente ou atalho direto para uma aba: não mexe na tela que a página já abriu */
   if(d.body.classList.contains('present')||/^#(galeria|docs|tabela)|[#&]ap=/.test(location.hash||'')){dock();return}
   let seen=null;try{seen=localStorage.getItem('sk-open')}catch(e){}
-  if(CFG.always||!seen)opening();else showView('home')}
+  if(CFG.always||!seen||/[?&]abertura\b/.test(location.search||''))opening();else showView('home')}
 if($('#gate')&&!d.body.classList.contains('present')){showView('home');const mo=new MutationObserver(()=>{if(!$('#gate')){mo.disconnect();start()}});mo.observe(d.body,{childList:true});texts();layout()}else start();
 H.classList.add('skr');
 })();
