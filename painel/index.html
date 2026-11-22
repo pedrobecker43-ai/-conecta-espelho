@@ -43,7 +43,7 @@ select.btn{padding:5px 6px}
 #v-home{display:grid;gap:10px;grid-template-rows:auto auto minmax(0,1.25fr) minmax(0,1fr);min-height:0}
 .alert{display:flex;align-items:center;gap:12px;background:rgba(255,95,95,.1);border:1px solid rgba(255,95,95,.45);border-left:4px solid var(--crit);color:#ffc9c9;border-radius:3px;padding:7px 12px;font-family:var(--display);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase}
 .alert button{margin-left:auto;border:0;background:var(--crit);color:#1a0505;border-radius:3px;padding:5px 10px;font-family:var(--display);font-weight:600;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
-.kpis{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px}
+.kpis{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:8px}
 .kpi{background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);border-radius:4px;padding:9px 11px;min-width:0;text-align:left;position:relative}
 button.kpi{cursor:pointer}button.kpi:hover{border-color:var(--accent)}
 .kpi .l{font-family:var(--display);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -176,7 +176,7 @@ footer{text-align:center;font-size:10px;color:var(--faint);letter-spacing:.06em}
 <div class="app hidden" id="app">
 <header>
   <div class="brand"><small>Conecta Towers · Maxces</small>Painel dos corretores</div>
-  <nav id="nav"><button data-go="home" class="on">Painel</button><button data-go="ev">Eventos</button><button data-go="cad">Cadastros</button><button data-go="prop">Propostas</button><button data-go="uni">Unidades</button><button data-go="uso">Uso</button><button data-go="blk">Bloqueados</button></nav>
+  <nav id="nav"><button data-go="home" class="on">Painel</button><button data-go="ev">Eventos</button><button data-go="cad">Cadastros</button><button data-go="imob">Imobiliárias</button><button data-go="prop">Propostas</button><button data-go="uni">Unidades</button><button data-go="uso">Uso</button><button data-go="blk">Bloqueados</button></nav>
   <div class="hdr-r">
     <span class="pill" id="upd">—</span>
     <label class="tg"><input type="checkbox" class="chk" id="incAdmin"> equipe Maxces</label>
@@ -216,7 +216,7 @@ footer{text-align:center;font-size:10px;color:var(--faint);letter-spacing:.06em}
 
 const API='https://script.google.com/macros/s/AKfycbxY2w1LDlx8Qjxcbq1c7DsOx-wMXbQ2r3nfU9WgUbU3lg3DPbD1shZTmfavg2d3b8A0NA/exec';
 const SHEET='https://docs.google.com/spreadsheets/d/1W4ez01WiJ3CeRLN99dVp7gI1Dbi2mGtRqwWEBTHsD1A/edit';
-const LAB={video_apresentacao:'Vídeo de apresentação',tour_conecta:'Tour virtual Conecta',tour_regiao:'Tour pela região',cadastro:'Cadastro',login:'Login',login_falhou:'Login falhou',ficha:'Abriu ficha',pdf_proposta:'PDF proposta',pdf_proposta_renda:'PDF proposta + renda',pdf_ficha:'PDF ficha',pdf_renda:'PDF renda',vendi:'Marcou RESERVADO!',whatsapp_proposta:'Proposta WhatsApp',simulacao_aprovada:'Simulação aprovada',apresentacao:'Apresentação',video_cliente:'Vídeo cliente',galeria_zip:'Galeria (zip)',doc_ver:'Viu documento',doc_baixar:'Baixou documento',uso:'Tempo em tela',cadastro_whatsapp:'Cadastro via WhatsApp',atendimento:'Atendimento informado'};
+const LAB={tour_proposta:'Tour da proposta',video_apresentacao:'Vídeo de apresentação',tour_conecta:'Tour virtual Conecta',tour_regiao:'Tour pela região',cadastro:'Cadastro',login:'Login',login_falhou:'Login falhou',ficha:'Abriu ficha',pdf_proposta:'PDF proposta',pdf_proposta_renda:'PDF proposta + renda',pdf_ficha:'PDF ficha',pdf_renda:'PDF renda',vendi:'Marcou RESERVADO!',whatsapp_proposta:'Proposta WhatsApp',simulacao_aprovada:'Simulação aprovada',apresentacao:'Apresentação',video_cliente:'Vídeo cliente',galeria_zip:'Galeria (zip)',doc_ver:'Viu documento',doc_baixar:'Baixou documento',uso:'Tempo em tela',cadastro_whatsapp:'Cadastro via WhatsApp',atendimento:'Atendimento informado'};
 const ABAS={tour:'Plantas',espelho:'Tabela',galeria:'Galeria',docs:'Documentos',local:'Localização',guia:'Guia',obj:'Objeções',bolso:'Bolso',maxces:'Maxces',outro:'Outro'};
 function fmtDur(sec){sec=Math.round(sec||0);if(sec<60)return sec+' s';const m=Math.round(sec/60);if(m<60)return m+' min';const h=Math.floor(m/60);return h+'h '+String(m%60).padStart(2,'0')+'min'}
 function usoStats(ev){const m={};ev.forEach(e=>{if(!e.nome)return;const k=e.nome.trim();const o=m[k]=m[k]||{n:k,imob:e.imob,wa:e.wa,sec:0,dias:new Set(),last:null,abas:{},prop:0,ev:0};if(e.dt&&(!o.last||e.dt>o.last))o.last=e.dt;if(e.type==='uso'){const v=Number(String(e.valor).replace(',','.'))||0;o.sec+=v;o.dias.add(e.dt.toDateString());try{const d=JSON.parse(e.detalhe||'{}');for(const a in d)o.abas[a]=(o.abas[a]||0)+(+d[a]||0)}catch(x){}}else{o.ev++;if(PROP.includes(e.type))o.prop++;o.dias.add(e.dt.toDateString())}});return Object.values(m).sort((a,b)=>b.sec-a.sec)}
@@ -257,8 +257,22 @@ function parse(d){
   const at={};const keys=o=>[o.dev&&'d:'+o.dev,String(o.wa||'').replace(/\D/g,'').length>=8&&'w:'+String(o.wa).replace(/\D/g,'').slice(-8),o.nome&&'n:'+String(o.nome).trim().toLowerCase()].filter(Boolean);
   ev.slice().reverse().forEach(e=>{let v='';if(e.type==='atendimento')v=String(e.detalhe||'').trim();else{const m=/atendimento:\s*([^·]+)/i.exec(String(e.detalhe||''));if(m&&/^cadastro/.test(e.type))v=m[1].trim()}if(v)keys(e).forEach(k=>at[k]={v,p:/painel/i.test(String(e.resultado||'')),ts:e.ts})});
   cad.forEach(c=>{const k=keys(c).find(k=>at[k]);c.atend=k?at[k].v:'';c.atPainel=k?at[k].p:false;c.atTs=k?at[k].ts:''});
-  return {ev,cad,blk};
+  /* a mesma pessoa cadastrada mais de uma vez (mesmo WhatsApp ou mesmo e-mail) conta uma vez só: vale o primeiro cadastro; os repetidos ficam em .dups */
+  const pk=c=>{const w=String(c.wa||'').replace(/\D/g,'').slice(-8),m=String(c.email||'').trim().toLowerCase();return [w.length>=8&&'w'+w,m&&'m'+m].filter(Boolean)};
+  const seen={},uniq=[];
+  cad.slice().reverse().forEach(c=>{const ks=pk(c),k=ks.find(x=>seen[x]);if(k){const o=seen[k];o.dups.push(c);ks.forEach(x=>seen[x]=o);if(c.atend&&(!o.atend||o.atend==='nenhum')){o.atend=c.atend;o.atPainel=c.atPainel}}else{c.dups=[];ks.forEach(x=>seen[x]=c);uniq.push(c)}});
+  return {ev,cad:uniq.reverse(),cadAll:cad,blk};
 }
+/* imobiliárias: junta as grafias diferentes do mesmo nome. ONI, O Novo, Onovo, Novo e ON BC são sempre O Novo Imobiliário */
+const noAc=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+function imobKey(s){const n=noAc(s).replace(/\u00a0/g,' ').trim(),c=n.replace(/[^a-z0-9]/g,'');
+  if(/^o?novo/.test(c)||/^oni(\d|bc|$)/.test(c)||/^onbc/.test(c))return 'onovo';
+  if(c.length<2||/^autonom/.test(c)||c==='aa')return '~auto';
+  const k=n.replace(/\b(grupo|imobiliari[ao]s?|inmobiliari[ao]s?|imoveis|negocios|investimentos?|solucoes|construtora|incorporadora|ltda|e)\b/g,' ').replace(/[^a-z0-9]/g,'');
+  return k||c}
+function imobStats(){const m={};semEquipe(DATA.cad).forEach(c=>{const k=imobKey(c.imob),o=m[k]=m[k]||{k,names:{},cad:[]};o.cad.push(c);const nm=String(c.imob||'').trim();if(nm)o.names[nm]=(o.names[nm]||0)+1});
+  return Object.values(m).map(o=>{o.n=o.k==='onovo'?'O Novo Imobiliário (ONI)':o.k==='~auto'?'Autônomo / não informado':(Object.entries(o.names).sort((a,b)=>b[1]-a[1]||b[0].length-a[0].length)[0]||[''])[0];o.cad.sort((a,b)=>b.dt-a.dt);o.last=o.cad[0].dt;return o}).sort((a,b)=>b.cad.length-a.cad.length||b.last-a.last)}
+const OPENI=new Set();
 function since(){const n=+$('#range').value;if(!n)return null;const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-n+1);return d}
 function inRange(e){const s=since();return !s||e.dt>=s}
 function fmtMoney(v,m){const n=Number(String(v).replace(/\./g,'').replace(',','.'));if(!v||isNaN(n))return v||'';return ({BRL:'R$',USD:'US$',EUR:'€'}[m]||m||'R$')+' '+n.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0})}
@@ -269,7 +283,7 @@ function fmtDt(e){return e.ts.slice(0,16)}
 /* ---------- painel inicial ---------- */
 document.addEventListener('click',e=>{const b=e.target.closest('[data-ft]');if(!b)return;const f=$('#ftype');if([...f.options].some(o=>o.value===b.dataset.ft))f.value=b.dataset.ft},true);
 let VIEW='home',PAGE=0;const OPEN=new Set();
-const TIT={ev:'Eventos',cad:'Cadastros',prop:'Propostas',uni:'Unidades mais acessadas',uso:'Tempo de uso',blk:'Bloqueados'};
+const TIT={imob:'Imobiliárias',ev:'Eventos',cad:'Cadastros',prop:'Propostas',uni:'Unidades mais acessadas',uso:'Tempo de uso',blk:'Bloqueados'};
 const num=v=>Number(String(v).replace(',','.'))||0;
 /* quantas linhas cabem no cartão (no celular o cartão cresce com o conteúdo, então usa um número fixo) */
 function fitN(box,rowH,fb){const h=box?box.clientHeight:0;return (innerWidth>=1000&&innerHeight>=600&&h>40)?Math.max(1,Math.floor((h-8)/rowH)):fb}
@@ -302,7 +316,8 @@ function render(){
   const renda=ev.filter(e=>e.type==='pdf_renda'||e.type==='pdf_proposta_renda').length;
   const K=[
     {l:'Total de eventos',v:acoes.length.toLocaleString('pt-BR'),s:'<b>'+acoesHoje.toLocaleString('pt-BR')+'</b> hoje',go:'ev',c:'main'},
-    {l:'Cadastrados',v:DATA.cad.length,s:cad.length?'<b>+'+cad.length+'</b> no período':'nenhum novo no período',go:'cad'},
+    {l:'Cadastrados',v:DATA.cad.length,s:(cad.length?'<b>+'+cad.length+'</b> no período':'nenhum novo no período')+(DATA.cadAll.length>DATA.cad.length?' · '+(DATA.cadAll.length-DATA.cad.length)+' repetidos':''),go:'cad'},
+    {l:'Imobiliárias',v:imobStats().filter(o=>o.k!=='~auto').length,s:'toque para ver os corretores',go:'imob'},
     {l:'Ativos em 7 dias',v:act.size,s:'corretores com evento'},
     {l:'Propostas',v:ev.filter(e=>PROP.includes(e.type)).length,s:renda+' simulações de renda',go:'prop'},
     {l:'Fichas abertas',v:ev.filter(e=>e.type==='ficha').length,s:uni.length+' unidades consultadas',go:'uni'},
@@ -312,7 +327,7 @@ function render(){
   ];
   $('#kpis').innerHTML=K.map(k=>(k.go?'<button data-go="'+k.go+'"':'<div')+' class="kpi '+(k.c||'')+'"><div class="l">'+k.l+'</div><div class="v">'+k.v+'</div><div class="s">'+k.s+'</div>'+(k.go?'</button>':'</div>')).join('');
   /* Vídeo e tours: acessos e corretores no período (equipe Maxces fora, como nos demais contadores) */
-  $('#kpis').insertAdjacentHTML('beforeend','<div class="media"><span class="mt">Vídeo e tours</span>'+[['video_apresentacao','Vídeo de apresentação'],['tour_conecta','Tour virtual Conecta'],['tour_regiao','Tour pela região']].map(([t,l])=>{const L=evC.filter(e=>e.type===t),w=new Set(L.map(e=>(e.nome||e.dev||'').toLowerCase()).filter(Boolean)).size,h=L.filter(e=>e.dt>=today).length;return '<button data-go="ev" data-ft="'+t+'" title="Ver os eventos"><b>'+L.length.toLocaleString('pt-BR')+'</b><span>'+l+'<small>'+(L.length?w+(w===1?' corretor':' corretores')+' · '+h+' hoje':'sem acessos no período')+'</small></span></button>'}).join('')+'</div>');
+  $('#kpis').insertAdjacentHTML('beforeend','<div class="media"><span class="mt">Vídeo e tours</span>'+[['video_apresentacao','Vídeo de apresentação'],['tour_conecta','Tour virtual Conecta'],['tour_regiao','Tour pela região'],['tour_proposta','Tour da proposta']].map(([t,l])=>{const L=evC.filter(e=>e.type===t),w=new Set(L.map(e=>(e.nome||e.dev||'').toLowerCase()).filter(Boolean)).size,h=L.filter(e=>e.dt>=today).length;return '<button data-go="ev" data-ft="'+t+'" title="Ver os eventos"><b>'+L.length.toLocaleString('pt-BR')+'</b><span>'+l+'<small>'+(L.length?w+(w===1?' corretor':' corretores')+' · '+h+' hoje':'sem acessos no período')+'</small></span></button>'}).join('')+'</div>');
   const na=$('#needAlert');na.classList.toggle('hidden',!need.length);
   if(need.length)na.innerHTML='<span>'+need.length+(need.length===1?' cadastro sem atendimento':' cadastros sem atendimento')+' · NOTIFICAR O ADMINISTRATIVO PARA SELECIONAR GERENTE DE ATENDIMENTO</span><button data-go="cad">Ver cadastros</button>';
   const types=[...new Set(DATA.ev.map(e=>e.type))].sort();
@@ -359,13 +374,19 @@ function table(){
   const hit=o=>!q||Object.values(o).some(v=>typeof v==='string'&&v.toLowerCase().includes(q));
   let head='',rows=[],none='';
   const cond=e=>[e.entrada&&'entrada '+fmtMoney(e.entrada,e.moeda),e.mensal&&'mensal '+fmtMoney(e.mensal,e.moeda),e.reforco&&'reforço '+fmtMoney(e.reforco,e.moeda)].filter(Boolean).join(' · ');
-  if(TAB==='cad'){
+  if(TAB==='imob'){
+    head='<th>#</th><th>Imobiliária</th><th>Corretores</th><th>Último cadastro</th><th>Grafias usadas no cadastro</th>';none='Nenhuma imobiliária.';
+    const st=imobStats(),mx=st[0]?st[0].cad.length:1;
+    rows=st.map((o,i)=>({o,i})).filter(({o})=>!q||(o.n+' '+Object.keys(o.names).join(' ')+' '+o.cad.map(c=>c.nome).join(' ')).toLowerCase().includes(q)).map(({o,i})=>{const op=OPENI.has(o.k);
+      return '<tr data-imob="'+esc(o.k)+'" style="cursor:pointer" title="Clique para ver os corretores"><td class="mono">'+(i+1)+'</td><td><b>'+(op?'▾ ':'▸ ')+esc(o.n)+'</b></td><td class="mono"><b>'+o.cad.length+'</b><i class="hb" style="width:'+Math.round(o.cad.length/mx*120)+'px"></i></td><td class="mono">'+dtShort(o.last)+'</td><td class="muted">'+esc(Object.keys(o.names).slice(0,6).join(' · '))+(Object.keys(o.names).length>6?' …':'')+'</td></tr>'+
+       (op?'<tr class="sub"><td></td><td colspan="4"><table style="width:100%"><thead><tr><th>Cadastro</th><th>Corretor</th><th>Contato</th><th>Atendimento</th></tr></thead><tbody>'+o.cad.map(c=>'<tr><td class="mono">'+fmtDt(c)+'</td><td><b>'+esc(c.nome)+'</b>'+(c.dups&&c.dups.length?' <span class="tag t-n">+'+c.dups.length+' repetido'+(c.dups.length>1?'s':'')+'</span>':'')+'<br><span class="muted">'+esc([c.imob,c.creci&&'CRECI '+c.creci].filter(Boolean).join(' · '))+'</span></td><td>'+waLink(c.wa)+'<br><span class="muted">'+esc(c.email)+'</span></td><td>'+(c.atend&&c.atend!=='nenhum'?esc(c.atend):'<span class="muted">sem gerente</span>')+'</td></tr>').join('')+'</tbody></table></td></tr>':'')});
+  }else if(TAB==='cad'){
     head='<th><input type="checkbox" class="chk" id="chkAll"></th><th>Data</th><th>Corretor</th><th>Atendimento</th><th>Contato</th><th>Código</th><th>Ações</th>';none='Nenhum cadastro.';
     /* cadastros sem gerente de atendimento sobem para o topo */
     rows=DATA.cad.filter(inRange).filter(hit).sort((a,b)=>(b.atend==='nenhum')-(a.atend==='nenhum')).map(c=>{const bl=isBlk(c);const nd=c.atend==='nenhum';const GER=['Ingrid Ribeiro','Pedro Becker'];const btn=(g,l)=>'<button class="act at" data-a="at" data-v="'+g+'" data-row="'+c.row+'">'+l+'</button>';
       const atg=(nd?'<span class="tag t-need">NOTIFICAR O ADMINISTRATIVO PARA SELECIONAR GERENTE DE ATENDIMENTO</span>':c.atend?'<span class="tag t-ok">'+esc(c.atend)+'</span>'+(c.atPainel?' <span class="muted" style="font-size:10.5px">vinculado no painel</span>':''):'<span class="tag t-n">não informado</span>')+
         '<div class="atb">'+(GER.includes(c.atend)?GER.filter(g=>g!==c.atend).map(g=>btn(g,'Trocar para '+g.split(' ')[0])).join(''):GER.map(g=>btn(g,'Vincular '+g.split(' ')[0])).join(''))+'</div>';
-      return '<tr class="'+(bl?'blocked':'')+(nd?' need':'')+'"><td><input type="checkbox" class="chk rowchk" data-row="'+c.row+'"></td><td class="mono">'+fmtDt(c)+'</td><td title="'+esc(c.ua)+'"><b>'+esc(c.nome)+'</b>'+(bl?' <span class="tag t-blk">bloqueado</span>':'')+'<br><span class="muted">'+esc([c.imob,c.creci&&'CRECI '+c.creci].filter(Boolean).join(' · '))+'</span></td><td>'+atg+'</td><td>'+waLink(c.wa)+'<br><span class="muted">'+esc(c.email)+'</span></td><td class="mono">'+esc(c.code)+'</td><td>'+(bl?'':'<button class="act blk" data-a="block" data-row="'+c.row+'">Bloquear acesso</button>')+'<button class="act del" data-a="del1" data-row="'+c.row+'">Excluir</button></td></tr>'});
+      return '<tr class="'+(bl?'blocked':'')+(nd?' need':'')+'"><td><input type="checkbox" class="chk rowchk" data-row="'+c.row+'"></td><td class="mono">'+fmtDt(c)+'</td><td title="'+esc(c.ua)+'"><b>'+esc(c.nome)+'</b>'+(c.dups&&c.dups.length?' <span class="tag t-n" title="Mesmo WhatsApp ou e-mail cadastrado mais de uma vez">+'+c.dups.length+' repetido'+(c.dups.length>1?'s':'')+'</span>':'')+(bl?' <span class="tag t-blk">bloqueado</span>':'')+'<br><span class="muted">'+esc([c.imob,c.creci&&'CRECI '+c.creci].filter(Boolean).join(' · '))+'</span></td><td>'+atg+'</td><td>'+waLink(c.wa)+'<br><span class="muted">'+esc(c.email)+'</span></td><td class="mono">'+esc(c.code)+'</td><td>'+(bl?'':'<button class="act blk" data-a="block" data-row="'+c.row+'">Bloquear acesso</button>')+'<button class="act del" data-a="del1" data-row="'+c.row+'">Excluir</button></td></tr>'});
   }else if(TAB==='uso'){
     head='<th>#</th><th>Corretor</th><th>Tempo em tela</th><th>Dias</th><th>Último acesso</th><th>Onde passou mais tempo</th><th>Eventos</th><th>Propostas</th><th>WhatsApp</th>';none='Nenhum uso registrado no período.';
     const st=usoStats(semEquipe(DATA.ev.filter(inRange))).filter(hit);const mx=st[0]?Math.max(1,st[0].sec):1;
@@ -398,11 +419,12 @@ function go(v,q){
   $('#v-home').classList.toggle('hidden',v!=='home');$('#v-det').classList.toggle('hidden',v==='home');
   if(v==='home'){render();return}
   TAB=v;PAGE=0;$('#detT').textContent=TIT[v];$('#ftype').style.display=v==='ev'?'':'none';
-  $('#q').value=q||'';$('#q').placeholder=v==='blk'?'Buscar bloqueado…':v==='uso'?'Buscar corretor…':v==='uni'?'Buscar unidade, tipo ou corretor…':'Buscar por nome, imobiliária, unidade…';
+  $('#q').value=q||'';$('#q').placeholder=v==='imob'?'Buscar imobiliária ou corretor…':v==='blk'?'Buscar bloqueado…':v==='uso'?'Buscar corretor…':v==='uni'?'Buscar unidade, tipo ou corretor…':'Buscar por nome, imobiliária, unidade…';
   table();
 }
 document.addEventListener('click',ev=>{
   const li=ev.target.closest('#uniTop li[data-uni]');if(li){OPEN.clear();OPEN.add(li.dataset.uni);go('uni',li.dataset.uni);return}
+  const ti=ev.target.closest('#tbl tr[data-imob]');if(ti&&!ev.target.closest('a,button')){const k=ti.dataset.imob;OPENI.has(k)?OPENI.delete(k):OPENI.add(k);table();return}
   const tr=ev.target.closest('#tbl tr[data-uni]');if(tr&&!ev.target.closest('a,button')){const k=tr.dataset.uni;OPEN.has(k)?OPEN.delete(k):OPEN.add(k);table();return}
   const b=ev.target.closest('[data-go]');if(b)go(b.dataset.go);
 });
@@ -430,10 +452,12 @@ function isBlk(c){const w=dg(c.wa),m=String(c.email||'').toLowerCase().trim();re
 function sheetOf(){return TAB==='cad'?'Cadastros':'Eventos'}
 function bulkBar(){
   const bb=$('#bulk');
+  if(TAB==='imob'){bb.innerHTML='Imobiliárias informadas pelos corretores no cadastro, com as grafias diferentes agrupadas. Clique em uma imobiliária para ver os corretores, do cadastro mais recente para o mais antigo. Cada pessoa conta uma vez.';return}
   if(TAB==='uso'){bb.innerHTML='Tempo com a página visível e em uso (toques, rolagem, teclado), somado por corretor no período. A equipe Maxces (Pedro) fica de fora, a menos que "equipe Maxces" esteja marcado. Os eventos "Tempo em tela" ficam fora da lista de eventos; para vê-los, filtre por tipo.';return}
   if(TAB==='uni'){bb.innerHTML='Unidades mais procuradas pelos corretores no período: fichas abertas, propostas, simulações, apresentações e reservas sinalizadas. Clique em uma unidade para ver quem procurou. A equipe Maxces fica de fora, a menos que "equipe Maxces" esteja marcado.';return}
   if(TAB==='blk'){bb.innerHTML='Corretor bloqueado é desconectado na próxima abertura do site e não consegue entrar nem com o código — em qualquer aparelho vinculado ao WhatsApp, ao e-mail ou ao aparelho do cadastro.';return}
-  bb.innerHTML='<button class="btn2" id="delSel" disabled>Excluir selecionados</button><span id="selN">nenhum selecionado</span>'+(TAB==='cad'?'<button class="act del" id="delTests" style="margin-left:auto">Apagar registros de teste</button>':'');
+  bb.innerHTML='<button class="btn2" id="delSel" disabled>Excluir selecionados</button><span id="selN">nenhum selecionado</span>'+(TAB==='cad'?'<button class="act del" id="delDups" style="margin-left:auto"></button><button class="act del" id="delTests">Apagar registros de teste</button>':'');
+  const dd=$('#delDups');if(dd){const rows=DATA.cad.flatMap(c=>(c.dups||[]).map(x=>x.row));dd.textContent='Remover '+rows.length+' cadastro'+(rows.length===1?' repetido':'s repetidos');dd.style.display=rows.length?'':'none';dd.onclick=async()=>{if(!(await ask('Remover '+rows.length+' cadastro'+(rows.length===1?' repetido':'s repetidos')+'?','São cadastros feitos de novo pela mesma pessoa (mesmo WhatsApp ou mesmo e-mail). O primeiro cadastro de cada corretor é mantido. As linhas repetidas serão apagadas da planilha e não dá para desfazer.',{yes:'Remover repetidos',warn:true})))return;await admin({action:'delete',sheet:'Cadastros',rows:rows.join(',')},'Repetidos removidos: '+rows.length)}}
   const upd=()=>{const n=document.querySelectorAll('.rowchk:checked').length;$('#delSel').disabled=!n;$('#selN').textContent=n?n+' selecionado'+(n>1?'s':''):'nenhum selecionado'};
   document.querySelectorAll('.rowchk').forEach(c=>c.onchange=upd);
   const all=$('#chkAll');if(all)all.onchange=()=>{document.querySelectorAll('.rowchk').forEach(c=>c.checked=all.checked);upd()};

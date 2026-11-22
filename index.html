@@ -2583,8 +2583,9 @@ function gateRegister(m,q){
     const btn=F.querySelector('#rGo');const lbl=btn.textContent;btn.disabled=true;btn.textContent=P3(['Enviando cadastro…','Sending registration…','Enviando registro…']);const fl=F.querySelector('#rFail');if(fl)fl.hidden=true;
     blockCheck(w.startsWith('55')?w:'55'+w,e).then(b=>{if(b){btn.disabled=false;btn.textContent=lbl;PERFIL.nome=n;PERFIL.imob=i;PERFIL.wa=w.startsWith('55')?w:'55'+w;PERFIL.email=e;savePerfil();blockedOut();return}
     PERFIL.nome=n;PERFIL.imob=i;PERFIL.creci=c;PERFIL.wa=w.startsWith('55')?w:'55'+w;PERFIL.email=e;savePerfil();
-    return cadastroConfirm().then(res=>{btn.disabled=false;btn.textContent=lbl;
-      if(res.ok){PERFIL.registered=new Date().toISOString();savePerfil();if(PERFIL.atend)track('atendimento',{detalhe:PERFIL.atend});track('login');m.remove();document.body.classList.remove('gated');if(typeof render==='function')try{render()}catch(x){}return}
+    /* corretor que já tem cadastro (mesmo WhatsApp/e-mail em outro aparelho): entra direto, sem criar outra linha na planilha */
+    return gasCheck(PERFIL.wa,PERFIL.email).then(c=>(c&&c.cadastrado)?(PERFIL.cadOk='ja-cadastrado',savePerfil(),{ok:true,ja:true}):cadastroConfirm()).then(res=>{btn.disabled=false;btn.textContent=lbl;
+      if(res.ok){PERFIL.registered=new Date().toISOString();savePerfil();if(PERFIL.atend&&!res.ja)track('atendimento',{detalhe:PERFIL.atend});track('login');m.remove();document.body.classList.remove('gated');if(typeof render==='function')try{render()}catch(x){}return}
       gateFail(F,res.err)})})};
   setTimeout(()=>F.querySelector('#rNome').focus(),50);
 }
@@ -3143,6 +3144,76 @@ body.present #skSheet [data-v="guia"],body.present #skSheet [data-v="obj"],body.
 .skgc .br{margin-left:-12px;margin-bottom:clamp(4px,.8vw,9px);padding:clamp(6px,1vw,10px) clamp(12px,1.9vw,22px) clamp(6px,1vw,10px) clamp(21px,2.6vw,30px);gap:clamp(3px,.45vw,5px);border-radius:0 9px 9px 0}
 .skgc b{font-size:clamp(9.5px,1.3vw,15px)}
 .skgc u{height:1.5px}
+
+/* chamada pulsante do tour da proposta na tela inicial */
+.skpb{display:flex;align-items:center;gap:14px;width:100%;max-width:520px;margin:16px 0 0;padding:13px 18px 13px 14px;border:1.5px solid var(--sk-gold);border-radius:18px;background:linear-gradient(100deg,rgba(242,196,107,.22),rgba(242,196,107,.05) 60%,rgba(94,230,255,.08));color:#fff;text-align:left;cursor:pointer;font-family:var(--f-body);animation:skPb 1.7s ease-in-out infinite}
+.skpb i{flex:none;width:44px;height:44px;border-radius:50%;background:var(--sk-gold);display:grid;place-items:center}
+.skpb i svg{width:18px;height:18px;fill:#241a05;stroke:none;margin-left:3px}
+.skpb span{flex:1;min-width:0;font-weight:600;font-size:14.5px;line-height:1.3;color:#f4e6c4}
+.skpb b{display:block;font:500 clamp(21px,2.3vw,27px)/1.05 var(--sk-serif);color:var(--sk-gold);font-style:italic;margin-bottom:2px}
+.skpb u{text-decoration:none;font-size:26px;color:var(--sk-gold);animation:ctaNudge 1.2s ease-in-out infinite}
+@keyframes skPb{0%,100%{box-shadow:0 0 0 0 rgba(242,196,107,.55),0 0 26px rgba(242,196,107,.25);transform:scale(1)}50%{box-shadow:0 0 0 12px rgba(242,196,107,0),0 0 46px rgba(242,196,107,.5);transform:scale(1.015)}}
+body.present .skpb{display:none!important}
+@media (max-width:1023px){.skpb{max-width:none;margin-top:10px;padding:10px 14px 10px 10px;gap:11px}.skpb i{width:38px;height:38px}.skpb span{font-size:12.5px}.skpb b{font-size:20px}#view-home .ct{margin-top:10px}}
+@media (min-width:1024px) and (max-height:700px){.skpb{margin-top:10px;padding:9px 14px 9px 10px}.skpb i{width:36px;height:36px}}
+/* tour da proposta */
+#skPT{position:fixed;inset:0;z-index:82;display:none;background:radial-gradient(900px 600px at 80% 0,rgba(26,138,209,.22),transparent 60%),radial-gradient(800px 600px at 0 100%,rgba(242,196,107,.1),transparent 60%),#020b12;color:#fff;overflow:hidden;font-family:var(--f-body)}
+#skPT.on{display:block}
+#skPT .stg,#skPT .sn{position:absolute;inset:0}
+#skPT .sn{animation:vtIn .5s ease both}
+#skPT .pg{position:absolute;z-index:6;left:22px;right:22px;top:calc(14px + env(safe-area-inset-top,0px));display:flex;gap:3px}
+#skPT .pg i{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.22);overflow:hidden}#skPT .pg u{display:block;height:100%;width:0;background:var(--sk-gold)}
+#skPT .tb{position:absolute;z-index:6;left:22px;right:22px;top:calc(28px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:8px}
+#skPT .tb img{height:30px}#skPT .tb .gr{flex:1}
+#skPT .tb button,#skPT .nv{width:44px;height:44px;border-radius:50%;border:1px solid var(--sk-line);background:rgba(2,11,18,.6);color:#fff;font-size:16px;cursor:pointer}
+#skPT .nv{position:absolute;z-index:6;top:50%;transform:translateY(-50%);font-size:24px}#skPT .nv.pv{left:16px}#skPT .nv.nx{right:16px}
+#skPT .ey{font:500 12px var(--sk-mono);letter-spacing:.22em;text-transform:uppercase;color:var(--sk-cy)}
+#skPT h2{margin:10px 0 12px;font:500 clamp(34px,5vw,72px)/1 var(--sk-serif);letter-spacing:0;color:#fff;animation:vtUp .8s var(--sk-e) both}
+#skPT h2 em{color:var(--sk-gold)}
+#skPT p{margin:0;max-width:30em;font-size:clamp(15px,1.5vw,19px);line-height:1.45;color:#d7e7ee}
+#skPT .in0{display:grid;place-content:center;justify-items:center;text-align:center;padding:90px 24px 40px;gap:4px}
+#skPT .in0 h2{font-size:clamp(44px,8vw,110px)}
+#skPT .in0 .bg{font-size:clamp(20px,2.6vw,34px);color:#fff}#skPT .in0 .bg b{color:var(--sk-gold)}
+#skPT .n4{display:flex;align-items:baseline;gap:14px;margin:0 0 10px}
+#skPT .n4 b{font:700 clamp(110px,20vw,230px)/.9 var(--f-body);color:var(--sk-gold);text-shadow:0 0 60px rgba(242,196,107,.5);animation:skCh 1.2s ease-in-out infinite;transform-origin:50% 60%}
+#skPT .n4 span{font:500 clamp(34px,6vw,76px) var(--sk-serif);font-style:italic}
+#skPT .st{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:40px;padding:90px max(80px,7vw) 40px}
+#skPT .ph{justify-self:end;height:min(100%,calc(100vh - 150px));aspect-ratio:1/2;border-radius:34px;padding:9px;background:linear-gradient(160deg,#1c2f3b,#06131b);box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(94,230,255,.25)}
+#skPT .scr{position:relative;width:100%;height:100%;border-radius:26px;overflow:hidden;background:#020b12}
+#skPT .scr img{width:100%;height:100%;display:block;object-fit:cover}
+#skPT .hl{position:absolute;border:3px solid var(--sk-gold);border-radius:10px;box-shadow:0 0 0 9999px rgba(2,11,18,.45),0 0 26px var(--sk-gold);animation:ptHl 1.1s ease-in-out infinite;margin:-4px;padding:4px;box-sizing:content-box}
+#skPT .h2{position:absolute;border:2px dashed var(--ok);border-radius:10px;margin:-3px;padding:3px;box-sizing:content-box;z-index:1}
+@keyframes ptHl{50%{transform:scale(1.04);box-shadow:0 0 0 9999px rgba(2,11,18,.45),0 0 44px var(--sk-gold)}}
+#skPT .tp{position:absolute;z-index:2;width:46px;height:46px;margin:-23px;border-radius:50%;border:2px solid #fff;background:rgba(255,255,255,.35);animation:ptTp 1.6s ease-out infinite}
+@keyframes ptTp{0%{transform:scale(1.6);opacity:0}35%{transform:scale(.8);opacity:1}55%{transform:scale(.8);opacity:1}100%{transform:scale(1.9);opacity:0}}
+#skPT .st .tx{max-width:520px}
+#skPT .bd{display:inline-block;padding:9px 16px;border-radius:999px;background:var(--sk-gold);color:#241a05;font:800 13px var(--f-body);letter-spacing:.14em;text-transform:uppercase}
+#skPT .bd.ty{background:transparent;border:1px solid var(--sk-cy);color:var(--sk-cy)}
+#skPT .st h2{font-size:clamp(30px,4.2vw,62px)}
+#skPT .pd{display:flex;flex-direction:column;padding:92px max(40px,5vw) 34px;gap:18px}
+#skPT .pd h2{font-size:clamp(28px,3.8vw,54px);margin-bottom:0}
+#skPT .pgs{flex:1;min-height:0;display:flex;gap:18px;justify-content:center;align-items:stretch}
+#skPT .pgs figure{margin:0;flex:0 1 auto;min-width:0;display:flex;flex-direction:column;gap:10px;animation:ptPg .7s var(--sk-e) both}
+@keyframes ptPg{from{opacity:0;transform:translateY(30px) rotate(-2deg)}}
+#skPT .pgs img{flex:1;min-height:0;max-height:100%;width:auto;max-width:100%;object-fit:contain;border-radius:8px;box-shadow:0 18px 50px rgba(0,0,0,.6)}
+#skPT .pgs figcaption{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;justify-content:center}
+#skPT .pgs figcaption b{width:24px;height:24px;border-radius:50%;background:var(--sk-gold);color:#241a05;display:grid;place-items:center;font-size:12px}
+#skPT .fm .ct{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:22px}
+#skPT .fm button{padding:16px 26px;border-radius:999px;border:1px solid var(--sk-cy);background:rgba(94,230,255,.1);color:var(--sk-cy);font:600 16px var(--f-body);cursor:pointer}
+#skPT .fm button.g{background:var(--sk-gold);border-color:var(--sk-gold);color:#241a05;animation:skPb 1.7s ease-in-out infinite}
+@media (max-width:1023px){
+ #skPT .pg,#skPT .tb{left:12px;right:12px}#skPT .tb img{height:24px}
+ #skPT .nv{top:auto;bottom:calc(12px + env(safe-area-inset-bottom,0px));transform:none}#skPT .nv.pv{left:12px}#skPT .nv.nx{right:12px}
+ #skPT .st{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;gap:12px;padding:80px 16px calc(70px + env(safe-area-inset-bottom,0px));justify-items:center}
+ #skPT .ph{justify-self:center;height:100%;max-height:none;border-radius:26px;padding:6px}#skPT .scr{border-radius:20px}
+ #skPT .st .tx{text-align:center}#skPT .st h2{font-size:27px;margin:8px 0 6px}#skPT .st p{font-size:14px}
+ #skPT .bd{font-size:11px;padding:7px 13px}
+ #skPT .pd{padding:80px 14px calc(70px + env(safe-area-inset-bottom,0px))}
+ #skPT .pgs{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:minmax(0,1fr) minmax(0,1fr);gap:10px}
+ #skPT .pgs figure{min-height:0}#skPT .pgs figcaption{font-size:11.5px}#skPT .pgs img{margin:0 auto}
+ #skPT .in0{padding:80px 20px calc(70px + env(safe-area-inset-bottom,0px))}
+}
+@media (min-width:1024px){#skPT .st{grid-template-rows:minmax(0,1fr);padding-top:84px;padding-bottom:30px}#skPT .ph{height:min(calc(100vh - 124px),820px);align-self:center}}
 </style>
 <script>window.SKCFG={always:false,base:"sk/"};</script>
 <script>
@@ -3194,6 +3265,7 @@ function texts(){
   $('#skHero').innerHTML=`<span class="ey"><b class="pk">Torre Park</b> · <b class="mr">Torre Mar</b></span><h1>${T(['Um verdadeiro hotel de luxo <em>na entrada de Porto Belo</em>','A true luxury hotel <em>at the gateway to Porto Belo</em>','Un verdadero hotel de lujo <em>en la entrada de Porto Belo</em>'])}</h1>
    <p>${T(['Cercado pelo primeiro bairro-parque do Brasil, na área que mais valoriza na cidade.','Surrounded by Brazil’s first park-neighbourhood, in the city’s fastest-appreciating area.','Rodeado por el primer barrio-parque de Brasil, en la zona que más se valoriza de la ciudad.'])}</p>
    <div class="ob"><span class="skchip">${T(['Início das obras','Construction starts','Inicio de obras'])} <b>${T(['junho/2027','June 2027','junio/2027'])}</b></span><span class="skchip">${T(['Entrega','Delivery','Entrega'])} <b>${T(['dezembro/2032','December 2032','diciembre/2032'])}</b></span></div>
+   <button class="skpb" type="button" data-go="ptour"><i>${svg('play')}</i><span><b>${T(['Você precisa ver isso!','You need to see this!','¡Tiene que ver esto!'])}</b>${T(['Sua proposta COMPLETA em 4 cliques','Your COMPLETE offer in 4 taps','Su propuesta COMPLETA en 4 clics'])}</span><u>›</u></button>
    <div class="ct pri"><button class="g" type="button" data-go="vtour">${svg('play')}${T(['Tour virtual pelo Conecta','Virtual tour of Conecta','Tour virtual por Conecta'])}</button><button type="button" data-go="ltour">${svg('local')}${T(['Tour pela região','Tour of the region','Tour por la región'])}</button></div>
    <div class="ct sec"><button type="button" data-go="tour">${svg('tour')}${T(['Plantas','Plans','Plantas'])}</button><button type="button" data-go="espelho">${svg('espelho')}${T(['Tabela','Table','Tabla'])}</button><button type="button" data-go="local">${svg('local')}${T(['Localização','Location','Ubicación'])}</button><button type="button" data-go="video">${svg('play')}${T(['Vídeo','Video','Video'])}</button></div>`;
   $('#skGo').textContent=T(['Toque para entrar','Tap to enter','Toque para entrar']);$('#skGoS').textContent=T(['Experiência com som','Experience with sound','Experiencia con sonido']);$('#skSkip').textContent=T(['Pular ›','Skip ›','Saltar ›']);$('#skTk').textContent=T(['Aproximação','Approach','Aproximación']);
@@ -3236,7 +3308,7 @@ const _sv=window.showView;let run=0;
 window.showView=function(v){_sv(v);d.body.classList.toggle('skhome',v==='home');d.querySelectorAll('#skDock button').forEach(b=>b.classList.toggle('on',b.dataset.v===v||(b.dataset.v==='+'&&!MOB.includes(v))));$('#skSheet').classList.remove('on');$('#skTip').classList.remove('in');
   if(v==='tour'){skFit();requestAnimationFrame(()=>requestAnimationFrame(skFit));if(!TOUR.f){PS.auto=true;try{renderTourPanel()}catch(e){}}}
   if(v==='home'){layout();const h=$('#view-home');if(!h.classList.contains('s3'))h.classList.add('s1','s2','s3')}};
-function go(v){audio();sfx.tick();if(v==='vtour')return vtStart();if(v==='ltour'){showView('local');const f=$('#view-local iframe');const k=()=>{try{f.contentWindow.__MAPTOUR()}catch(e){setTimeout(k,400)}};try{if(f.requestFullscreen)f.requestFullscreen().catch(()=>{})}catch(e){}setTimeout(k,500);return}if(v==='video'){tk('video_apresentacao');const m=$('#skVid'),x=$('#skVidV');if(!x.src)x.src=CFG.base+'apresentacao.mp4';m.classList.add('on');const p=x.play();if(p&&p.catch)p.catch(()=>{});return}if(v==='local'&&d.body.classList.contains('skhome'))return fly();showView(v)}
+function go(v){audio();sfx.tick();if(v==='ptour')return ptStart();if(v==='vtour')return vtStart();if(v==='ltour'){showView('local');const f=$('#view-local iframe');const k=()=>{try{f.contentWindow.__MAPTOUR()}catch(e){setTimeout(k,400)}};try{if(f.requestFullscreen)f.requestFullscreen().catch(()=>{})}catch(e){}setTimeout(k,500);return}if(v==='video'){tk('video_apresentacao');const m=$('#skVid'),x=$('#skVidV');if(!x.src)x.src=CFG.base+'apresentacao.mp4';m.classList.add('on');const p=x.play();if(p&&p.catch)p.catch(()=>{});return}if(v==='local'&&d.body.classList.contains('skhome'))return fly();showView(v)}
 async function fly(){const my=++run,f=$('#skFly');$('#skFlyK').textContent=T(['Localização','Location','Ubicación']);$('#skFlyH').innerHTML=T(['Porto Belo, <em>na entrada da cidade</em>','Porto Belo, <em>at the city gateway</em>','Porto Belo, <em>en la entrada de la ciudad</em>']);
   f.classList.remove('in','out');f.classList.add('on');layout();sfx.whoosh();flash();await sleep(60);f.classList.add('in');await sleep(2300);if(my!==run)return;showView('local');f.classList.add('out');await sleep(620);f.classList.remove('on','in','out')}
 $('#skDock').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.v==='+'){audio();sfx.tick();dock();$('#skSheet').classList.add('on');return}go(b.dataset.v)};
@@ -3377,6 +3449,35 @@ d.addEventListener('keydown',e=>{if(!VT.on)return;if(e.key==='Escape')vtStop();e
 addEventListener('resize',()=>{if(VT.on)vtLz()});
 window.SKT={start:vtStart,show:vtShow,VT};
 addEventListener('message',e=>{const f=$('#view-local iframe');if(!f||e.source!==f.contentWindow)return;if(e.data==='maptour-start'){tk('tour_regiao');f.classList.add('skfs');H.classList.add('skfsm')}else if(e.data==='maptour-end'){f.classList.remove('skfs');H.classList.remove('skfsm')}});
+
+
+/* ---------- Tour da proposta: como gerar a proposta completa em 4 cliques ---------- */
+const PT={i:0,t:0,on:false,pause:false,last:0};
+const PTS=[
+ {k:'intro',d:4200},
+ {img:'s1',r:[38.06,48.22,10.7,3.59],n:1,h:['Escolha a unidade','Pick the unit','Elija la unidad'],p:['Na Tabela, toque em qualquer unidade disponível, em verde.','In the Table, tap any available unit, in green.','En la Tabla, toque cualquier unidad disponible, en verde.'],d:5600},
+ {img:'s2',r:[3.85,62.55,45.51,6.51],n:2,h:['Simular Proposta','Simulate Offer','Simular Propuesta'],p:['A ficha da unidade abre com planta, área e valor. Toque em Simular Proposta.','The unit sheet opens with plan, area and price. Tap Simulate Offer.','La ficha abre con planta, área y valor. Toque Simular Propuesta.'],d:5600},
+ {img:'s3',r:[6.92,41.7,86.41,18.79],n:0,h:['Digite três valores','Type three amounts','Escriba tres valores'],p:['Entrada, mensais e reforços anuais. Dá para gerar em real, dólar ou euro, e o sistema confere a conta na hora.','Down payment, monthly and yearly instalments. Generate in BRL, USD or EUR; the system checks the maths on the spot.','Entrada, mensuales y refuerzos anuales. En reales, dólares o euros; el sistema verifica la cuenta al instante.'],d:6600},
+ {img:'s4',r:[6.92,81.18,38.76,3.51],r2:[6.92,67.6,86.41,12.56],n:3,h:['Gerar PDF da proposta','Generate offer PDF','Generar PDF de la propuesta'],p:['Quando aparecer PROPOSTA APROVADA, toque em Gerar PDF da proposta.','When OFFER APPROVED shows up, tap Generate offer PDF.','Cuando aparezca PROPUESTA APROBADA, toque Generar PDF.'],d:5800},
+ {img:'s5',r:[8.97,87.57,67.98,4.72],n:4,h:['Proposta + renda e retorno','Offer + income and return','Propuesta + renta y retorno'],p:['O cenário de renda já vem preenchido e você pode ajustar. Toque em Gerar PDF: proposta + renda e retorno.','The income scenario comes pre-filled and you can adjust it. Tap Generate PDF: offer + income and return.','El escenario de renta ya viene completo y puede ajustarlo. Toque Generar PDF: propuesta + renta y retorno.'],d:6200},
+ {k:'pdf',d:11000},{k:'fim',d:12000}];
+const PTP=[['Proposta de reserva','Reservation offer','Propuesta de reserva'],['Renda e retorno','Income and return','Renta y retorno'],['CUB-SC × juros bancários','CUB-SC vs bank interest','CUB-SC × intereses bancarios'],['Fontes e bibliografia','Sources','Fuentes']];
+d.body.insertAdjacentHTML('beforeend',`<div id="skPT"><div class="stg" id="ptStg"></div><div class="pg" id="ptPg"></div><div class="tb"><img src="${LOGO}" alt=""><span class="gr"></span><button type="button" data-a="pause" id="ptPa">❚❚</button><button type="button" data-a="x">✕</button></div><button type="button" class="nv pv" data-a="prev" aria-label="Anterior">‹</button><button type="button" class="nv nx" data-a="next" aria-label="Próximo">›</button></div>`);
+function ptShow(i){i=Math.max(0,Math.min(PTS.length-1,i));PT.i=i;PT.t=0;const s=PTS[i],g=$('#ptStg'),b=CFG.base+'pt/';$('#ptPg').querySelectorAll('u').forEach((u,k)=>u.style.width=k<i?'100%':'0');
+  if(s.k==='intro')g.innerHTML=`<div class="sn in0"><span class="ey">${T(['Tour da proposta','Offer tour','Tour de la propuesta'])}</span><h2>${T(['Você precisa <em>ver isso!</em>','You need to <em>see this!</em>','¡Tiene que <em>ver esto!</em>'])}</h2><p class="bg">${T(['Sua proposta <b>completa</b>, em','Your <b>complete</b> offer, in','Su propuesta <b>completa</b>, en'])}</p><div class="n4"><b>4</b><span>${T(['cliques','taps','clics'])}</span></div><p>${T(['Com renda e retorno, comparativo CUB-SC × juros bancários e fontes. Em PDF, pronta para o cliente.','With income and return, CUB-SC vs bank interest and sources. In PDF, ready for the client.','Con renta y retorno, comparativo CUB-SC × intereses bancarios y fuentes. En PDF, lista para el cliente.'])}</p></div>`;
+  else if(s.k==='pdf')g.innerHTML=`<div class="sn pd"><div class="tx"><span class="ey">${T(['O resultado','The result','El resultado'])}</span><h2>${T(['Quatro páginas, <em>prontas para o cliente</em>','Four pages, <em>ready for the client</em>','Cuatro páginas, <em>listas para el cliente</em>'])}</h2></div><div class="pgs">${PTP.map((l,k)=>`<figure style="animation-delay:${k*220}ms"><img src="${b}p${k+1}.jpg" alt=""><figcaption><b>${k+1}</b>${T(l)}</figcaption></figure>`).join('')}</div></div>`;
+  else if(s.k==='fim')g.innerHTML=`<div class="sn in0 fm"><span class="ey">${T(['Agora é com você','Your turn','Ahora es su turno'])}</span><h2>${T(['Sua proposta completa, <em>em 4 cliques</em>','Your complete offer, <em>in 4 taps</em>','Su propuesta completa, <em>en 4 clics</em>'])}</h2><div class="ct"><button type="button" class="g" data-a="go">${T(['Fazer minha proposta agora','Make my offer now','Hacer mi propuesta ahora'])}</button><button type="button" data-a="again">${T(['Rever o tour','Watch again','Ver de nuevo'])}</button></div></div>`;
+  else{const bx=(r,c)=>`<i class="${c}" style="left:${r[0]}%;top:${r[1]}%;width:${r[2]}%;height:${r[3]}%"></i>`;
+    g.innerHTML=`<div class="sn st"><div class="ph"><div class="scr"><img src="${b}${s.img}.jpg" alt="">${s.r2?bx(s.r2,'h2'):''}${bx(s.r,'hl')}${s.n?`<u class="tp" style="left:${s.r[0]+s.r[2]/2}%;top:${s.r[1]+s.r[3]/2}%"></u>`:''}</div></div><div class="tx"><span class="bd${s.n?'':' ty'}">${s.n?T(['Clique','Tap','Clic'])+' '+s.n+' '+T(['de 4','of 4','de 4']):T(['Sem clique: só digitar','No tap: just type','Sin clic: solo escribir'])}</span><h2>${T(s.h)}</h2><p>${T(s.p)}</p></div></div>`}
+  sfx.tick()}
+function ptTick(){if(!PT.on)return;const now=performance.now(),dt=Math.min(100,now-PT.last);PT.last=now;if(!PT.pause){PT.t+=dt;const s=PTS[PT.i],u=$('#ptPg').querySelectorAll('u')[PT.i];if(u)u.style.width=Math.min(100,PT.t/s.d*100)+'%';if(PT.t>=s.d){if(PT.i<PTS.length-1)ptShow(PT.i+1);else{PT.pause=true;$('#ptPa').textContent='▶'}}}requestAnimationFrame(ptTick)}
+function ptStart(){tk('tour_proposta');PT.on=true;PT.pause=false;PT.last=performance.now();$('#ptPa').textContent='❚❚';$('#ptPg').innerHTML=PTS.map(()=>'<i><u></u></i>').join('');$('#skPT').classList.add('on');PTS.forEach(s=>{if(s.img){const im=new Image();im.src=CFG.base+'pt/'+s.img+'.jpg'}});flash();sfx.whoosh();ptShow(0);requestAnimationFrame(ptTick)}
+function ptStop(){PT.on=false;$('#skPT').classList.remove('on');$('#ptStg').innerHTML=''}
+$('#skPT').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;audio();
+  if(a==='x')ptStop();else if(a==='pause'){PT.pause=!PT.pause;b.textContent=PT.pause?'▶':'❚❚'}else if(a==='next'||a==='prev'){PT.pause=false;$('#ptPa').textContent='❚❚';ptShow(PT.i+(a==='next'?1:-1))}
+  else if(a==='again'){PT.pause=false;$('#ptPa').textContent='❚❚';ptShow(0)}else if(a==='go'){ptStop();showView('espelho')}});
+d.addEventListener('keydown',e=>{if(!PT.on)return;if(e.key==='Escape')ptStop();else if(e.key==='ArrowRight')ptShow(PT.i+1);else if(e.key==='ArrowLeft')ptShow(PT.i-1)});
+window.SKP={start:ptStart,show:ptShow,PT,PTS};
 
 /* ---------- abertura (cerca de 10 s) ---------- */
 const CAPS=[[0,['Costa Esmeralda · Santa Catarina','Costa Esmeralda · Santa Catarina','Costa Esmeralda · Santa Catarina'],['Onde o Brasil <em>passa o verão</em>','Where Brazil <em>spends the summer</em>','Donde Brasil <em>pasa el verano</em>']],[.36,['Porto Belo','Porto Belo','Porto Belo'],['A área que <em>mais valoriza</em> na cidade','The city’s <em>fastest-appreciating</em> area','La zona que <em>más se valoriza</em>']],[.855,['Av. Colombo Machado Salles, 1600','Av. Colombo Machado Salles, 1600','Av. Colombo Machado Salles, 1600'],['Você <em>chegou</em>','You have <em>arrived</em>','Usted <em>llegó</em>']]];
