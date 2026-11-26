@@ -309,6 +309,9 @@ img{-webkit-user-drag:none;user-select:none;-webkit-touch-callout:none}
 .kb.gd{background:linear-gradient(90deg,#f7dc8e,#d39a2c);color:#1d1403}
 .kb.ln{background:rgba(4,9,14,.8);color:var(--fg);border:1.5px solid var(--line)}
 #ov small,#sheet small{font-size:11.5px;color:rgba(214,228,236,.55);letter-spacing:.04em;max-width:46ch;line-height:1.4}
+#skip{position:fixed;right:max(14px,env(safe-area-inset-right,0px));top:max(14px,env(safe-area-inset-top,0px));z-index:45;font-family:var(--sans);font-variation-settings:"wdth" 100;font-size:14px;font-weight:700;letter-spacing:.04em;color:var(--fg);background:rgba(4,9,14,.72);border:1.5px solid var(--line);border-radius:999px;padding:10px 18px;cursor:pointer;backdrop-filter:blur(6px)}
+#skip:hover{border-color:var(--fg)}#skip[hidden]{display:none!important}
+#ovSk{font:inherit;font-size:14px;font-weight:600;color:var(--mut);background:none;border:0;text-decoration:underline;text-underline-offset:4px;cursor:pointer;padding:6px 10px}
 #rot{font-size:13px;color:var(--gold);font-weight:700;letter-spacing:.06em}
 #end{position:fixed;left:0;right:0;top:max(16px,env(safe-area-inset-top,0px));z-index:40;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:0 16px;font-family:var(--sans);font-variation-settings:"wdth" 100}
 #end .kb{box-shadow:0 10px 40px rgba(0,0,0,.6);animation:endp 1.6s ease-in-out infinite}
@@ -702,10 +705,12 @@ img{-webkit-user-drag:none;user-select:none;-webkit-touch-callout:none}
   <p id="ovP">Apresentação oficial do Conecta Towers.</p>
   <div class="pg"><i id="ovPg"></i></div>
   <button class="kb" id="ovGo" type="button" disabled>Carregando…</button>
+  <button id="ovSk" type="button" hidden>Pular apresentação</button>
   <div id="rot" hidden>Vire o celular de lado para ver em tela cheia.</div>
   <small>Conecta Towers · Maxces. Apresentação desenvolvida por Pedro Becker · © 2026. Todos os direitos reservados.</small>
 </div>
 <div id="end" hidden></div>
+<button id="skip" type="button" hidden>Encerrar apresentação ›</button>
 <div id="sheet" hidden><div class="bx">
   <h2>Compartilhar com o cliente</h2>
   <p>O cliente abre a apresentação completa, com o seu nome e o seu WhatsApp no final. O link funciona em celular e computador.</p>
@@ -831,7 +836,9 @@ const tell=t=>{if(EMB)try{parent.postMessage({kn:t},location.origin)}catch(e){}}
 $('#bClose').onclick=()=>tell('fechar');
 
 /* ---------- fim: o que cada um faz depois de assistir ---------- */
-function fim(){if(ended)return;ended=true;track('keynote_fim');tell('fim');const e=$('#end');let h='';
+const pular=()=>{track('keynote_pulou','slide '+(cur+1)+' de '+slides.length);stopAuto();tell('entrar')};
+$('#ovSk').onclick=pular;$('#skip').onclick=pular;
+function fim(){if(ended)return;ended=true;$('#skip').hidden=true;track('keynote_fim');tell('fim');const e=$('#end');let h='';
   if(MODE==='porta')h='<button class="kb gd" data-e="entrar" type="button">Entrar na Área do Corretor ›</button>';
   else if(MODE==='cliente'){const first=BY.n.split(' ')[0];if(BY.w.length>=10)h='<a class="kb" target="_blank" rel="noopener" href="https://wa.me/'+(BY.w.startsWith('55')?BY.w:'55'+BY.w)+'?text='+encodeURIComponent('Olá, '+first+'! Assisti à apresentação do Conecta Towers e quero saber mais.')+'">Falar com '+first.replace(/[<>&"]/g,'')+' no WhatsApp</a>';h+='<button class="kb ln" data-e="de-novo" type="button">Ver de novo</button>'}
   else if(MODE==='corretor')h='<button class="kb" data-e="share" type="button">Compartilhar com cliente</button>'+(EMB?'<button class="kb ln" data-e="fechar" type="button">Voltar à Área do Corretor</button>':'<button class="kb ln" data-e="de-novo" type="button">Ver de novo</button>');
@@ -842,7 +849,7 @@ $('#end').addEventListener('click',ev=>{const b=ev.target.closest('[data-e]');if
 
 /* ---------- tela de início: só libera quando os primeiros slides já estão carregados ---------- */
 {const go=$('#ovGo');
-  if(MODE==='porta'){$('#ovH').innerHTML='Antes de entrar, <em>conheça o Conecta.</em>';$('#ovP').textContent='Esta apresentação muda a forma de enxergar o produto. Assista até o fim para liberar a Área do Corretor. Você pode avançar no seu ritmo, tocando na tela.'}
+  if(MODE==='porta'){$('#ovH').innerHTML='Antes de entrar, <em>conheça o Conecta.</em>';$('#ovP').textContent='Esta apresentação muda a forma de enxergar o produto. São cerca de 7 minutos, e você pode avançar no seu ritmo, tocando na tela.';$('#ovSk').hidden=false}
   else if(MODE==='cliente'){$('#ovP').textContent='Apresentação preparada por '+BY.n+(BY.i?' · '+BY.i:'')+'.';const by=$('#by');by.innerHTML='Apresentado por <b></b>';by.querySelector('b').textContent=BY.n+(BY.i?' · '+BY.i:'');by.hidden=false}
   else if(MODE==='corretor'){$('#bShare').hidden=false;if(EMB)$('#bClose').hidden=false}
   const need=[...slides[0].querySelectorAll('img[data-i]'),...slides[1].querySelectorAll('img[data-i]'),...slides[2].querySelectorAll('img[data-i]')];let n=0;
@@ -850,7 +857,7 @@ $('#end').addEventListener('click',ev=>{const b=ev.target.closest('[data-e]');if
   const ready=()=>{$('#ovPg').style.width='100%';go.disabled=false;go.textContent=MODE==='porta'?'Assistir à apresentação':'Começar'};
   Promise.race([Promise.all(need.map(loadImg)),new Promise(r=>setTimeout(r,6000))]).then(ready);
   warm(0,5);warmVid(1);
-  go.onclick=()=>{started=true;$('#ov').hidden=true;track('keynote_inicio');tell('inicio');if(MODE==='cliente'||MODE==='visitante')full();enter(0);if(MODE!=='corretor')toggleAuto()}}
+  go.onclick=()=>{started=true;$('#ov').hidden=true;if(MODE==='porta')$('#skip').hidden=false;track('keynote_inicio');tell('inicio');if(MODE==='cliente'||MODE==='visitante')full();enter(0);if(MODE!=='corretor')toggleAuto()}}
 enter(0);
 </script>
 </body></html>

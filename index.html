@@ -3227,16 +3227,29 @@ body.present .skpb{display:none!important}
  #skLang button:focus-visible{outline:2px solid var(--sk-gold);outline-offset:2px}}
 </style>
 <script>window.SKCFG={always:false,base:"sk/"};</script>
+<style id="kn-css">
+.sknb{display:flex;align-items:center;gap:12px;width:100%;max-width:520px;margin:14px 0 0;padding:10px 16px 10px 12px;border:1.5px solid var(--sk-cy,#5ee6ff);border-radius:18px;background:linear-gradient(100deg,rgba(94,230,255,.22),rgba(94,230,255,.06) 60%,rgba(242,196,107,.08)),rgba(3,14,21,.78);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;text-align:left;cursor:pointer;font-family:var(--f-body);animation:sknP 1.9s ease-in-out infinite}
+.sknb i{flex:none;width:38px;height:38px;border-radius:50%;background:var(--sk-cy,#5ee6ff);display:grid;place-items:center}
+.sknb i svg{width:16px;height:16px;fill:#04202b;stroke:none;margin-left:3px}
+.sknb span{flex:1;min-width:0;font-weight:600;font-size:13px;line-height:1.3;color:#d6f4fb}
+.sknb b{display:block;font:500 clamp(19px,2vw,24px)/1.05 var(--sk-serif);color:var(--sk-cy,#5ee6ff);font-style:italic;margin-bottom:2px}
+.sknb em{flex:none;font:700 10.5px/1.25 var(--sk-mono);font-style:normal;letter-spacing:.2em;text-transform:uppercase;color:var(--sk-cy,#5ee6ff);padding-left:12px;border-left:1px solid rgba(94,230,255,.45)}
+.sknb+.skpb{margin-top:10px}
+@keyframes sknP{50%{box-shadow:0 0 0 6px rgba(94,230,255,.12),0 0 34px rgba(94,230,255,.35)}}
+@media(max-width:860px){.sknb{max-width:none;margin-top:10px;padding:8px 14px 8px 10px}.sknb i{width:34px;height:34px}.sknb span{font-size:12px}.sknb b{font-size:19px}}
+</style>
 <script>
 /* ---------- Keynote: porta de entrada da Área do Corretor ----------
-   KEYNOTE.porta=true  → o corretor assiste à apresentação antes de entrar (uma vez por aparelho; "ver" novo obriga a assistir de novo).
-   KEYNOTE.botao=true  → botão "Apresentação Keynote" na tela inicial (assistir de novo e compartilhar com o cliente).
+   KEYNOTE.porta=true  → no PRIMEIRO acesso (quem ainda não tinha cadastro neste aparelho) o corretor cai na apresentação antes de entrar; pode pular ou encerrar.
+   KEYNOTE.botao=true  → cartão em destaque "Keynote do Conecta" na tela inicial (apresentar e compartilhar com o cliente).
    Teste sem ligar nada: abra a página com ?keynote=porta no endereço. */
-const KEYNOTE={porta:false,botao:false,src:'keynote/',ver:'1'}; /*KEYNOTE*/
+const KEYNOTE={porta:true,botao:true,src:'keynote/',ver:'1'}; /*KEYNOTE*/
 window.KN=(function(){
   const K='conecta-keynote-v'+KEYNOTE.ver,qs=location.search||'';
   const force=/[?&]keynote=porta\b/.test(qs),tst=/[?&]keynote\b/.test(qs);
   const seen=()=>{try{return !!localStorage.getItem(K)}catch(e){return false}};
+  /* já era cadastrado neste aparelho quando a página abriu? então não é primeiro acesso */
+  let wasReg=false;try{const pf=JSON.parse(localStorage.getItem('conecta-perfil-v1')||'null');wasReg=!!(pf&&pf.registered)}catch(e){}
   let fr=null,cb=null,mode='',asked=false;
   function open(m,done){if(fr)return;mode=m;cb=done||null;
     fr=document.createElement('iframe');fr.id='knFrame';fr.title='Apresentação do Conecta Towers';fr.allow='autoplay; fullscreen';
@@ -3245,9 +3258,9 @@ window.KN=(function(){
     document.body.appendChild(fr);document.documentElement.style.overflow='hidden'}
   function close(){if(!fr)return;fr.remove();fr=null;document.documentElement.style.overflow='';const f=cb;cb=null;if(f)f()}
   addEventListener('message',e=>{if(e.origin!==location.origin||!e.data||!e.data.kn||!fr||e.source!==fr.contentWindow)return;const t=e.data.kn;
-    if(t==='fim'&&mode==='porta'){try{localStorage.setItem(K,new Date().toISOString())}catch(x){}}
+    if((t==='fim'||t==='entrar')&&mode==='porta'){try{localStorage.setItem(K,new Date().toISOString())}catch(x){}}
     if(t==='entrar'||t==='fechar')close()});
-  return{need:()=>{if(asked)return false;asked=true;return force||(KEYNOTE.porta&&!seen())},botao:()=>KEYNOTE.botao||tst,open,close};
+  return{need:()=>{if(asked)return false;asked=true;return force||(KEYNOTE.porta&&!wasReg&&!seen())},botao:()=>KEYNOTE.botao||tst,open,close};
 })();
 </script>
 <script>
@@ -3301,8 +3314,8 @@ function texts(){
   $('#skHero').innerHTML=`<span class="ey"><b class="pk">Torre Park</b> · <b class="mr">Torre Mar</b></span><h1>${T(['Um verdadeiro hotel de luxo <em>na entrada de Porto Belo</em>','A true luxury hotel <em>at the gateway to Porto Belo</em>','Un verdadero hotel de lujo <em>en la entrada de Porto Belo</em>'])}</h1>
    <p>${T(['Cercado pelo primeiro bairro-parque do Brasil, na área que mais valoriza na cidade.','Surrounded by Brazil’s first park-neighbourhood, in the city’s fastest-appreciating area.','Rodeado por el primer barrio-parque de Brasil, en la zona que más se valoriza de la ciudad.'])}</p>
    <div class="ob"><span class="skchip">${T(['Início das obras','Construction starts','Inicio de obras'])} <b>${T(['junho/2027','June 2027','junio/2027'])}</b></span><span class="skchip">${T(['Entrega','Delivery','Entrega'])} <b>${T(['dezembro/2032','December 2032','diciembre/2032'])}</b></span></div>
-   <button class="skpb" type="button" data-go="ptour"><i>${svg('play')}</i><span><b>${T(['Você precisa ver isso!','You need to see this!','¡Tiene que ver esto!'])}</b>${T(['Sua proposta COMPLETA em 8 cliques','Your COMPLETE offer in 8 taps','Su propuesta COMPLETA en 8 clics'])}</span><em class="fx">${T(['Ferramenta<br>exclusiva','Exclusive<br>tool','Herramienta<br>exclusiva'])}</em><u>›</u></button>
-   <div class="ct pri">${window.KN&&KN.botao()?`<button class="g" type="button" data-go="keynote">${svg('play')}${T(['Apresentação Keynote','Keynote presentation','Presentación Keynote'])}</button>`:''}<button class="g" type="button" data-go="vtour">${svg('play')}${T(['Tour virtual pelo Conecta','Virtual tour of Conecta','Tour virtual por Conecta'])}</button><button type="button" data-go="ltour">${svg('local')}${T(['Tour pela região','Tour of the region','Tour por la región'])}</button></div>
+   ${window.KN&&KN.botao()?`<button class="sknb" type="button" data-go="keynote"><i>${svg('play')}</i><span><b>${T(['Keynote do Conecta','Conecta Keynote','Keynote de Conecta'])}</b>${T(['Apresente e compartilhe com o seu cliente','Present it and share it with your client','Preséntelo y compártalo con su cliente'])}</span><em>${T(['Novo','New','Nuevo'])}</em></button>`:''}<button class="skpb" type="button" data-go="ptour"><i>${svg('play')}</i><span><b>${T(['Você precisa ver isso!','You need to see this!','¡Tiene que ver esto!'])}</b>${T(['Sua proposta COMPLETA em 8 cliques','Your COMPLETE offer in 8 taps','Su propuesta COMPLETA en 8 clics'])}</span><em class="fx">${T(['Ferramenta<br>exclusiva','Exclusive<br>tool','Herramienta<br>exclusiva'])}</em><u>›</u></button>
+   <div class="ct pri"><button class="g" type="button" data-go="vtour">${svg('play')}${T(['Tour virtual pelo Conecta','Virtual tour of Conecta','Tour virtual por Conecta'])}</button><button type="button" data-go="ltour">${svg('local')}${T(['Tour pela região','Tour of the region','Tour por la región'])}</button></div>
    <div class="ct sec"><button type="button" data-go="tour">${svg('tour')}${T(['Plantas','Plans','Plantas'])}</button><button type="button" data-go="espelho">${svg('espelho')}${T(['Tabela','Table','Tabla'])}</button><button type="button" data-go="local">${svg('local')}${T(['Localização','Location','Ubicación'])}</button><button type="button" data-go="video">${svg('play')}${T(['Vídeo','Video','Video'])}</button></div>`;
   $('#skGo').textContent=T(['Toque para entrar','Tap to enter','Toque para entrar']);$('#skGoS').textContent=T(['Experiência com som','Experience with sound','Experiencia con sonido']);$('#skSkip').textContent=T(['Pular ›','Skip ›','Saltar ›']);$('#skTk').textContent=T(['Aproximação','Approach','Aproximación']);
   dock();kpis()}
