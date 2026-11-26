@@ -3232,11 +3232,20 @@ body.present .skpb{display:none!important}
 .sknb i{flex:none;width:38px;height:38px;border-radius:50%;background:var(--sk-cy,#5ee6ff);display:grid;place-items:center}
 .sknb i svg{width:16px;height:16px;fill:#04202b;stroke:none;margin-left:3px}
 .sknb span{flex:1;min-width:0;font-weight:600;font-size:13px;line-height:1.3;color:#d6f4fb}
-.sknb b{display:block;font:500 clamp(19px,2vw,24px)/1.05 var(--sk-serif);color:var(--sk-cy,#5ee6ff);font-style:italic;margin-bottom:2px}
-.sknb em{flex:none;font:700 10.5px/1.25 var(--sk-mono);font-style:normal;letter-spacing:.2em;text-transform:uppercase;color:var(--sk-cy,#5ee6ff);padding-left:12px;border-left:1px solid rgba(94,230,255,.45)}
+.sknb b{display:block;font:500 clamp(19px,2vw,24px)/1.05 var(--sk-serif);color:var(--sk-cy,#5ee6ff);font-style:italic;margin-bottom:4px}
+.sknb strong{display:block;font:800 13px/1.2 var(--f-body);letter-spacing:.14em;color:#fff}
+.sknb u{flex:none;text-decoration:none;font-size:26px;color:var(--sk-cy,#5ee6ff);animation:ctaNudge 1.2s ease-in-out infinite}
 .sknb+.skpb{margin-top:10px}
 @keyframes sknP{50%{box-shadow:0 0 0 6px rgba(94,230,255,.12),0 0 34px rgba(94,230,255,.35)}}
-@media(max-width:860px){.sknb{max-width:none;margin-top:10px;padding:8px 14px 8px 10px}.sknb i{width:34px;height:34px}.sknb span{font-size:12px}.sknb b{font-size:19px}}
+/* idiomas no topo, à direita, em todas as abas (o seletor antigo da tela inicial sai) */
+#skLang{display:none!important}
+#skTL{position:relative;flex:none;display:flex;gap:2px;padding:3px;border:1px solid var(--sk-line);border-radius:999px;background:rgba(2,11,18,.5)}
+#skTL button{min-width:34px;padding:6px 9px;border:0;border-radius:999px;background:transparent;color:var(--fg);font:600 11px var(--sk-mono);letter-spacing:.12em;cursor:pointer}
+#skTL button:hover{background:rgba(94,230,255,.14)}#skTL button.on{background:var(--sk-cy);color:#02222c}
+@media(max-width:1023px){#skTL{padding:2px}#skTL button{display:none;min-width:36px;padding:7px 8px}#skTL button.on{display:block}
+ #skTL.open button:not(.on){display:block;position:absolute;right:0;top:calc(100% + 6px);background:#041722;border:1px solid var(--sk-line);z-index:40}
+ #skTL.open button:not(.on)~button:not(.on){top:calc(100% + 42px)}}
+@media(max-width:860px){.sknb{max-width:none;margin-top:10px;padding:8px 14px 8px 10px}.sknb i{width:34px;height:34px}.sknb span{font-size:12px}.sknb b{font-size:18px}.sknb strong{font-size:12px}}
 </style>
 <script>
 /* ---------- Keynote: porta de entrada da Área do Corretor ----------
@@ -3253,7 +3262,7 @@ window.KN=(function(){
   let fr=null,cb=null,mode='',asked=false;
   function open(m,done){if(fr)return;mode=m;cb=done||null;
     fr=document.createElement('iframe');fr.id='knFrame';fr.title='Apresentação do Conecta Towers';fr.allow='autoplay; fullscreen';
-    fr.src=KEYNOTE.src+(m==='porta'?'?porta=1':'');
+    fr.src=KEYNOTE.src+'?'+(m==='porta'?'porta=1&':'')+'l='+((typeof LANG==='string'&&LANG)||'pt');
     fr.style.cssText='position:fixed;inset:0;width:100%;height:100%;border:0;z-index:2147483000;background:#04090e';
     document.body.appendChild(fr);document.documentElement.style.overflow='hidden'}
   function close(){if(!fr)return;fr.remove();fr=null;document.documentElement.style.overflow='';const f=cb;cb=null;if(f)f()}
@@ -3293,7 +3302,7 @@ main.insertAdjacentHTML('afterbegin',`<div class="view" id="view-home">
   </div></div><div class="sh"></div>
   <div class="hr" id="skHero"></div>
   <div id="skLang" role="group" aria-label="Idioma / Language / Idioma">${['pt','en','es'].map(l=>`<button type="button" data-l="${l}">${l.toUpperCase()}</button>`).join('')}</div></div>`);
-d.body.insertAdjacentHTML('beforeend',`<div id="skTop"><img class="lg" id="skLg" src="${LOGO}" alt="Conecta Towers"><span class="ar" id="skAr"></span><span class="cr">Sistema desenvolvido por Pedro Becker · © 2026. Todos os direitos reservados.</span><span class="gr"></span><span class="up" id="skUp"></span><div class="kp" id="skKp"></div><button class="ib pf" id="skPf" type="button" aria-label="Meu perfil">${svg('perfil')}</button></div>
+d.body.insertAdjacentHTML('beforeend',`<div id="skTop"><img class="lg" id="skLg" src="${LOGO}" alt="Conecta Towers"><span class="ar" id="skAr"></span><span class="cr">Sistema desenvolvido por Pedro Becker · © 2026. Todos os direitos reservados.</span><span class="gr"></span><span class="up" id="skUp"></span><div class="kp" id="skKp"></div><div id="skTL" role="group" aria-label="Idioma / Language / Idioma">${['pt','en','es'].map(l=>`<button type="button" data-l="${l}">${l.toUpperCase()}</button>`).join('')}</div><button class="ib pf" id="skPf" type="button" aria-label="Meu perfil">${svg('perfil')}</button></div>
  <nav id="skDock"></nav><div id="skSheet"><div class="bx" id="skBx"></div></div><div id="skTip"><i></i><b></b><span></span></div>
  <div id="skFly"><div class="ae"><div class="skcover" data-w="1280" data-h="956" data-fx="0.36"><img src="${CFG.base}aerea.jpg" alt=""></div></div><div class="tx"><span class="skchip" id="skFlyK"></span><h2 id="skFlyH"></h2></div></div>
  <div id="skOpen"><div class="st cn" id="skGate"><div><img src="${LOGO}" alt="Conecta Towers"><div><button id="skGo" type="button"></button></div><p class="mn" id="skGoS" style="margin:16px 0 0"></p></div></div>
@@ -3309,12 +3318,12 @@ const HS=[[['Rooftop','Rooftop','Rooftop'],['O coroamento das duas torres, com v
  [['Duas torres, 35 pavimentos','Two towers, 35 storeys','Dos torres, 35 pisos'],['Flats, 2 suítes, lofts, duplex de 3 suítes e coberturas de 4 suítes: para todas as fases da vida.','Flats, 2 suites, lofts, 3-suite duplexes and 4-suite penthouses: for every stage of life.','Flats, 2 suites, lofts, dúplex de 3 suites y áticos de 4 suites: para todas las etapas de la vida.']],
  [['Base e acesso','Base and access','Base y acceso'],['Embasamento com fachada ativa na Av. Colombo Machado Salles, 1600.','Podium with active frontage on Av. Colombo Machado Salles, 1600.','Basamento con fachada activa en la Av. Colombo Machado Salles, 1600.']]];
 function texts(){
-  d.querySelectorAll('#skLang button').forEach((b,i)=>b.classList.toggle('on',i===L()));
+  d.querySelectorAll('#skLang button').forEach((b,i)=>b.classList.toggle('on',i===L()));d.querySelectorAll('#skTL button').forEach((b,i)=>b.classList.toggle('on',i===L()));
   $('#skAr').textContent=T(['Área do corretor','Broker area','Área del corredor']);
   $('#skHero').innerHTML=`<span class="ey"><b class="pk">Torre Park</b> · <b class="mr">Torre Mar</b></span><h1>${T(['Um verdadeiro hotel de luxo <em>na entrada de Porto Belo</em>','A true luxury hotel <em>at the gateway to Porto Belo</em>','Un verdadero hotel de lujo <em>en la entrada de Porto Belo</em>'])}</h1>
    <p>${T(['Cercado pelo primeiro bairro-parque do Brasil, na área que mais valoriza na cidade.','Surrounded by Brazil’s first park-neighbourhood, in the city’s fastest-appreciating area.','Rodeado por el primer barrio-parque de Brasil, en la zona que más se valoriza de la ciudad.'])}</p>
    <div class="ob"><span class="skchip">${T(['Início das obras','Construction starts','Inicio de obras'])} <b>${T(['junho/2027','June 2027','junio/2027'])}</b></span><span class="skchip">${T(['Entrega','Delivery','Entrega'])} <b>${T(['dezembro/2032','December 2032','diciembre/2032'])}</b></span></div>
-   ${window.KN&&KN.botao()?`<button class="sknb" type="button" data-go="keynote"><i>${svg('play')}</i><span><b>${T(['Keynote do Conecta','Conecta Keynote','Keynote de Conecta'])}</b>${T(['Apresente e compartilhe com o seu cliente','Present it and share it with your client','Preséntelo y compártalo con su cliente'])}</span><em>${T(['Novo','New','Nuevo'])}</em></button>`:''}<button class="skpb" type="button" data-go="ptour"><i>${svg('play')}</i><span><b>${T(['Você precisa ver isso!','You need to see this!','¡Tiene que ver esto!'])}</b>${T(['Sua proposta COMPLETA em 8 cliques','Your COMPLETE offer in 8 taps','Su propuesta COMPLETA en 8 clics'])}</span><em class="fx">${T(['Ferramenta<br>exclusiva','Exclusive<br>tool','Herramienta<br>exclusiva'])}</em><u>›</u></button>
+   ${window.KN&&KN.botao()?`<button class="sknb" type="button" data-go="keynote"><i>${svg('play')}</i><span><b>${T(['Essa apresentação pode garantir a sua reserva!','This presentation can secure your reservation!','¡Esta presentación puede garantizar su reserva!'])}</b><strong>${T(['ASSISTA AGORA!','WATCH NOW!','¡VEA AHORA!'])}</strong></span><u>›</u></button>`:''}<button class="skpb" type="button" data-go="ptour"><i>${svg('play')}</i><span><b>${T(['Você precisa ver isso!','You need to see this!','¡Tiene que ver esto!'])}</b>${T(['Sua proposta COMPLETA em 8 cliques','Your COMPLETE offer in 8 taps','Su propuesta COMPLETA en 8 clics'])}</span><em class="fx">${T(['Ferramenta<br>exclusiva','Exclusive<br>tool','Herramienta<br>exclusiva'])}</em><u>›</u></button>
    <div class="ct pri"><button class="g" type="button" data-go="vtour">${svg('play')}${T(['Tour virtual pelo Conecta','Virtual tour of Conecta','Tour virtual por Conecta'])}</button><button type="button" data-go="ltour">${svg('local')}${T(['Tour pela região','Tour of the region','Tour por la región'])}</button></div>
    <div class="ct sec"><button type="button" data-go="tour">${svg('tour')}${T(['Plantas','Plans','Plantas'])}</button><button type="button" data-go="espelho">${svg('espelho')}${T(['Tabela','Table','Tabla'])}</button><button type="button" data-go="local">${svg('local')}${T(['Localização','Location','Ubicación'])}</button><button type="button" data-go="video">${svg('play')}${T(['Vídeo','Video','Video'])}</button></div>`;
   $('#skGo').textContent=T(['Toque para entrar','Tap to enter','Toque para entrar']);$('#skGoS').textContent=T(['Experiência com som','Experience with sound','Experiencia con sonido']);$('#skSkip').textContent=T(['Pular ›','Skip ›','Saltar ›']);$('#skTk').textContent=T(['Aproximação','Approach','Aproximación']);
@@ -3365,6 +3374,7 @@ $('#skSheet').onclick=e=>{if(e.target.id==='skSheet'){e.currentTarget.classList.
   if(b.dataset.v)return go(b.dataset.v);if(b.dataset.a==='perfil'){$('#skSheet').classList.remove('on');$('#navPerfil').click()}else if(b.dataset.a==='treino'){$('#navTreino').click()}
   else if(b.dataset.l){const c=d.querySelector('.langchip[data-lang="'+b.dataset.l+'"]');if(c)c.click();setTimeout(texts,80)}};
 $('#skHero').onclick=e=>{const b=e.target.closest('[data-go]');if(b)go(b.dataset.go)};
+$('#skTL').onclick=e=>{const b=e.target.closest('button');if(!b)return;e.stopPropagation();const tl=$('#skTL');if(matchMedia('(max-width:1023px)').matches&&b.classList.contains('on')){tl.classList.toggle('open');return}tl.classList.remove('open');audio();sfx.tick();const c=d.querySelector('.langchip[data-lang="'+b.dataset.l+'"]');if(c)c.click();setTimeout(texts,80)};d.addEventListener('click',()=>{const tl=$('#skTL');if(tl)tl.classList.remove('open')});
 $('#skLang').onclick=e=>{const b=e.target.closest('button');if(!b)return;e.stopPropagation();audio();sfx.tick();const c=d.querySelector('.langchip[data-lang="'+b.dataset.l+'"]');if(c)c.click();setTimeout(texts,80)};
 const vidClose=()=>{try{$('#skVidV').pause()}catch(e){}$('#skVid').classList.remove('on')};$('#skVidX').onclick=vidClose;$('#skVid').onclick=e=>{if(e.target.id==='skVid')vidClose()};
 $('#skLg').onclick=()=>go('home');$('#skPf').onclick=()=>$('#navPerfil').click();
