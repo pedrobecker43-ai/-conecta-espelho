@@ -3228,6 +3228,29 @@ body.present .skpb{display:none!important}
 </style>
 <script>window.SKCFG={always:false,base:"sk/"};</script>
 <script>
+/* ---------- Keynote: porta de entrada da Área do Corretor ----------
+   KEYNOTE.porta=true  → o corretor assiste à apresentação antes de entrar (uma vez por aparelho; "ver" novo obriga a assistir de novo).
+   KEYNOTE.botao=true  → botão "Apresentação Keynote" na tela inicial (assistir de novo e compartilhar com o cliente).
+   Teste sem ligar nada: abra a página com ?keynote=porta no endereço. */
+const KEYNOTE={porta:false,botao:false,src:'keynote/',ver:'1'}; /*KEYNOTE*/
+window.KN=(function(){
+  const K='conecta-keynote-v'+KEYNOTE.ver,qs=location.search||'';
+  const force=/[?&]keynote=porta\b/.test(qs),tst=/[?&]keynote\b/.test(qs);
+  const seen=()=>{try{return !!localStorage.getItem(K)}catch(e){return false}};
+  let fr=null,cb=null,mode='',asked=false;
+  function open(m,done){if(fr)return;mode=m;cb=done||null;
+    fr=document.createElement('iframe');fr.id='knFrame';fr.title='Apresentação do Conecta Towers';fr.allow='autoplay; fullscreen';
+    fr.src=KEYNOTE.src+(m==='porta'?'?porta=1':'');
+    fr.style.cssText='position:fixed;inset:0;width:100%;height:100%;border:0;z-index:2147483000;background:#04090e';
+    document.body.appendChild(fr);document.documentElement.style.overflow='hidden'}
+  function close(){if(!fr)return;fr.remove();fr=null;document.documentElement.style.overflow='';const f=cb;cb=null;if(f)f()}
+  addEventListener('message',e=>{if(e.origin!==location.origin||!e.data||!e.data.kn||!fr||e.source!==fr.contentWindow)return;const t=e.data.kn;
+    if(t==='fim'&&mode==='porta'){try{localStorage.setItem(K,new Date().toISOString())}catch(x){}}
+    if(t==='entrar'||t==='fechar')close()});
+  return{need:()=>{if(asked)return false;asked=true;return force||(KEYNOTE.porta&&!seen())},botao:()=>KEYNOTE.botao||tst,open,close};
+})();
+</script>
+<script>
 /* ===== v90: pele JARVIS (abertura, tela inicial, barra superior, menu inferior). Não altera nenhuma ferramenta: só a moldura. ===== */
 (function(){
 if(window.__SK)return;window.__SK=1;
@@ -3279,7 +3302,7 @@ function texts(){
    <p>${T(['Cercado pelo primeiro bairro-parque do Brasil, na área que mais valoriza na cidade.','Surrounded by Brazil’s first park-neighbourhood, in the city’s fastest-appreciating area.','Rodeado por el primer barrio-parque de Brasil, en la zona que más se valoriza de la ciudad.'])}</p>
    <div class="ob"><span class="skchip">${T(['Início das obras','Construction starts','Inicio de obras'])} <b>${T(['junho/2027','June 2027','junio/2027'])}</b></span><span class="skchip">${T(['Entrega','Delivery','Entrega'])} <b>${T(['dezembro/2032','December 2032','diciembre/2032'])}</b></span></div>
    <button class="skpb" type="button" data-go="ptour"><i>${svg('play')}</i><span><b>${T(['Você precisa ver isso!','You need to see this!','¡Tiene que ver esto!'])}</b>${T(['Sua proposta COMPLETA em 8 cliques','Your COMPLETE offer in 8 taps','Su propuesta COMPLETA en 8 clics'])}</span><em class="fx">${T(['Ferramenta<br>exclusiva','Exclusive<br>tool','Herramienta<br>exclusiva'])}</em><u>›</u></button>
-   <div class="ct pri"><button class="g" type="button" data-go="vtour">${svg('play')}${T(['Tour virtual pelo Conecta','Virtual tour of Conecta','Tour virtual por Conecta'])}</button><button type="button" data-go="ltour">${svg('local')}${T(['Tour pela região','Tour of the region','Tour por la región'])}</button></div>
+   <div class="ct pri">${window.KN&&KN.botao()?`<button class="g" type="button" data-go="keynote">${svg('play')}${T(['Apresentação Keynote','Keynote presentation','Presentación Keynote'])}</button>`:''}<button class="g" type="button" data-go="vtour">${svg('play')}${T(['Tour virtual pelo Conecta','Virtual tour of Conecta','Tour virtual por Conecta'])}</button><button type="button" data-go="ltour">${svg('local')}${T(['Tour pela região','Tour of the region','Tour por la región'])}</button></div>
    <div class="ct sec"><button type="button" data-go="tour">${svg('tour')}${T(['Plantas','Plans','Plantas'])}</button><button type="button" data-go="espelho">${svg('espelho')}${T(['Tabela','Table','Tabla'])}</button><button type="button" data-go="local">${svg('local')}${T(['Localização','Location','Ubicación'])}</button><button type="button" data-go="video">${svg('play')}${T(['Vídeo','Video','Video'])}</button></div>`;
   $('#skGo').textContent=T(['Toque para entrar','Tap to enter','Toque para entrar']);$('#skGoS').textContent=T(['Experiência com som','Experience with sound','Experiencia con sonido']);$('#skSkip').textContent=T(['Pular ›','Skip ›','Saltar ›']);$('#skTk').textContent=T(['Aproximação','Approach','Aproximación']);
   dock();kpis()}
@@ -3321,7 +3344,7 @@ const _sv=window.showView;let run=0;
 window.showView=function(v){_sv(v);d.body.classList.toggle('skhome',v==='home');d.querySelectorAll('#skDock button').forEach(b=>b.classList.toggle('on',b.dataset.v===v||(b.dataset.v==='+'&&!MOB.includes(v))));$('#skSheet').classList.remove('on');$('#skTip').classList.remove('in');
   if(v==='tour'){skFit();requestAnimationFrame(()=>requestAnimationFrame(skFit));if(!TOUR.f){PS.auto=true;try{renderTourPanel()}catch(e){}}}
   if(v==='home'){layout();const h=$('#view-home');if(!h.classList.contains('s3'))h.classList.add('s1','s2','s3')}};
-function go(v){audio();sfx.tick();if(v==='ptour')return ptStart();if(v==='vtour')return vtStart();if(v==='ltour'){showView('local');const f=$('#view-local iframe');const k=()=>{try{f.contentWindow.__MAPTOUR()}catch(e){setTimeout(k,400)}};try{if(f.requestFullscreen)f.requestFullscreen().catch(()=>{})}catch(e){}setTimeout(k,500);return}if(v==='video'){tk('video_apresentacao');const m=$('#skVid'),x=$('#skVidV');if(!x.src)x.src=CFG.base+'apresentacao.mp4';m.classList.add('on');const p=x.play();if(p&&p.catch)p.catch(()=>{});return}if(v==='local'&&d.body.classList.contains('skhome'))return fly();showView(v)}
+function go(v){audio();sfx.tick();if(v==='keynote'){if(window.KN)KN.open('ver');return}if(v==='ptour')return ptStart();if(v==='vtour')return vtStart();if(v==='ltour'){showView('local');const f=$('#view-local iframe');const k=()=>{try{f.contentWindow.__MAPTOUR()}catch(e){setTimeout(k,400)}};try{if(f.requestFullscreen)f.requestFullscreen().catch(()=>{})}catch(e){}setTimeout(k,500);return}if(v==='video'){tk('video_apresentacao');const m=$('#skVid'),x=$('#skVidV');if(!x.src)x.src=CFG.base+'apresentacao.mp4';m.classList.add('on');const p=x.play();if(p&&p.catch)p.catch(()=>{});return}if(v==='local'&&d.body.classList.contains('skhome'))return fly();showView(v)}
 async function fly(){const my=++run,f=$('#skFly');$('#skFlyK').textContent=T(['Localização','Location','Ubicación']);$('#skFlyH').innerHTML=T(['Porto Belo, <em>na entrada da cidade</em>','Porto Belo, <em>at the city gateway</em>','Porto Belo, <em>en la entrada de la ciudad</em>']);
   f.classList.remove('in','out');f.classList.add('on');layout();sfx.whoosh();flash();await sleep(60);f.classList.add('in');await sleep(2300);if(my!==run)return;showView('local');f.classList.add('out');await sleep(620);f.classList.remove('on','in','out')}
 $('#skDock').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.v==='+'){audio();sfx.tick();dock();$('#skSheet').classList.add('on');return}go(b.dataset.v)};
@@ -3522,7 +3545,7 @@ function start(){texts();layout();
   /* link de apresentação ao cliente ou atalho direto para uma aba: não mexe na tela que a página já abriu */
   if(d.body.classList.contains('present')||/^#(galeria|docs|tabela)|[#&]ap=/.test(location.hash||'')){dock();return}
   let seen=null;try{seen=localStorage.getItem('sk-open')}catch(e){}
-  if(CFG.always||!seen||/[?&]abertura\b/.test(location.search||''))opening();else showView('home')}
+  const cont=()=>{if(CFG.always||!seen||/[?&]abertura\b/.test(location.search||''))opening();else showView('home')};if(window.KN&&KN.need())KN.open('porta',cont);else cont()}
 if($('#gate')&&!d.body.classList.contains('present')){showView('home');const mo=new MutationObserver(()=>{if(!$('#gate')){mo.disconnect();start()}});mo.observe(d.body,{childList:true});texts();layout()}else start();
 H.classList.add('skr');
 })();
